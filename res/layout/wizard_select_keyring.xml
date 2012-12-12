@@ -7,7 +7,6 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
         android:text="@string/wizard_select_keyring_intro"
         android:textSize="16sp" />
 

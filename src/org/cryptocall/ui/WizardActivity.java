@@ -291,6 +291,42 @@ public class WizardActivity extends SherlockFragmentActivity {
         boolean result = mApgIntentHelper.onActivityResult(requestCode, resultCode, data, mApgData);
         if (result) {
             switch (mCurrentScreen) {
+            case SCREEN_GENERATE_KEYRING_INPUT:
+                if (resultCode == Activity.RESULT_OK) {
+                    Log.d(Constants.TAG, mApgData.toString());
+                    long generatedKeyId = mApgData.getSecretKeyId();
+                    String generatedUserId = mApgData.getSecretKeyUserId();
+
+                    // TODO: handle keys with many user ids
+
+                    String[] split = ApgUtil.splitUserId(generatedUserId);
+                    String generatedEmail = split[1];
+                    Log.d(Constants.TAG, "generatedEmail: " + generatedEmail);
+                    byte[] generatedSalt = ProtectedEmailUtils
+                            .getSaltFromProtectedEmail(generatedEmail);
+
+                    EditText inputNumberEdit = (EditText) findViewById(R.id.wizard_generate_keyring_telephone_number);
+
+                    String inputNumber = inputNumberEdit.getText().toString();
+                    Log.d(Constants.TAG, "inputNumber: " + inputNumber);
+                    String protectedInputEmail = ProtectedEmailUtils.generateProtectedEmail(
+                            inputNumber, generatedSalt);
+                    Log.d(Constants.TAG, "protectedInputEmail: " + protectedInputEmail);
+
+                    if (generatedEmail.equals(protectedInputEmail)) {
+                        mMasterKeyId = generatedKeyId;
+                        mProtectedEmail = generatedEmail;
+                        mTelephoneNumber = inputNumber;
+
+                        mCurrentScreen = SCREEN_SUCCESS;
+                        // success fragment is handled in onResume, due to android bug
+                        // http://stackoverflow.com/questions/10114324/show-dialogfragment-from-onactivityresult
+                    } else {
+                        Toast.makeText(this, R.string.wizard_error_not_matching, Toast.LENGTH_LONG)
+                                .show();
+                    }
+                }
+                break;
             case SCREEN_SELECT_KEYRING:
                 if (resultCode == Activity.RESULT_OK) {
                     Log.d(Constants.TAG, mApgData.toString());
@@ -319,7 +355,7 @@ public class WizardActivity extends SherlockFragmentActivity {
                         mTelephoneNumber = inputNumber;
 
                         mCurrentScreen = SCREEN_SUCCESS;
-                        // success fragment is shown onResume, due to android bug
+                        // success fragment is handled in onResume, due to android bug
                         // http://stackoverflow.com/questions/10114324/show-dialogfragment-from-onactivityresult
                     } else {
                         Toast.makeText(this, R.string.wizard_error_not_matching, Toast.LENGTH_LONG)
