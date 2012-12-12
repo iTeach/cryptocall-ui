@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:descendantFocusability="blocksDescendants"
+    android:orientation="horizontal"
+    android:paddingLeft="5dip" >
+
+    <!-- android:descendantFocusability="blocksDescendants" is important to allow clicks on call image -->
+    <!-- focusable and clickable MUST be false to handle click and longClick in ListView Activity -->
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_weight="1"
+        android:focusable="true"
+        android:orientation="vertical"
+        android:paddingBottom="2dip"
+        android:paddingTop="2dip" >
+
+        <TextView
+            android:id="@+id/base_contacts_list_name"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="marquee"
+            android:singleLine="true"
+            android:text="emty"
+            android:textColor="@android:color/primary_text_dark"
+            android:textSize="22dip" />
+
+        <TextView
+            android:id="@+id/base_contacts_list_number"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="marquee"
+            android:singleLine="true"
+            android:text="emty" />
+    </LinearLayout>
+    <!-- Divider -->
+
+    <ImageView
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="wrap_content"
+        android:layout_height="fill_parent"
+        android:paddingBottom="2dp"
+        android:paddingLeft="5dp"
+        android:paddingTop="2dp"
+        android:scaleType="fitXY"
+        android:src="@android:drawable/divider_horizontal_bright" />
+
+    <ImageButton
+        android:id="@+id/base_contacts_list_call_image"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="0"
+        android:background="@android:drawable/list_selector_background"
+        android:padding="15dip"
+        android:src="@drawable/call_contact" >
+    </ImageButton>
+
+</LinearLayout>

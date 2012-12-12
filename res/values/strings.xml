@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">CryptoCall</string>
+    <string name="app_subtitle">E2E Encrypted Calls</string>
+
+    <!-- Base Menu -->
+    <string name="base_information_fragment_key">Key:</string>
+    <string name="base_information_fragment_tel">Tel. Numbers:</string>
+    <string name="base_menu_about">About</string>
+    <string name="base_menu_debug">Debug</string>
+    <string name="base_menu_preferences">Preferences</string>
+    <string name="base_menu_scan_barcode">Scan Barcode</string>
+    <string name="base_menu_help">Help</string>
+
+    <!-- Wizard -->
+    <string name="wizard_nickname">Nickname:</string>
+    <string name="wizard_telephone_number">Telephone number (with international prefix, e.g., +49):</string>
+    <string name="wizard_protected_email">PGP Email:</string>
+    <string name="wizard_intro">This is the first time you started CryptoCall.\n\nHow do you want to proceed?</string>
+    <string name="wizard_generate_keyring_intro">Please enter a nickname for CryptoCall and correct your phone number if it is not retrieved correctly.\n\nAfter clicking Next, APG will present the new keyring for verification. Please click Save.</string>
+    <string name="wizard_generate_keyring_radio">Generate PGP keyring (recommended)</string>
+    <string name="wizard_select_keyring_radio">Select existing PGP keyring with CryptoCall ID (@cryptocall.org) and for this telephone number</string>
+    <string name="wizard_select_keyring_intro">Please correct your phone number if it is not retrieved correctly.\n\nAfter clicking Next, you have to select your existing keyring matching to your entered telephone number.</string>
+    <string name="wizard_success_intro">Congratulations. The first time wizard was successful!</string>
+    <string name="wizard_error_not_international">Not a valid international telephone number!</string>
+    <string name="wizard_error_not_matching">Your entered telephone number does not match to the selected keyring! Please correct your choices!</string>
+    <string name="wizard_error_blank">Please insert text!</string>
+
+    <!-- Dialogs -->
+    <string name="no_barcode_scanner_title">Install Barcode Scanner?</string>
+    <string name="no_barcode_scanner">This application requires Barcode Scanner. Wouldyou like to install it?</string>
+    <string name="status_service_notification_title">CryptoCall</string>
+    <string name="status_service_notification_text_on">CryptoCall is enabled</string>
+    <string name="status_service_notification_start">CryptoCall is enabled!</string>
+
+    <!-- Buttons -->
+    <string name="button_yes">Yes</string>
+    <string name="button_no">No</string>
+    <string name="button_cancel">Cancel</string>
+    <string name="button_back">Back</string>
+    <string name="button_next">Next</string>
+    <string name="button_finish">Finish</string>
+
+    <!-- Help -->
+    <string name="help_tab_faq">FAQ</string>
+    <string name="help_tab_problems">Problems</string>
+
+    <!-- Activities -->
+    <string name="activity_help_label">Help</string>
+    <string name="activity_call_label">Call</string>
+    <string name="activity_debug_label">Debug</string>
+    <string name="activity_wizard_label">First time wizard</string>
+
+    <!-- Base -->
+    <string name="show_contact_call">Call with CryptoCall</string>
+    <string name="show_contact_android_contact">Open Android Contact</string>
+    <string name="activity_show_contact_label">Contact</string>
+    <string name="base_tab_contacts">Contacts</string>
+    <string name="base_tab_information">Information</string>
+    <string name="base_contacts_list_emty">No contacts with @crytocall.org email address!</string>
+
+</resources>

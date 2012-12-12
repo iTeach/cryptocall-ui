@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="pref_pgp_email_key">pgpEmail</string>
+    <string name="pref_pgp_masterkeyid_key">pgpMasterKeyId</string>
+    <string name="pref_telephone_number_key">telephoneNumber</string>
+
+    <item name="pref_telephone_number_def" format="string" type="string"></item>
+
+    <string name="pref_first_start_key">firstStart</string>
+
+    <item name="pref_first_start_def" format="boolean" type="string">true</item>
+
+</resources>
