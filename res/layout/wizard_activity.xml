@@ -3,18 +3,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
-
-        <LinearLayout
-            android:id="@+id/wizard_fragment_container"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="6dp" />
-    </ScrollView>
-
     <LinearLayout
         android:id="@+id/wizard_buttons"
         android:layout_width="match_parent"
@@ -49,9 +37,23 @@
     </LinearLayout>
 
     <View
+        android:id="@+id/wizard_buttons_line"
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:layout_above="@+id/wizard_buttons"
         android:background="#808080" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/wizard_buttons_line" >
+
+        <LinearLayout
+            android:id="@+id/wizard_fragment_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="6dp" />
+    </ScrollView>
 
 </RelativeLayout>

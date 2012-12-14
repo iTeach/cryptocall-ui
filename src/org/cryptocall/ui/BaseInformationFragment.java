@@ -21,38 +21,41 @@
 
 package org.cryptocall.ui;
 
+import java.util.List;
+
+import org.cryptocall.CryptoCallApplication;
 import org.cryptocall.R;
 
+import org.cryptocall.util.Constants;
+import org.cryptocall.util.Log;
+import org.cryptocall.util.PreferencesHelper;
 import org.cryptocall.util.QrCodeUtils;
+import org.thialfihar.android.apg.service.IApgKeyService;
+import org.thialfihar.android.apg.service.handler.IApgGetKeyringsHandler;
 
 import android.app.Activity;
-
-import android.content.Context;
 import android.graphics.Bitmap;
-
 import android.os.Bundle;
+import android.os.RemoteException;
 import android.support.v4.app.Fragment;
-
-import android.telephony.TelephonyManager;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.ToggleButton;
 
 public class BaseInformationFragment extends Fragment {
     private Activity mActivity;
+    private CryptoCallApplication mApplication;
+    private IApgKeyService mIApgKeyService;
+
     private TextView mKeyTextView;
     private TextView mTelTextView;
+    private TextView mPgpMailTextView;
     private ImageView mQrCodeImageView;
 
     private Bitmap mQrCodeBitmap;
-
-    // Toggle Button to enable CryptoCall
-    ToggleButton mEnableCryptoCallToggleButton;
 
     /**
      * Inflate the layout for this fragment
@@ -62,8 +65,9 @@ public class BaseInformationFragment extends Fragment {
         final View view = inflater.inflate(R.layout.base_information_fragment, container, false);
 
         // get views
-        mKeyTextView = (TextView) view.findViewById(R.id.base_information_fragment_key);
         mTelTextView = (TextView) view.findViewById(R.id.base_information_fragment_tel);
+        mPgpMailTextView = (TextView) view.findViewById(R.id.base_information_fragment_pgp_mail);
+        mKeyTextView = (TextView) view.findViewById(R.id.base_information_fragment_key);
         mQrCodeImageView = (ImageView) view.findViewById(R.id.base_information_fragment_qr);
 
         mQrCodeImageView.setOnClickListener(new OnClickListener() {
@@ -95,35 +99,59 @@ public class BaseInformationFragment extends Fragment {
     public void onResume() {
         super.onResume();
 
-        updateView();
+        // get public keyring for qr code
+        try {
+            mIApgKeyService.getPublicKeyRings(
+                    new long[] { PreferencesHelper.getPgpMasterKeyId(mActivity) }, true,
+                    getPublicKeyringHandler);
+        } catch (RemoteException e) {
+            Log.e(Constants.TAG, "RemoteException", e);
+        }
+
+        // set textview from preferenes
+        mTelTextView.setText(PreferencesHelper.getTelephoneNumber(mActivity));
+        mPgpMailTextView.setText(PreferencesHelper.getPgpEmail(mActivity));
+        mKeyTextView.setText("" + PreferencesHelper.getPgpMasterKeyId(mActivity));
+
+        Log.d(Constants.TAG,
+                "PreferencesHelper.getPgpMasterKeyId(mActivity)"
+                        + PreferencesHelper.getPgpMasterKeyId(mActivity));
     }
 
-    public void updateView() {
-        mActivity = getActivity();
+    private final IApgGetKeyringsHandler.Stub getPublicKeyringHandler = new IApgGetKeyringsHandler.Stub() {
 
-        TelephonyManager tMgr = (TelephonyManager) mActivity
-                .getSystemService(Context.TELEPHONY_SERVICE);
-        mTelTextView.setText(tMgr.getLine1Number());
+        @Override
+        public void onException(final int exceptionId, final String message) throws RemoteException {
+            mActivity.runOnUiThread(new Runnable() {
+                public void run() {
+                    Log.e(Constants.TAG, "exc" + message);
+                }
+            });
+        }
 
-        // populate qrcode representation
-        mQrCodeBitmap = QrCodeUtils.getQRCodeBitmap("asfdsqodwqodwqdoiuwqoiduwqodiwudqoiqwudoiduw",
-                256);
-        mQrCodeImageView.setImageBitmap(mQrCodeBitmap);
-    }
+        @Override
+        public void onSuccess(final byte[] outputBytes, final List<String> outputStrings)
+                throws RemoteException {
+            mActivity.runOnUiThread(new Runnable() {
+                public void run() {
+                    String keyring = outputStrings.get(0);
 
-    /**
-     * Called when the activity is first created.
-     */
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        mActivity = getActivity();
-    }
+                    // populate qrcode representation
+                    mQrCodeBitmap = QrCodeUtils.getQRCodeBitmap(keyring, 1000);
+                    mQrCodeImageView.setImageBitmap(mQrCodeBitmap);
+                }
+            });
+
+        }
+
+    };
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mActivity = getActivity();
+        mApplication = (CryptoCallApplication) getActivity().getApplication();
 
+        mIApgKeyService = mApplication.getApgKeyService();
     }
 }

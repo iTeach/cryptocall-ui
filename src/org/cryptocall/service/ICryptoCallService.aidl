@@ -18,32 +18,17 @@
  * along with CryptoCall.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+ 
+package org.cryptocall.service;
 
-package org.cryptocall;
+import org.cryptocall.service.handler.ICryptoCallGetTrustedPublicKeysHandler;
 
-import org.cryptocall.service.ApgKeyServiceConnection;
-import org.thialfihar.android.apg.service.IApgKeyService;
+/**
+ * All methods are oneway, which means they are asynchronous and non-blocking.
+ * Results are returned into given Handler, which has to be implemented on client side.
+ */
+interface ICryptoCallService {
 
-import android.app.Application;
-
-public class CryptoCallApplication extends Application {
-    public final ApgKeyServiceConnection mApgKeyServiceConnection = new ApgKeyServiceConnection(this);
-
-    @Override
-    public void onCreate() {
-        super.onCreate();
-
-        // Apg service
-        mApgKeyServiceConnection.bindToApgService();
-    }
-    
-    public IApgKeyService getApgKeyService() {
-        return mApgKeyServiceConnection.getService();
-    }
-
-    @Override
-    public void onTerminate() {
-
-    }
+    oneway void getTrustedPublicKeys(in ICryptoCallGetTrustedPublicKeysHandler handler);
 
 }

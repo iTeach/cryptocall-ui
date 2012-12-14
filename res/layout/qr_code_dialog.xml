@@ -3,8 +3,9 @@
 <ImageView
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	android:id="@+id/qr_dialog_view"
-	android:layout_width="256dp"
-	android:layout_height="256dp"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+    android:adjustViewBounds="true"
 	android:scaleType="centerInside"
 	android:background="@android:color/white"
 	android:keepScreenOn="true" />

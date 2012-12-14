@@ -5,12 +5,13 @@
     <string name="app_subtitle">E2E Encrypted Calls</string>
 
     <!-- Base Menu -->
-    <string name="base_information_fragment_key">Key:</string>
-    <string name="base_information_fragment_tel">Tel. Numbers:</string>
+    <string name="base_information_fragment_key">Key Id:</string>
+    <string name="base_information_fragment_tel">Telephone Number:</string>
+    <string name="base_information_fragment_pgp_mail">PGP Email:</string>
     <string name="base_menu_about">About</string>
     <string name="base_menu_debug">Debug</string>
     <string name="base_menu_preferences">Preferences</string>
-    <string name="base_menu_scan_barcode">Scan Barcode</string>
+    <string name="base_menu_scan_barcode">Scan QR Code</string>
     <string name="base_menu_help">Help</string>
 
     <!-- Wizard -->

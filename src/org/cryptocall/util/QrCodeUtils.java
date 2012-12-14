@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Sergej Dechand <cryptocall@serj.de>
+ * Copyright (C) 2012 Sergej Dechand <cryptocall@serj.de>
  *                    Dominik Schürmann <dominik@dominikschuermann.de>
  * 
  * This file is part of CryptoCall.
@@ -27,7 +27,6 @@ import org.cryptocall.R;
 
 import android.app.Activity;
 import android.app.Dialog;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.view.View;
@@ -39,8 +38,6 @@ import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;
 import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
-import com.google.zxing.integration.android.IntentIntegrator;
-import com.google.zxing.integration.android.IntentResult;
 import com.google.zxing.qrcode.QRCodeWriter;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 
@@ -59,7 +56,7 @@ public class QrCodeUtils {
     public static Bitmap getQRCodeBitmap(final String input, final int size) {
         try {
             final Hashtable<EncodeHintType, Object> hints = new Hashtable<EncodeHintType, Object>();
-            hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.H);
+            hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.L);
             final BitMatrix result = QR_CODE_WRITER.encode(input, BarcodeFormat.QR_CODE, size,
                     size, hints);
 
@@ -101,34 +98,4 @@ public class QrCodeUtils {
         });
     }
 
-    /**
-     * Starts Scanning of Barcode with Barcode Scanner App, if Barcode Scanner is not installed
-     * requests install of it, done by using IntentIntegrator from Barcode Scanner
-     * 
-     * @param activity
-     */
-    public static void scanQrCode(Activity activity) {
-        IntentIntegrator.initiateScan(activity, R.string.no_barcode_scanner_title,
-                R.string.no_barcode_scanner, R.string.button_yes, R.string.button_no);
-    }
-
-    /**
-     * Return scanned QR Code as String, must be used in Activities onActivityResult(), done by
-     * using IntentIntegrator from Barcode Scanner
-     * 
-     * @param requestCode
-     * @param resultCode
-     * @param intent
-     * @return QR Code content as String
-     */
-    public static String returnQrCodeOnActivityResult(int requestCode, int resultCode, Intent intent) {
-        IntentResult scanResult = IntentIntegrator.parseActivityResult(requestCode, resultCode,
-                intent);
-
-        if (scanResult != null) {
-            return scanResult.getContents();
-        } else {
-            return null;
-        }
-    }
 }

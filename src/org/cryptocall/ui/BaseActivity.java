@@ -21,11 +21,9 @@
 
 package org.cryptocall.ui;
 
-import org.cryptocall.CryptoCallApplication;
 import org.cryptocall.R;
-import org.cryptocall.util.Constants;
 import org.cryptocall.util.PreferencesHelper;
-import org.cryptocall.util.QrCodeUtils;
+import org.thialfihar.android.apg.integration.ApgIntentHelper;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -34,8 +32,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.util.Log;
-import android.widget.TabHost;
 
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
@@ -46,13 +42,12 @@ import com.actionbarsherlock.app.SherlockFragmentActivity;
 
 public class BaseActivity extends SherlockFragmentActivity {
     private Activity mActivity;
-    private CryptoCallApplication mApplication;
-    private BaseInformationFragment mBaseFragment;
 
-    private TabHost mTabHost;
     private ActionBar mActionBar;
     private ActionBar.Tab mTab1;
     private ActionBar.Tab mTab2;
+
+    private ApgIntentHelper mApgIntentHelper;
 
     /**
      * Inflate Menu
@@ -71,12 +66,9 @@ public class BaseActivity extends SherlockFragmentActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle item selection
         switch (item.getItemId()) {
-        case R.id.base_menu_preferences:
-            // startActivity(new Intent(mActivity, PrefsActivity.class));
-            return true;
 
         case R.id.base_menu_scan_barcode:
-            QrCodeUtils.scanQrCode(mActivity);
+            mApgIntentHelper.scanQrCode();
             return true;
 
         case R.id.base_menu_help:
@@ -85,19 +77,6 @@ public class BaseActivity extends SherlockFragmentActivity {
 
         default:
             return super.onOptionsItemSelected(item);
-        }
-    }
-
-    /**
-     * Result from Intents
-     */
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        String qrCodeContent = QrCodeUtils.returnQrCodeOnActivityResult(requestCode, resultCode,
-                intent);
-
-        if (qrCodeContent != null) {
-            Log.d(Constants.TAG, "qrCodeContent: " + qrCodeContent);
         }
     }
 
@@ -141,6 +120,8 @@ public class BaseActivity extends SherlockFragmentActivity {
 
         mActionBar.addTab(mTab1);
         mActionBar.addTab(mTab2);
+
+        mApgIntentHelper = new ApgIntentHelper(mActivity);
     }
 
     private static class TabListener<T extends Fragment> implements ActionBar.TabListener {

@@ -18,32 +18,13 @@
  * along with CryptoCall.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+ 
+package org.cryptocall.service.handler;
 
-package org.cryptocall;
+interface ICryptoCallGetTrustedPublicKeysHandler {
 
-import org.cryptocall.service.ApgKeyServiceConnection;
-import org.thialfihar.android.apg.service.IApgKeyService;
+    oneway void onSuccess(in List<String> trustedPublicKeys);
 
-import android.app.Application;
 
-public class CryptoCallApplication extends Application {
-    public final ApgKeyServiceConnection mApgKeyServiceConnection = new ApgKeyServiceConnection(this);
-
-    @Override
-    public void onCreate() {
-        super.onCreate();
-
-        // Apg service
-        mApgKeyServiceConnection.bindToApgService();
-    }
-    
-    public IApgKeyService getApgKeyService() {
-        return mApgKeyServiceConnection.getService();
-    }
-
-    @Override
-    public void onTerminate() {
-
-    }
-
+    oneway void onException(in int exceptionNumber, in String message);
 }

@@ -122,7 +122,7 @@ public class WizardActivity extends SherlockFragmentActivity {
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                 Bundle savedInstanceState) {
-            return inflater.inflate(R.layout.wizard_main, container, false);
+            return inflater.inflate(R.layout.wizard_main_fragment, container, false);
         }
     }
 
@@ -130,7 +130,8 @@ public class WizardActivity extends SherlockFragmentActivity {
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                 Bundle savedInstanceState) {
-            View view = inflater.inflate(R.layout.wizard_generate_keyring, container, false);
+            View view = inflater.inflate(R.layout.wizard_generate_keyring_fragment, container,
+                    false);
 
             // prefill telephone number if available
             EditText telephoneNumberEdit = (EditText) view
@@ -144,7 +145,7 @@ public class WizardActivity extends SherlockFragmentActivity {
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                 Bundle savedInstanceState) {
-            View view = inflater.inflate(R.layout.wizard_select_keyring, container, false);
+            View view = inflater.inflate(R.layout.wizard_select_keyring_fragment, container, false);
 
             // prefill telephone number if available
             EditText telephoneNumberEdit = (EditText) view
@@ -158,7 +159,7 @@ public class WizardActivity extends SherlockFragmentActivity {
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                 Bundle savedInstanceState) {
-            View view = inflater.inflate(R.layout.wizard_success, container, false);
+            View view = inflater.inflate(R.layout.wizard_success_fragment, container, false);
 
             TextView telephoneNumberTextView = (TextView) view
                     .findViewById(R.id.wizard_success_telephone_number);
