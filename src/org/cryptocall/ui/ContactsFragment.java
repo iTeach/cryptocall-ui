@@ -22,6 +22,7 @@
 package org.cryptocall.ui;
 
 import org.cryptocall.R;
+import org.cryptocall.util.Constants;
 import org.cryptocall.util.ContactsCursorAdapter;
 
 import com.actionbarsherlock.app.SherlockListFragment;
@@ -167,7 +168,7 @@ public class ContactsFragment extends SherlockListFragment implements
         // String select = "((" + Contacts.DISPLAY_NAME + " NOTNULL))";
 
         // select only Contacts with email like 12345@cryptocall.org
-        String select = Email.DATA + " LIKE '%@cryptocall.org'";
+        String select = Email.DATA + " LIKE '%" + Constants.CRYPTOCALL_DOMAIN + "'";
 
         return new CursorLoader(mActivity, Email.CONTENT_URI, CONTACTS_SUMMARY_PROJECTION, select,
                 null, Contacts.DISPLAY_NAME + " COLLATE LOCALIZED ASC");

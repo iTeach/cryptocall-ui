@@ -21,8 +21,13 @@
 
 package org.cryptocall.ui;
 
+import java.util.Arrays;
+
 import org.cryptocall.R;
+import org.cryptocall.util.Constants;
+import org.cryptocall.util.Log;
 import org.cryptocall.util.PreferencesHelper;
+import org.thialfihar.android.apg.integration.ApgContentProviderHelper;
 import org.thialfihar.android.apg.integration.ApgIntentHelper;
 
 import android.app.Activity;
@@ -73,6 +78,10 @@ public class BaseActivity extends SherlockFragmentActivity {
 
         case R.id.base_menu_help:
             startActivity(new Intent(mActivity, HelpActivity.class));
+            return true;
+
+        case R.id.base_menu_preferences:
+            startActivity(new Intent(mActivity, WizardActivity.class));
             return true;
 
         default:

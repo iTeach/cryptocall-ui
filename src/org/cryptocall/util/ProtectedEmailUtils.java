@@ -33,14 +33,16 @@ import android.telephony.PhoneNumberUtils;
 import android.util.Base64;
 
 public class ProtectedEmailUtils {
-    static final int iterationCount = 1000;
-    static final int saltLength = 8; // bytes; 64 bits
-    static final int keyLength = 256;
-    static final String DOMAIN = "cryptocall.org";
+    static final int VERSION_NR = 1;
+
+    // Change version number on parameter changes
+    static final int PBKDF2_ITERATION_COUNT = 1000;
+    static final int PBKDF2_SALT_LENGTH = 8; // bytes; 64 bits
+    static final int PBKDF2_KEY_LENGTH = 256;
 
     /**
      * Out of a phone number like "+491609999999", this produces a Base64 encoded
-     * "salt+hash@cryptocall.org" using PBKDF2 with HMAC, SHA1
+     * "versionNr+salt+hash@cryptocall.org" using PBKDF2 with HMAC, SHA1
      * 
      * @param internationalPhoneNumber
      * @return
@@ -64,7 +66,7 @@ public class ProtectedEmailUtils {
 
         // http://nelenkov.blogspot.de/2012/04/using-password-based-encryption-on.html
         KeySpec keySpec = new PBEKeySpec(internationalPhoneNumber.toCharArray(), salt,
-                iterationCount, keyLength);
+                PBKDF2_ITERATION_COUNT, PBKDF2_KEY_LENGTH);
         SecretKeyFactory keyFactory;
         try {
             keyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
@@ -82,7 +84,7 @@ public class ProtectedEmailUtils {
             Log.e(Constants.TAG, "InvalidKeySpecException", e);
         }
 
-        String email = output + "@" + DOMAIN;
+        String email = VERSION_NR + "+" + output + Constants.CRYPTOCALL_DOMAIN;
 
         Log.d(Constants.TAG, "protected email: " + email);
 
@@ -98,20 +100,32 @@ public class ProtectedEmailUtils {
      */
     public static String generateProtectedEmail(String internationalPhoneNumber) {
         SecureRandom random = new SecureRandom();
-        byte[] salt = new byte[saltLength];
+        byte[] salt = new byte[PBKDF2_SALT_LENGTH];
         random.nextBytes(salt);
 
         return generateProtectedEmail(internationalPhoneNumber, salt);
     }
 
-    public static byte[] getSaltFromProtectedEmail(String email) {
-        int atIndex = email.indexOf("@");
-        String hasedPhoneNumber = email.substring(0, atIndex);
-        
-        int plusIndex = hasedPhoneNumber.indexOf("+");
-        String saltStr = hasedPhoneNumber.substring(0, plusIndex);
+    public static byte[] getSaltFromProtectedEmail(String email) throws Exception {
+        try {
+            int atIndex = email.indexOf("@");
+            String protectedPhoneNumber = email.substring(0, atIndex);
 
-        return Base64.decode(saltStr, Base64.NO_PADDING | Base64.NO_WRAP | Base64.URL_SAFE);
+            int plusIndex0 = protectedPhoneNumber.indexOf("+");
+
+            String versionNr = protectedPhoneNumber.substring(0, plusIndex0);
+            Log.d(Constants.TAG, "versionNr: " + versionNr);
+            String withoutVersion = protectedPhoneNumber.substring(plusIndex0 + 1);
+
+            int plusIndex1 = withoutVersion.indexOf("+");
+            Log.d(Constants.TAG, "withoutVersion: " + withoutVersion);
+
+            String saltStr = withoutVersion.substring(0, plusIndex1);
+            Log.d(Constants.TAG, "salt: " + saltStr);
+
+            return Base64.decode(saltStr, Base64.NO_PADDING | Base64.NO_WRAP | Base64.URL_SAFE);
+        } catch (Exception e) {
+            throw new Exception("Parsing problem! Not supported email: " + email);
+        }
     }
-
 }

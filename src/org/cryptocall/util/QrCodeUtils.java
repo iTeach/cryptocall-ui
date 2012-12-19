@@ -74,8 +74,8 @@ public class QrCodeUtils {
             final Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
             bitmap.setPixels(pixels, 0, width, 0, 0, width, height);
             return bitmap;
-        } catch (final WriterException x) {
-            x.printStackTrace();
+        } catch (final WriterException e) {
+            Log.e(Constants.TAG, "Exception while generating QR Code!", e);
             return null;
         }
     }

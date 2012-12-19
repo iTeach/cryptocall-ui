@@ -303,29 +303,35 @@ public class WizardActivity extends SherlockFragmentActivity {
                     String[] split = ApgUtil.splitUserId(generatedUserId);
                     String generatedEmail = split[1];
                     Log.d(Constants.TAG, "generatedEmail: " + generatedEmail);
-                    byte[] generatedSalt = ProtectedEmailUtils
-                            .getSaltFromProtectedEmail(generatedEmail);
+                    byte[] generatedSalt;
+                    try {
+                        generatedSalt = ProtectedEmailUtils
+                                .getSaltFromProtectedEmail(generatedEmail);
 
-                    EditText inputNumberEdit = (EditText) findViewById(R.id.wizard_generate_keyring_telephone_number);
+                        EditText inputNumberEdit = (EditText) findViewById(R.id.wizard_generate_keyring_telephone_number);
 
-                    String inputNumber = inputNumberEdit.getText().toString();
-                    Log.d(Constants.TAG, "inputNumber: " + inputNumber);
-                    String protectedInputEmail = ProtectedEmailUtils.generateProtectedEmail(
-                            inputNumber, generatedSalt);
-                    Log.d(Constants.TAG, "protectedInputEmail: " + protectedInputEmail);
+                        String inputNumber = inputNumberEdit.getText().toString();
+                        Log.d(Constants.TAG, "inputNumber: " + inputNumber);
+                        String protectedInputEmail = ProtectedEmailUtils.generateProtectedEmail(
+                                inputNumber, generatedSalt);
+                        Log.d(Constants.TAG, "protectedInputEmail: " + protectedInputEmail);
 
-                    if (generatedEmail.equals(protectedInputEmail)) {
-                        mMasterKeyId = generatedKeyId;
-                        mProtectedEmail = generatedEmail;
-                        mTelephoneNumber = inputNumber;
+                        if (generatedEmail.equals(protectedInputEmail)) {
+                            mMasterKeyId = generatedKeyId;
+                            mProtectedEmail = generatedEmail;
+                            mTelephoneNumber = inputNumber;
 
-                        mCurrentScreen = SCREEN_SUCCESS;
-                        // success fragment is handled in onResume, due to android bug
-                        // http://stackoverflow.com/questions/10114324/show-dialogfragment-from-onactivityresult
-                    } else {
-                        Toast.makeText(this, R.string.wizard_error_not_matching, Toast.LENGTH_LONG)
-                                .show();
+                            mCurrentScreen = SCREEN_SUCCESS;
+                            // success fragment is handled in onResume, due to android bug
+                            // http://stackoverflow.com/questions/10114324/show-dialogfragment-from-onactivityresult
+                        } else {
+                            Toast.makeText(this, R.string.wizard_error_not_matching,
+                                    Toast.LENGTH_LONG).show();
+                        }
+                    } catch (Exception e) {
+                        Log.e(Constants.TAG, "Parsing problem!", e);
                     }
+
                 }
                 break;
             case SCREEN_SELECT_KEYRING:
@@ -339,29 +345,34 @@ public class WizardActivity extends SherlockFragmentActivity {
                     String[] split = ApgUtil.splitUserId(selectedUserId);
                     String selectedEmail = split[1];
                     Log.d(Constants.TAG, "selectedEmail: " + selectedEmail);
-                    byte[] selectedSalt = ProtectedEmailUtils
-                            .getSaltFromProtectedEmail(selectedEmail);
+                    byte[] selectedSalt;
+                    try {
+                        selectedSalt = ProtectedEmailUtils.getSaltFromProtectedEmail(selectedEmail);
 
-                    EditText inputNumberEdit = (EditText) findViewById(R.id.wizard_select_keyring_telephone_number);
+                        EditText inputNumberEdit = (EditText) findViewById(R.id.wizard_select_keyring_telephone_number);
 
-                    String inputNumber = inputNumberEdit.getText().toString();
-                    Log.d(Constants.TAG, "inputNumber: " + inputNumber);
-                    String protectedInputEmail = ProtectedEmailUtils.generateProtectedEmail(
-                            inputNumber, selectedSalt);
-                    Log.d(Constants.TAG, "protectedInputEmail: " + protectedInputEmail);
+                        String inputNumber = inputNumberEdit.getText().toString();
+                        Log.d(Constants.TAG, "inputNumber: " + inputNumber);
+                        String protectedInputEmail = ProtectedEmailUtils.generateProtectedEmail(
+                                inputNumber, selectedSalt);
+                        Log.d(Constants.TAG, "protectedInputEmail: " + protectedInputEmail);
 
-                    if (selectedEmail.equals(protectedInputEmail)) {
-                        mMasterKeyId = selectedKeyId;
-                        mProtectedEmail = selectedEmail;
-                        mTelephoneNumber = inputNumber;
+                        if (selectedEmail.equals(protectedInputEmail)) {
+                            mMasterKeyId = selectedKeyId;
+                            mProtectedEmail = selectedEmail;
+                            mTelephoneNumber = inputNumber;
 
-                        mCurrentScreen = SCREEN_SUCCESS;
-                        // success fragment is handled in onResume, due to android bug
-                        // http://stackoverflow.com/questions/10114324/show-dialogfragment-from-onactivityresult
-                    } else {
-                        Toast.makeText(this, R.string.wizard_error_not_matching, Toast.LENGTH_LONG)
-                                .show();
+                            mCurrentScreen = SCREEN_SUCCESS;
+                            // success fragment is handled in onResume, due to android bug
+                            // http://stackoverflow.com/questions/10114324/show-dialogfragment-from-onactivityresult
+                        } else {
+                            Toast.makeText(this, R.string.wizard_error_not_matching,
+                                    Toast.LENGTH_LONG).show();
+                        }
+                    } catch (Exception e) {
+                        Log.e(Constants.TAG, "Parsing problem!", e);
                     }
+
                 }
                 break;
 

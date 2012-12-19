@@ -21,7 +21,6 @@
 
 package org.cryptocall.util;
 
-import org.cryptocall.CryptoCallApplication;
 import org.cryptocall.R;
 
 import android.content.Context;
@@ -74,7 +73,7 @@ public class ContactsCursorAdapter extends SimpleCursorAdapter {
                 // get email from tag
                 String email = (String) v.getTag();
 
-                //TODO: start intent?
+                // TODO: start intent?
             }
         });
     }

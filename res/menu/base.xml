@@ -13,5 +13,11 @@
         android:showAsAction="always|withText"
         android:title="@string/base_menu_help">
     </item>
+    <item
+        android:id="@+id/base_menu_preferences"
+        android:icon="@drawable/ic_menu_preferences"
+        android:showAsAction="ifRoom|withText"
+        android:title="@string/base_menu_preferences">
+    </item>
 
 </menu>

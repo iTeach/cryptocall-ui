@@ -9,6 +9,19 @@
         android:minSdkVersion="8"
         android:targetSdkVersion="17" />
 
+    <uses-feature
+        android:name="android.hardware.wifi"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.telephony"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.microphone"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.touchscreen"
+        android:required="false" />
+
     <uses-permission android:name="org.thialfihar.android.apg.permission.ACCESS_API" />
     <uses-permission android:name="org.thialfihar.android.apg.permission.ACCESS_KEYS" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
@@ -18,18 +31,18 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
 
-    <uses-feature
-        android:name="android.hardware.wifi"
-        android:required="false" />
-    <uses-feature
-        android:name="android.hardware.telephony"
-        android:required="false" />
-    <uses-feature
-        android:name="android.hardware.microphone"
-        android:required="true" />
-    <uses-feature
-        android:name="android.hardware.touchscreen"
-        android:required="false" />
+    <permission-group
+        android:name="org.cryptocall.permission-group.CRYPTOCALL"
+        android:description="@string/permission_group_description"
+        android:icon="@drawable/icon"
+        android:label="@string/permission_group_label" />
+
+    <permission
+        android:name="org.cryptocall.permission.ACCESS_KEYS"
+        android:description="@string/permission_access_keys_description"
+        android:label="@string/permission_access_keys_label"
+        android:permissionGroup="org.cryptocall.permission-group.CRYPTOCALL"
+        android:protectionLevel="dangerous" />
 
     <application
         android:name="CryptoCallApplication"
@@ -56,6 +69,21 @@
             android:name=".ui.WizardActivity"
             android:label="@string/activity_wizard_label" >
         </activity>
+
+        <service
+            android:name="org.cryptocall.service.CryptoCallService"
+            android:enabled="true"
+            android:exported="true"
+            android:permission="org.cryptocall.permission.ACCESS_KEYS"
+            android:process=":remote" >
+            <intent-filter>
+                <action android:name="org.cryptocall.service.ICryptoCallService" />
+            </intent-filter>
+
+            <meta-data
+                android:name="api_version"
+                android:value="1" />
+        </service>
     </application>
 
 </manifest>

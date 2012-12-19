@@ -21,9 +21,9 @@
  
 package org.cryptocall.service.handler;
 
-interface ICryptoCallGetTrustedPublicKeysHandler {
+interface ICryptoCallGetPublicKeyHandler {
 
-    oneway void onSuccess(in List<String> trustedPublicKeys);
+    oneway void onSuccess(in String publicKey);
 
 
     oneway void onException(in int exceptionNumber, in String message);

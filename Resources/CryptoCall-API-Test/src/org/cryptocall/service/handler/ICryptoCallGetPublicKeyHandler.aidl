@@ -18,19 +18,13 @@
  * along with CryptoCall.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+ 
+package org.cryptocall.service.handler;
 
-package org.cryptocall.util;
+interface ICryptoCallGetPublicKeyHandler {
 
-import java.util.regex.Pattern;
+    oneway void onSuccess(in String publicKey);
 
-public class Constants {
-    /* Debug constants */
-    public static final boolean DEBUG = true;
 
-    /* Tag for logging */
-    public static final String TAG = "CryptoCall";
-
-    public static final String PREFS_NAME = "preferences";
-    
-    public static final String CRYPTOCALL_DOMAIN = "@cryptocall.org";
+    oneway void onException(in int exceptionNumber, in String message);
 }
