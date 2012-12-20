@@ -21,15 +21,12 @@
 
 package org.cryptocall.ui;
 
-import org.cryptocall.CryptoCallApplication;
 import org.cryptocall.R;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract.Contacts;
-import android.support.v4.app.FragmentManager;
 import android.view.View;
 import android.widget.TextView;
 

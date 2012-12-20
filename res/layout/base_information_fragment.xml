@@ -73,6 +73,13 @@
                 android:singleLine="true"
                 android:textSize="16sp"
                 android:typeface="monospace" />
+
+            <Button
+                android:id="@+id/base_information_fragment_sync_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Sync!" />
+
         </LinearLayout>
     </RelativeLayout>
 

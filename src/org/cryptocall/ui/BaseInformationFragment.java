@@ -30,10 +30,12 @@ import org.cryptocall.util.Constants;
 import org.cryptocall.util.Log;
 import org.cryptocall.util.PreferencesHelper;
 import org.cryptocall.util.QrCodeUtils;
+import org.cryptocall.util.SyncContacts;
 import org.thialfihar.android.apg.service.IApgKeyService;
 import org.thialfihar.android.apg.service.handler.IApgGetKeyringsHandler;
 
 import android.app.Activity;
+import android.content.SyncContext;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.RemoteException;
@@ -42,6 +44,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -54,6 +57,7 @@ public class BaseInformationFragment extends Fragment {
     private TextView mTelTextView;
     private TextView mPgpMailTextView;
     private ImageView mQrCodeImageView;
+    private Button mSyncButton;
 
     private Bitmap mQrCodeBitmap;
 
@@ -69,10 +73,20 @@ public class BaseInformationFragment extends Fragment {
         mPgpMailTextView = (TextView) view.findViewById(R.id.base_information_fragment_pgp_mail);
         mKeyTextView = (TextView) view.findViewById(R.id.base_information_fragment_key);
         mQrCodeImageView = (ImageView) view.findViewById(R.id.base_information_fragment_qr);
+        mSyncButton = (Button) view.findViewById(R.id.base_information_fragment_sync_button);
 
         mQrCodeImageView.setOnClickListener(new OnClickListener() {
             public void onClick(final View v) {
                 QrCodeUtils.showQrCode(mActivity, mQrCodeBitmap);
+            }
+        });
+
+        mSyncButton.setOnClickListener(new OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                SyncContacts.syncContacts(mActivity);
+
             }
         });
 

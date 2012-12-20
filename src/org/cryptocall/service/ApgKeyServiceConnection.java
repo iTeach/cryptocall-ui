@@ -46,7 +46,7 @@ public class ApgKeyServiceConnection {
         return mService;
     }
 
-    private ServiceConnection mApgConnection = new ServiceConnection() {
+    private ServiceConnection mApgKeyConnection = new ServiceConnection() {
         public void onServiceConnected(ComponentName name, IBinder service) {
             mService = IApgKeyService.Stub.asInterface(service);
             Log.d(Constants.TAG, "ApgKeyServiceConnection: connected to service");
@@ -65,12 +65,12 @@ public class ApgKeyServiceConnection {
      * 
      * @return
      */
-    public boolean bindToApgService() {
+    public boolean bindToApgKeyService() {
         if (mService == null && !bound) { // if not already connected
             try {
                 Log.d(Constants.TAG, "ApgKeyServiceConnection: bindToIApgKeyService: not bound yet");
                 mApplication.bindService(new Intent(IApgKeyService.class.getName()),
-                        mApgConnection, Context.BIND_AUTO_CREATE);
+                        mApgKeyConnection, Context.BIND_AUTO_CREATE);
 
                 return true;
             } catch (Exception e) {
@@ -81,6 +81,10 @@ public class ApgKeyServiceConnection {
             Log.d(Constants.TAG, "ApgKeyServiceConnection: bindToApgService: already bound... ");
             return true;
         }
+    }
+
+    public void unbindFromApgKeyService() {
+        mApplication.unbindService(mApgKeyConnection);
     }
 
 }

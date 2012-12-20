@@ -78,7 +78,7 @@ public class ContactsFragment extends SherlockListFragment implements
 
         mAdapter = new ContactsCursorAdapter(mActivity, R.layout.base_contacts_list_item, null,
                 new String[] { Contacts.DISPLAY_NAME, Email.DATA }, new int[] {
-                        R.id.base_contacts_list_name, R.id.base_contacts_list_number }, 0);
+                        R.id.base_contacts_list_name, R.id.base_contacts_list_email }, 0);
         setListAdapter(mAdapter);
 
         // set design to fast scroll, meaning if many items are available show scroll slider

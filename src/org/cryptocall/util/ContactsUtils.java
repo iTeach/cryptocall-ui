@@ -32,6 +32,7 @@ public class ContactsUtils {
     static final String[] CONTACTS_SUMMARY_PROJECTION = new String[] { Contacts._ID,
             Contacts.DISPLAY_NAME, Email.DATA, Contacts.LOOKUP_KEY };
 
+    //TODO: Currently not used!
     public static String getName(Context context, String email) {
         String name = null;
         
@@ -50,10 +51,5 @@ public class ContactsUtils {
         cursor.close();
 
         return name;
-    }
-
-    public static String getPublicKey(String email) {
-        // TODO: implement
-        return "nope";
     }
 }

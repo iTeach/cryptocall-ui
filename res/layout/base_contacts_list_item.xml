@@ -25,17 +25,17 @@
             android:layout_height="wrap_content"
             android:ellipsize="marquee"
             android:singleLine="true"
-            android:text="emty"
+            android:text="empty"
             android:textColor="@android:color/primary_text_dark"
-            android:textSize="22dip" />
+            android:textSize="22sp" />
 
         <TextView
-            android:id="@+id/base_contacts_list_number"
+            android:id="@+id/base_contacts_list_email"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:ellipsize="marquee"
             android:singleLine="true"
-            android:text="emty" />
+            android:text="empty" />
     </LinearLayout>
     <!-- Divider -->
 

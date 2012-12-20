@@ -149,7 +149,7 @@ public class WizardActivity extends SherlockFragmentActivity {
 
             // prefill telephone number if available
             EditText telephoneNumberEdit = (EditText) view
-                    .findViewById(R.id.wizard_generate_keyring_telephone_number);
+                    .findViewById(R.id.wizard_select_keyring_telephone_number);
             WizardActivity.prefillTelephoneNumber(getActivity(), telephoneNumberEdit);
             return view;
         }

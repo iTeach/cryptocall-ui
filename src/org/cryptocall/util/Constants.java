@@ -21,8 +21,6 @@
 
 package org.cryptocall.util;
 
-import java.util.regex.Pattern;
-
 public class Constants {
     /* Debug constants */
     public static final boolean DEBUG = true;
@@ -31,6 +29,6 @@ public class Constants {
     public static final String TAG = "CryptoCall";
 
     public static final String PREFS_NAME = "preferences";
-    
+
     public static final String CRYPTOCALL_DOMAIN = "@cryptocall.org";
 }

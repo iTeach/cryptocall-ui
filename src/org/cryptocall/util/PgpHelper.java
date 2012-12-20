@@ -5,7 +5,7 @@ import java.io.IOException;
 import org.spongycastle.openpgp.PGPKeyRing;
 import org.spongycastle.openpgp.PGPObjectFactory;
 
-public class PGPHelper {
+public class PgpHelper {
     /**
      * Convert from byte[] to PGPKeyRing
      * 

@@ -21,9 +21,7 @@
 
 package org.cryptocall.util;
 
-import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
 
 import javax.crypto.SecretKeyFactory;
@@ -78,10 +76,8 @@ public class ProtectedEmailUtils {
 
             // generate output as "salt+key"
             output = saltBase64 + "+" + keyBase64;
-        } catch (NoSuchAlgorithmException e) {
-            Log.e(Constants.TAG, "NoSuchAlgorithmException", e);
-        } catch (InvalidKeySpecException e) {
-            Log.e(Constants.TAG, "InvalidKeySpecException", e);
+        } catch (Exception e) {
+            Log.e(Constants.TAG, "Exception", e);
         }
 
         String email = VERSION_NR + "+" + output + Constants.CRYPTOCALL_DOMAIN;

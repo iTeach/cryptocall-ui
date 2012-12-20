@@ -27,7 +27,7 @@ import java.util.List;
 import org.cryptocall.service.handler.ICryptoCallGetPublicKeyHandler;
 import org.cryptocall.util.Constants;
 import org.cryptocall.util.Log;
-import org.cryptocall.util.PGPHelper;
+import org.cryptocall.util.PgpHelper;
 import org.cryptocall.util.ProtectedEmailUtils;
 import org.spongycastle.bcpg.BCPGKey;
 import org.spongycastle.bcpg.PublicKeyPacket;
@@ -195,8 +195,10 @@ public class CryptoCallService extends Service {
                 throws RemoteException {
             Log.d(Constants.TAG, "Got keyRing bytes. Trying to get hex encoded pub key...");
 
-            PGPPublicKeyRing keyRing = (PGPPublicKeyRing) PGPHelper.BytesToPGPKeyRing(outputBytes);
+            PGPPublicKeyRing keyRing = (PGPPublicKeyRing) PgpHelper.BytesToPGPKeyRing(outputBytes);
             PGPPublicKey key = keyRing.getPublicKey();
+            
+            //TODO: How to get pub key??? Based on type? RSA has exp and modulo!
 
             PublicKeyPacket packet = key.getPublicKeyPacket();
             BCPGKey actKey = packet.getKey();

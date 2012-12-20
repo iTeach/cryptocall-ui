@@ -21,13 +21,8 @@
 
 package org.cryptocall.ui;
 
-import java.util.Arrays;
-
 import org.cryptocall.R;
-import org.cryptocall.util.Constants;
-import org.cryptocall.util.Log;
 import org.cryptocall.util.PreferencesHelper;
-import org.thialfihar.android.apg.integration.ApgContentProviderHelper;
 import org.thialfihar.android.apg.integration.ApgIntentHelper;
 
 import android.app.Activity;

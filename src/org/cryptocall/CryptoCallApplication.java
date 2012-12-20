@@ -27,23 +27,24 @@ import org.thialfihar.android.apg.service.IApgKeyService;
 import android.app.Application;
 
 public class CryptoCallApplication extends Application {
-    public final ApgKeyServiceConnection mApgKeyServiceConnection = new ApgKeyServiceConnection(this);
+    public final ApgKeyServiceConnection mApgKeyServiceConnection = new ApgKeyServiceConnection(
+            this);
+
+    public IApgKeyService getApgKeyService() {
+        return mApgKeyServiceConnection.getService();
+    }
 
     @Override
     public void onCreate() {
         super.onCreate();
 
         // Apg service
-        mApgKeyServiceConnection.bindToApgService();
-    }
-    
-    public IApgKeyService getApgKeyService() {
-        return mApgKeyServiceConnection.getService();
+        mApgKeyServiceConnection.bindToApgKeyService();
     }
 
     @Override
     public void onTerminate() {
-
+        mApgKeyServiceConnection.unbindFromApgKeyService();
     }
 
 }
