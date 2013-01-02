@@ -26,6 +26,7 @@ import org.cryptocall.service.CryptoCallIntentService;
 import org.cryptocall.util.Constants;
 import org.cryptocall.util.CryptoCallSession;
 import org.cryptocall.util.Log;
+import org.cryptocall.util.NetworkUtils;
 import org.cryptocall.util.SmsHelper;
 
 import android.app.Activity;
@@ -42,9 +43,7 @@ import com.actionbarsherlock.app.SherlockActivity;
 public class SmsSendingActivity extends SherlockActivity {
     public static final String EXTRA_CRYPTOCALL_EMAIL = "email";
 
-    // if given considered as manual without sending of sms:
-    public static final String EXTRA_MANUAL_IP = "ip";
-    public static final String EXTRA_MANUAL_PORT = "port";
+    public static final String EXTRA_SEND_SMS = "sendSms";
 
     Activity mActivity;
     ProgressBar mProgress;
@@ -92,15 +91,23 @@ public class SmsSendingActivity extends SherlockActivity {
 
             String email = extras.getString(EXTRA_CRYPTOCALL_EMAIL);
 
+            // default: send a sms with ip and port
+            boolean sendSms = true;
+            if (extras.containsKey(EXTRA_SEND_SMS)) {
+                sendSms = extras.getBoolean(EXTRA_SEND_SMS);
+            }
+
             mCryptoCallSession = new CryptoCallSession(email);
 
             /* 0. Get corresponding telephoneNumber, name of receiver */
             mCryptoCallSession.getNameAndTelephoneNumber(mActivity);
 
-            if (extras.containsKey(EXTRA_MANUAL_IP)) {
-                String ip = extras.getString(EXTRA_MANUAL_IP);
-                int port = extras.getInt(EXTRA_MANUAL_PORT);
+            String myIp = NetworkUtils.getLocalIpAddress(this);
 
+            // TODO: choose from random?
+            int port = 6666;
+
+            if (myIp != null) {
                 /* 1. get X509 certificate and pub key of receiver */
                 Intent serviceIntent = new Intent(mActivity, CryptoCallIntentService.class);
                 serviceIntent.putExtra(CryptoCallIntentService.EXTRA_ACTION,
@@ -117,18 +124,16 @@ public class SmsSendingActivity extends SherlockActivity {
 
                 /* 2. Send SMS with my ip, port. TODO: sign? */
                 // No sms in manual mode!
-            } else {
-                String ip = "192.168.1.1";
-                int port = 666;
 
                 /* 1. Open CSipSimple port with X509 certificate and pub key of receiver */
 
-                /* 2. Send SMS with my ip, port. TODO: sign? */
-                SmsHelper smsHelper = new SmsHelper(new Messenger(mHandler));
-                smsHelper.sendCryptoCallSms(mActivity, mCryptoCallSession.getTelephoneNumber(), ip,
-                        port, "");
+                if (sendSms) {
+                    /* 2. Send SMS with my ip, port. TODO: sign? */
+                    SmsHelper smsHelper = new SmsHelper(new Messenger(mHandler));
+                    smsHelper.sendCryptoCallSms(mActivity, mCryptoCallSession.getTelephoneNumber(),
+                            myIp, port, "");
+                }
             }
-
         } else {
             Log.e(Constants.TAG, "Missing email in intent!");
         }

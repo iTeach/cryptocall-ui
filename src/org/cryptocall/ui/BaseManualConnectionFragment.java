@@ -42,10 +42,16 @@ import android.widget.EditText;
 public class BaseManualConnectionFragment extends Fragment {
     private BaseActivity mBaseActivity;
 
-    private EditText mEmail;
+    private EditText mSendEmail;
+    private Button mSendEmailButton;
+
+    private EditText mReceiveEmail;
+    private Button mReceiveEmailButton;
+
+    private boolean mOnResultIsSendEmail;
+
     private EditText mIp;
     private EditText mPort;
-    private Button mSelectEmail;
     private Button mSending;
     private Button mReceived;
 
@@ -61,10 +67,16 @@ public class BaseManualConnectionFragment extends Fragment {
                 false);
 
         // get views
-        mEmail = (EditText) view.findViewById(R.id.base_manual_connection_email);
+        mSendEmail = (EditText) view.findViewById(R.id.base_manual_connection_send_email);
+        mSendEmailButton = (Button) view
+                .findViewById(R.id.base_manual_connection_send_email_button);
+
+        mReceiveEmail = (EditText) view.findViewById(R.id.base_manual_connection_receive_email);
+        mReceiveEmailButton = (Button) view
+                .findViewById(R.id.base_manual_connection_receive_email_button);
+
         mIp = (EditText) view.findViewById(R.id.base_manual_connection_ip);
         mPort = (EditText) view.findViewById(R.id.base_manual_connection_port);
-        mSelectEmail = (Button) view.findViewById(R.id.base_manual_connection_email_button);
         mSending = (Button) view.findViewById(R.id.base_manual_connection_send_button);
         mReceived = (Button) view.findViewById(R.id.base_manual_connection_received_button);
 
@@ -76,12 +88,9 @@ public class BaseManualConnectionFragment extends Fragment {
                     // start sending sms activity
                     Intent activityIntent = new Intent();
                     activityIntent.setClass(mBaseActivity, SmsSendingActivity.class);
-                    activityIntent.putExtra(SmsSendingActivity.EXTRA_CRYPTOCALL_EMAIL, mEmail
+                    activityIntent.putExtra(SmsSendingActivity.EXTRA_CRYPTOCALL_EMAIL, mSendEmail
                             .getText().toString());
-                    activityIntent.putExtra(SmsSendingActivity.EXTRA_MANUAL_IP, mIp.getText()
-                            .toString());
-                    activityIntent.putExtra(SmsSendingActivity.EXTRA_MANUAL_PORT,
-                            Integer.valueOf(mPort.getText().toString()));
+                    activityIntent.putExtra(SmsSendingActivity.EXTRA_SEND_SMS, false);
                     mBaseActivity.startActivity(activityIntent);
                 } catch (Exception e) {
                     Log.e(Constants.TAG, "Invalid input?", e);
@@ -93,15 +102,38 @@ public class BaseManualConnectionFragment extends Fragment {
 
             @Override
             public void onClick(View v) {
-                // TODO Auto-generated method stub
+                try {
+                    // start sending sms activity
+                    Intent activityIntent = new Intent();
+                    activityIntent.setClass(mBaseActivity, SmsSendingActivity.class);
+                    activityIntent.putExtra(SmsReceivedActivity.EXTRA_CRYPTOCALL_EMAIL,
+                            mReceiveEmail.getText().toString());
+                    activityIntent.putExtra(SmsReceivedActivity.EXTRA_MANUAL_IP, mIp.getText()
+                            .toString());
+                    activityIntent.putExtra(SmsReceivedActivity.EXTRA_MANUAL_PORT,
+                            Integer.valueOf(mPort.getText().toString()));
+                    mBaseActivity.startActivity(activityIntent);
+                } catch (Exception e) {
+                    Log.e(Constants.TAG, "Invalid input?", e);
+                }
 
             }
         });
 
-        mSelectEmail.setOnClickListener(new OnClickListener() {
+        mSendEmailButton.setOnClickListener(new OnClickListener() {
 
             @Override
             public void onClick(View v) {
+                mOnResultIsSendEmail = true;
+                mApgIntentHelper.selectPublicKeys(null);
+            }
+        });
+
+        mReceiveEmailButton.setOnClickListener(new OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                mOnResultIsSendEmail = false;
                 mApgIntentHelper.selectPublicKeys(null);
             }
         });
@@ -130,7 +162,11 @@ public class BaseManualConnectionFragment extends Fragment {
             String selectedEmail = split[1];
             Log.d(Constants.TAG, "selectedEmail: " + selectedEmail);
 
-            mEmail.setText(selectedEmail);
+            if (mOnResultIsSendEmail) {
+                mSendEmail.setText(selectedEmail);
+            } else {
+                mReceiveEmail.setText(selectedEmail);
+            }
         }
 
         // continue with other activity results

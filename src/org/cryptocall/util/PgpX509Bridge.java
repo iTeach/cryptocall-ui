@@ -69,7 +69,7 @@ import java.text.DateFormat;
  */
 public class PgpX509Bridge {
     public final static String DN_COMMON_PART_O = "OpenPGP to X.509 Bridge";
-    public final static String DN_COMMON_PART_OU = "RDFauth Test";
+    public final static String DN_COMMON_PART_OU = "CrpytoCall cert";
 
     // Not BC due to the use of Spongy Castle for Android
     public static final String BOUNCY_CASTLE_PROVIDER_NAME = "SC";
@@ -256,7 +256,7 @@ public class PgpX509Bridge {
         Iterator<Object> it = (Iterator<Object>) pgpSecKey.getUserIDs(); it.hasNext();) {
             Object attrib = it.next();
             x509NameOids.add(X509Name.CN);
-            x509NameValues.add("Henry Story");
+            x509NameValues.add("CryptoCall");
             // x509NameValues.add(attrib.toString());
         }
 
