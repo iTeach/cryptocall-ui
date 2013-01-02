@@ -22,11 +22,14 @@
 package org.cryptocall.ui;
 
 import org.cryptocall.R;
+import org.cryptocall.util.Constants;
+import org.cryptocall.util.ContactsUtils;
 import org.cryptocall.util.PreferencesHelper;
 import org.thialfihar.android.apg.integration.ApgIntentHelper;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -36,6 +39,7 @@ import android.support.v4.app.FragmentTransaction;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
+import com.actionbarsherlock.view.Window;
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.ActionBar.Tab;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
@@ -44,8 +48,9 @@ public class BaseActivity extends SherlockFragmentActivity {
     private Activity mActivity;
 
     private ActionBar mActionBar;
-    private ActionBar.Tab mTab1;
-    private ActionBar.Tab mTab2;
+    private ActionBar.Tab mTabContacts;
+    private ActionBar.Tab mTabInformation;
+    private ActionBar.Tab mTabManualConnection;
 
     private ApgIntentHelper mApgIntentHelper;
 
@@ -71,6 +76,10 @@ public class BaseActivity extends SherlockFragmentActivity {
             mApgIntentHelper.scanQrCode();
             return true;
 
+        case R.id.base_menu_sync:
+            syncContacts();
+            return true;
+
         case R.id.base_menu_help:
             startActivity(new Intent(mActivity, HelpActivity.class));
             return true;
@@ -82,6 +91,35 @@ public class BaseActivity extends SherlockFragmentActivity {
         default:
             return super.onOptionsItemSelected(item);
         }
+    }
+
+    private void syncContacts() {
+        AsyncTask<Void, Void, Void> sync = new AsyncTask<Void, Void, Void>() {
+
+            @Override
+            protected Void doInBackground(Void... unused) {
+                ContactsUtils.syncContacts(mActivity);
+
+                // return nothing as type is Void
+                return null;
+            }
+
+            @Override
+            protected void onPreExecute() {
+                super.onPreExecute();
+
+                setProgressBarIndeterminateVisibility(Boolean.TRUE);
+            }
+
+            @Override
+            protected void onPostExecute(Void unused) {
+                super.onPostExecute(unused);
+
+                setProgressBarIndeterminateVisibility(Boolean.FALSE);
+            }
+        };
+
+        sync.execute();
     }
 
     /**
@@ -99,6 +137,8 @@ public class BaseActivity extends SherlockFragmentActivity {
             finish();
         }
 
+        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+
         setContentView(R.layout.base_activity);
 
         mActivity = this;
@@ -111,20 +151,28 @@ public class BaseActivity extends SherlockFragmentActivity {
 
         mActionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 
-        mTab1 = getSupportActionBar().newTab();
-        mTab2 = getSupportActionBar().newTab();
+        mTabContacts = getSupportActionBar().newTab();
+        mTabInformation = getSupportActionBar().newTab();
 
-        mTab1.setTabListener(new TabListener<ContactsFragment>(this, "contacts",
+        mTabContacts.setTabListener(new TabListener<ContactsFragment>(this, "contacts",
                 ContactsFragment.class));
-        mTab2.setTabListener(new TabListener<BaseInformationFragment>(this, "information",
-                BaseInformationFragment.class));
+        mTabInformation.setTabListener(new TabListener<BaseInformationFragment>(this,
+                "information", BaseInformationFragment.class));
 
-        mTab1.setText(getString(R.string.base_tab_contacts));
-        mTab2.setText(getString(R.string.base_tab_information));
+        mTabContacts.setText(getString(R.string.base_tab_contacts));
+        mTabInformation.setText(getString(R.string.base_tab_information));
 
-        mActionBar.addTab(mTab1);
-        mActionBar.addTab(mTab2);
+        mActionBar.addTab(mTabContacts);
+        mActionBar.addTab(mTabInformation);
 
+        // add manual connection fragment when in debug mode
+        if (Constants.DEBUG) {
+            mTabManualConnection = getSupportActionBar().newTab();
+            mTabManualConnection.setTabListener(new TabListener<BaseManualConnectionFragment>(this,
+                    "manual", BaseManualConnectionFragment.class));
+            mTabManualConnection.setText(getString(R.string.base_tab_manual_connection));
+            mActionBar.addTab(mTabManualConnection);
+        }
         mApgIntentHelper = new ApgIntentHelper(mActivity);
     }
 

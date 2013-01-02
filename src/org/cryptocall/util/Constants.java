@@ -21,6 +21,8 @@
 
 package org.cryptocall.util;
 
+import java.util.regex.Pattern;
+
 public class Constants {
     /* Debug constants */
     public static final boolean DEBUG = true;
@@ -31,4 +33,13 @@ public class Constants {
     public static final String PREFS_NAME = "preferences";
 
     public static final String CRYPTOCALL_DOMAIN = "@cryptocall.org";
+
+    /* SMS */
+    public static final String SMS_PREFIX = "---CryptoCall---";
+    public static final String SMS_SEPERATOR = "$";
+
+    /* Regex to get telphoneNumber out of CryptoCall Email */
+    public static final Pattern cryptoCallPattern = Pattern
+            .compile(".*<(\\S+)@cryptocall\\.org>.*");
+    public static final Pattern cryptoCallPattern2 = Pattern.compile("(\\S+)@cryptocall\\.org");
 }

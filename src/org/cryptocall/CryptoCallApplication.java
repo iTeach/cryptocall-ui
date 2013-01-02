@@ -21,7 +21,10 @@
 
 package org.cryptocall;
 
+import java.security.Security;
+
 import org.cryptocall.service.ApgKeyServiceConnection;
+import org.spongycastle.jce.provider.BouncyCastleProvider;
 import org.thialfihar.android.apg.service.IApgKeyService;
 
 import android.app.Application;
@@ -29,6 +32,11 @@ import android.app.Application;
 public class CryptoCallApplication extends Application {
     public final ApgKeyServiceConnection mApgKeyServiceConnection = new ApgKeyServiceConnection(
             this);
+
+    static {
+        // Define Java Security Provider to be Bouncy Castle
+        Security.addProvider(new BouncyCastleProvider());
+    }
 
     public IApgKeyService getApgKeyService() {
         return mApgKeyServiceConnection.getService();

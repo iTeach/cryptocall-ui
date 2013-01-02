@@ -46,45 +46,49 @@ public class ProtectedEmailUtils {
      * @return
      */
     public static String generateProtectedEmail(String internationalPhoneNumber, byte[] salt) {
-        Log.d(Constants.TAG, "input phone number: " + internationalPhoneNumber);
+        if (internationalPhoneNumber != null && salt != null) {
+            Log.d(Constants.TAG, "input phone number: " + internationalPhoneNumber);
 
-        // basic formatting
-        internationalPhoneNumber = PhoneNumberUtils.formatNumber(internationalPhoneNumber);
+            // basic formatting
+            internationalPhoneNumber = PhoneNumberUtils.formatNumber(internationalPhoneNumber);
 
-        // strip whitespace, -, etc.
-        internationalPhoneNumber = PhoneNumberUtils.stripSeparators(internationalPhoneNumber);
+            // strip whitespace, -, etc.
+            internationalPhoneNumber = PhoneNumberUtils.stripSeparators(internationalPhoneNumber);
 
-        Log.d(Constants.TAG, "formatted phone number: " + internationalPhoneNumber);
+            Log.d(Constants.TAG, "formatted phone number: " + internationalPhoneNumber);
 
-        // hash it!
-        String output = null;
+            // hash it!
+            String output = null;
 
-        String saltBase64 = Base64.encodeToString(salt, Base64.NO_PADDING | Base64.NO_WRAP
-                | Base64.URL_SAFE);
-
-        // http://nelenkov.blogspot.de/2012/04/using-password-based-encryption-on.html
-        KeySpec keySpec = new PBEKeySpec(internationalPhoneNumber.toCharArray(), salt,
-                PBKDF2_ITERATION_COUNT, PBKDF2_KEY_LENGTH);
-        SecretKeyFactory keyFactory;
-        try {
-            keyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
-
-            byte[] keyBytes = keyFactory.generateSecret(keySpec).getEncoded();
-
-            String keyBase64 = Base64.encodeToString(keyBytes, Base64.NO_PADDING | Base64.NO_WRAP
+            String saltBase64 = Base64.encodeToString(salt, Base64.NO_PADDING | Base64.NO_WRAP
                     | Base64.URL_SAFE);
 
-            // generate output as "salt+key"
-            output = saltBase64 + "+" + keyBase64;
-        } catch (Exception e) {
-            Log.e(Constants.TAG, "Exception", e);
+            // http://nelenkov.blogspot.de/2012/04/using-password-based-encryption-on.html
+            KeySpec keySpec = new PBEKeySpec(internationalPhoneNumber.toCharArray(), salt,
+                    PBKDF2_ITERATION_COUNT, PBKDF2_KEY_LENGTH);
+            SecretKeyFactory keyFactory;
+            try {
+                keyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+
+                byte[] keyBytes = keyFactory.generateSecret(keySpec).getEncoded();
+
+                String keyBase64 = Base64.encodeToString(keyBytes, Base64.NO_PADDING
+                        | Base64.NO_WRAP | Base64.URL_SAFE);
+
+                // generate output as "salt+key"
+                output = saltBase64 + "+" + keyBase64;
+            } catch (Exception e) {
+                Log.e(Constants.TAG, "Exception", e);
+            }
+
+            String email = VERSION_NR + "+" + output + Constants.CRYPTOCALL_DOMAIN;
+
+            Log.d(Constants.TAG, "protected email: " + email);
+
+            return email;
+        } else {
+            return null;
         }
-
-        String email = VERSION_NR + "+" + output + Constants.CRYPTOCALL_DOMAIN;
-
-        Log.d(Constants.TAG, "protected email: " + email);
-
-        return email;
     }
 
     /**

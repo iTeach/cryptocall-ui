@@ -76,10 +76,10 @@ public class HelpActivity extends SherlockFragmentActivity {
 
         mTabsAdapter = new TabsAdapter(this, mViewPager);
 
-        Bundle problemsBundle = new Bundle();
-        problemsBundle.putInt(HelpFragmentHtml.ARG_HTML_FILE, R.raw.help_problems);
-        mTabsAdapter.addTab(bar.newTab().setText(getString(R.string.help_tab_problems)),
-                HelpFragmentHtml.class, problemsBundle);
+        // Bundle problemsBundle = new Bundle();
+        // problemsBundle.putInt(HelpFragmentHtml.ARG_HTML_FILE, R.raw.help_problems);
+        // mTabsAdapter.addTab(bar.newTab().setText(getString(R.string.help_tab_problems)),
+        // HelpFragmentHtml.class, problemsBundle);
 
         // mTabsAdapter.addTab(bar.newTab().setText(getString(R.string.help_tab_donate)),
         // DonationsFragment.class, null);

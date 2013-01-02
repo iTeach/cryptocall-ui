@@ -37,9 +37,9 @@ import com.actionbarsherlock.view.MenuItem;
 public class ShowContactActivity extends SherlockActivity {
 
     // Intent Extra Variables
-    public static final String INTENT_NAME = "NAME";
-    public static final String INTENT_EMAIL = "EMAIL";
-    public static final String INTENT_LOOKUP_KEY = "LOOKUP_KEY";
+    public static final String EXTRA_NAME = "name";
+    public static final String EXTRA_EMAIL = "email";
+    public static final String EXTRA_LOOKUP_KEY = "lookupKey";
 
     private SherlockActivity mActivity;
 
@@ -64,9 +64,9 @@ public class ShowContactActivity extends SherlockActivity {
         /* should be called with parameters */
         Bundle extras = mActivity.getIntent().getExtras();
         if (extras != null) {
-            mName = extras.getString(INTENT_NAME);
-            mEmail = extras.getString(INTENT_EMAIL);
-            mLookupKey = extras.getString(INTENT_LOOKUP_KEY);
+            mName = extras.getString(EXTRA_NAME);
+            mEmail = extras.getString(EXTRA_EMAIL);
+            mLookupKey = extras.getString(EXTRA_LOOKUP_KEY);
 
             // get views
             mEmailTextView = (TextView) findViewById(R.id.show_contact_email);
@@ -109,7 +109,11 @@ public class ShowContactActivity extends SherlockActivity {
      * hand over onClick events, defined in layout from Activity to Fragment
      */
     public void callOnClick(View view) {
-        // TODO: start intent
+        // start sending sms activity
+        Intent activityIntent = new Intent();
+        activityIntent.setClass(mActivity, SmsSendingActivity.class);
+        activityIntent.putExtra(SmsSendingActivity.EXTRA_CRYPTOCALL_EMAIL, mEmail);
+        mActivity.startActivity(activityIntent);
     }
 
     /**

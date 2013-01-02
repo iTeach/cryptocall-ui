@@ -131,9 +131,9 @@ public class ContactsFragment extends SherlockListFragment implements
         // start show Contact
         Intent activityIntent = new Intent();
         activityIntent.setClass(mActivity, ShowContactActivity.class);
-        activityIntent.putExtra(ShowContactActivity.INTENT_NAME, name);
-        activityIntent.putExtra(ShowContactActivity.INTENT_EMAIL, email);
-        activityIntent.putExtra(ShowContactActivity.INTENT_LOOKUP_KEY, lookupKey);
+        activityIntent.putExtra(ShowContactActivity.EXTRA_NAME, name);
+        activityIntent.putExtra(ShowContactActivity.EXTRA_EMAIL, email);
+        activityIntent.putExtra(ShowContactActivity.EXTRA_LOOKUP_KEY, lookupKey);
         mActivity.startActivity(activityIntent);
     }
 

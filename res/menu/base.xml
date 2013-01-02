@@ -3,20 +3,24 @@
 
     <item
         android:id="@+id/base_menu_scan_barcode"
-        android:icon="@drawable/ic_menu_barcode"
         android:showAsAction="always|withText"
         android:title="@string/base_menu_scan_barcode">
     </item>
     <item
-        android:id="@+id/base_menu_help"
-        android:icon="@drawable/ic_menu_help"
+        android:id="@+id/base_menu_sync"
+        android:icon="@drawable/action_refresh"
         android:showAsAction="always|withText"
+        android:title="@string/base_menu_sync">
+    </item>
+    <item
+        android:id="@+id/base_menu_help"
+        android:icon="@drawable/action_help"
+        android:showAsAction="ifRoom|withText"
         android:title="@string/base_menu_help">
     </item>
     <item
         android:id="@+id/base_menu_preferences"
-        android:icon="@drawable/ic_menu_preferences"
-        android:showAsAction="ifRoom|withText"
+        android:showAsAction="never|withText"
         android:title="@string/base_menu_preferences">
     </item>
 

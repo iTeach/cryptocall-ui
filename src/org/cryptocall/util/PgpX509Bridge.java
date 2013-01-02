@@ -1,5 +1,6 @@
 package org.cryptocall.util;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -67,10 +68,11 @@ import java.text.DateFormat;
  * 
  */
 public class PgpX509Bridge {
-
-//    private final static Log LOGGER = LogFactory.getLog(PgpX509Bridge.class);
     public final static String DN_COMMON_PART_O = "OpenPGP to X.509 Bridge";
     public final static String DN_COMMON_PART_OU = "RDFauth Test";
+
+    // Not BC due to the use of Spongy Castle for Android
+    public static final String BOUNCY_CASTLE_PROVIDER_NAME = "SC";
 
     /**
      * Creates a self-signed certificate from a public and private key. The (critical) key-usage
@@ -125,7 +127,7 @@ public class PgpX509Bridge {
         certGenerator.setNotBefore(startDate);
         if (endDate == null) {
             endDate = new Date(startDate.getTime() + (365L * 24L * 60L * 60L * 1000L));
-            System.out.println("end date is=" + DateFormat.getDateInstance().format(endDate));
+            Log.d(Constants.TAG, "end date is=" + DateFormat.getDateInstance().format(endDate));
         }
 
         certGenerator.setNotAfter(endDate);
@@ -149,7 +151,7 @@ public class PgpX509Bridge {
         } else {
             RuntimeException re = new RuntimeException("Algorithm not recognised: "
                     + pubKeyAlgorithm);
-//            LOGGER.error(re.getMessage(), re);
+            Log.e(Constants.TAG, re.getMessage(), re);
             throw re;
         }
 
@@ -235,7 +237,7 @@ public class PgpX509Bridge {
             SignatureException, CertificateException {
         PGPPublicKey pgpPubKey = pgpSecKey.getPublicKey();
 
-//        LOGGER.info("Key ID: " + Long.toHexString(pgpPubKey.getKeyID() & 0xffffffffL));
+        // LOGGER.info("Key ID: " + Long.toHexString(pgpPubKey.getKeyID() & 0xffffffffL));
 
         /*
          * The X.509 Name to be the subject DN is prepared. The CN is extracted from the Secret Key
@@ -261,16 +263,16 @@ public class PgpX509Bridge {
         /*
          * Currently unused.
          */
-//        LOGGER.info("User attributes: ");
+        Log.d(Constants.TAG, "User attributes: ");
         for (@SuppressWarnings("unchecked")
         Iterator<Object> it = (Iterator<Object>) pgpSecKey.getUserAttributes(); it.hasNext();) {
             Object attrib = it.next();
-//            LOGGER.info(" - " + attrib + " -- " + attrib.getClass());
+            Log.d(Constants.TAG, " - " + attrib + " -- " + attrib.getClass());
         }
 
         X509Name x509name = new X509Name(x509NameOids, x509NameValues);
 
-//        LOGGER.info("Subject DN: " + x509name);
+        Log.d(Constants.TAG, "Subject DN: " + x509name);
 
         /*
          * To check the signature from the certificate on the recipient side, the creation time
@@ -280,15 +282,16 @@ public class PgpX509Bridge {
          * is something that needs to be checked by the service receiving this certificate.
          */
         Date creationTime = pgpPubKey.getCreationTime();
-        System.out.println("pgp pub key creation time="
-                + DateFormat.getDateInstance().format(creationTime));
-        System.out.println("pgp valid seconds=" + pgpPubKey.getValidSeconds());
+        Log.d(Constants.TAG,
+                "pgp pub key creation time=" + DateFormat.getDateInstance().format(creationTime));
+        Log.d(Constants.TAG, "pgp valid seconds=" + pgpPubKey.getValidSeconds());
         Date validTo = null;
         if (pgpPubKey.getValidSeconds() > 0)
             validTo = new Date(creationTime.getTime() + 1000L * pgpPubKey.getValidSeconds());
 
-        X509Certificate selfSignedCert = createSelfSignedCert(pgpPubKey.getKey("BC"),
-                pgpPrivKey.getKey(), x509name, creationTime, validTo, subjAltNameURI);
+        X509Certificate selfSignedCert = createSelfSignedCert(
+                pgpPubKey.getKey(BOUNCY_CASTLE_PROVIDER_NAME), pgpPrivKey.getKey(), x509name,
+                creationTime, validTo, subjAltNameURI);
 
         return selfSignedCert;
     }
@@ -333,7 +336,7 @@ public class PgpX509Bridge {
                 false);
         pgpPwdCallbackHandler.handle(new Callback[] { pgpSecKeyPasswordCallBack });
         PGPPrivateKey pgpPrivKey = pgpSecKey.extractPrivateKey(
-                pgpSecKeyPasswordCallBack.getPassword(), "BC");
+                pgpSecKeyPasswordCallBack.getPassword(), BOUNCY_CASTLE_PROVIDER_NAME);
         pgpSecKeyPasswordCallBack.clearPassword();
 
         X509Certificate selfSignedCert = createSelfSignedCert(pgpSecKey, pgpPrivKey, subjAltNameURI);
@@ -346,6 +349,76 @@ public class PgpX509Bridge {
                 .getPassword(), new Certificate[] { selfSignedCert });
         keystorePasswordCallBack.clearPassword();
     }
+
+    // /**
+    // * Creates a self-seigned certificate from a PGP Secret Key and stores it in a PKCS#12 file.
+    // It
+    // * also calls back the user-interface for passwords if needed. In the PKCS#12 keystore, the
+    // key
+    // * password must be the same as the keystore password.
+    // *
+    // * @param pgpSecKey
+    // * @param subjAltNameURI
+    // * @param pgpPwdCallbackHandler
+    // * @param keystorePwdCallbackHandler
+    // * @param pkcs12Filename
+    // * @throws PGPException
+    // * @throws NoSuchProviderException
+    // * @throws InvalidKeyException
+    // * @throws NoSuchAlgorithmException
+    // * @throws SignatureException
+    // * @throws CertificateException
+    // * @throws KeyStoreException
+    // * @throws IOException
+    // * @throws UnsupportedCallbackException
+    // */
+    // public static void createAndSaveSelfSignedCertInPKCS12(PGPSecretKey pgpSecKey,
+    // String subjAltNameURI, CallbackHandler pgpPwdCallbackHandler,
+    // CallbackHandler keystorePwdCallbackHandler, String pkcs12Filename) throws PGPException,
+    // NoSuchProviderException, InvalidKeyException, NoSuchAlgorithmException,
+    // SignatureException, CertificateException, KeyStoreException, IOException,
+    // UnsupportedCallbackException {
+    // KeyStore keyStore = KeyStore.getInstance("PKCS12");
+    //
+    // Iterator userIDs = pgpSecKey.getUserIDs();
+    // while (userIDs.hasNext()) {
+    // System.out.println("id=" + userIDs.next());
+    // }
+    //
+    // Iterator attributes = pgpSecKey.getUserAttributes();
+    // while (attributes.hasNext()) {
+    // System.out.println("attributes" + attributes.next());
+    // }
+    //
+    // System.out.println("key is " + (pgpSecKey.isMasterKey() ? "is" : "is not")
+    // + " a master key");
+    // System.out.println("key is " + (pgpSecKey.isSigningKey() ? "is" : "is not")
+    // + " a signing key");
+    // System.out.println("its public key was created on "
+    // + pgpSecKey.getPublicKey().getCreationTime());
+    // System.out.println("its public key is "
+    // + (pgpSecKey.getPublicKey().isRevoked() ? "is" : "is not") + " revoked");
+    //
+    // PasswordCallback keystorePasswordCallBack = new PasswordCallback(KEYSTORE_PASSWORD_PROMPT,
+    // false);
+    // keystorePwdCallbackHandler.handle(new Callback[] { keystorePasswordCallBack });
+    // PredefinedPasswordCallbackHandler predefinedPasswordCallbackHandler = new
+    // PredefinedPasswordCallbackHandler(
+    // keystorePasswordCallBack.getPassword(), KEYSTORE_KEY_PASSWORD_PROMPT);
+    //
+    // File keyStorefile = new File(pkcs12Filename);
+    // FileInputStream fis = null;
+    // if (keyStorefile.exists()) {
+    // fis = new FileInputStream(keyStorefile);
+    // }
+    // keyStore.load(fis, keystorePasswordCallBack.getPassword());
+    //
+    // createAndSaveSelfSignedCert(keyStore, pgpSecKey, subjAltNameURI, pgpPwdCallbackHandler,
+    // predefinedPasswordCallbackHandler);
+    //
+    // keyStore.store(new FileOutputStream(keyStorefile), keystorePasswordCallBack.getPassword());
+    // keystorePasswordCallBack.clearPassword();
+    // }
 
     /**
      * Creates a self-seigned certificate from a PGP Secret Key and stores it in a PKCS#12 file. It
@@ -367,9 +440,8 @@ public class PgpX509Bridge {
      * @throws IOException
      * @throws UnsupportedCallbackException
      */
-    public static void createAndSaveSelfSignedCertInPKCS12(PGPSecretKey pgpSecKey,
-            String subjAltNameURI, CallbackHandler pgpPwdCallbackHandler,
-            CallbackHandler keystorePwdCallbackHandler, String pkcs12Filename) throws PGPException,
+    public static byte[] createAndSaveSelfSignedCertInPKCS12AsByteArray(PGPSecretKey pgpSecKey,
+            String subjAltNameURI, CallbackHandler pgpPwdCallbackHandler) throws PGPException,
             NoSuchProviderException, InvalidKeyException, NoSuchAlgorithmException,
             SignatureException, CertificateException, KeyStoreException, IOException,
             UnsupportedCallbackException {
@@ -385,173 +457,171 @@ public class PgpX509Bridge {
             System.out.println("attributes" + attributes.next());
         }
 
-        System.out.println("key is " + (pgpSecKey.isMasterKey() ? "is" : "is not")
+        Log.d(Constants.TAG, "key is " + (pgpSecKey.isMasterKey() ? "is" : "is not")
                 + " a master key");
-        System.out.println("key is " + (pgpSecKey.isSigningKey() ? "is" : "is not")
+        Log.d(Constants.TAG, "key is " + (pgpSecKey.isSigningKey() ? "is" : "is not")
                 + " a signing key");
-        System.out.println("its public key was created on "
+        Log.d(Constants.TAG, "its public key was created on "
                 + pgpSecKey.getPublicKey().getCreationTime());
-        System.out.println("its public key is "
+        Log.d(Constants.TAG, "its public key is "
                 + (pgpSecKey.getPublicKey().isRevoked() ? "is" : "is not") + " revoked");
 
-        PasswordCallback keystorePasswordCallBack = new PasswordCallback(KEYSTORE_PASSWORD_PROMPT,
-                false);
-        keystorePwdCallbackHandler.handle(new Callback[] { keystorePasswordCallBack });
-        PredefinedPasswordCallbackHandler predefinedPasswordCallbackHandler = new PredefinedPasswordCallbackHandler(
-                keystorePasswordCallBack.getPassword(), KEYSTORE_KEY_PASSWORD_PROMPT);
+        // init new keyStore with empty password
+        keyStore.load(null, "".toCharArray());
 
-        File keyStorefile = new File(pkcs12Filename);
-        FileInputStream fis = null;
-        if (keyStorefile.exists()) {
-            fis = new FileInputStream(keyStorefile);
-        }
-        keyStore.load(fis, keystorePasswordCallBack.getPassword());
+        // empty password for keystore entry
+        CallbackHandler keystorePwdCallbackHandler = new PredefinedPasswordCallbackHandler("");
 
         createAndSaveSelfSignedCert(keyStore, pgpSecKey, subjAltNameURI, pgpPwdCallbackHandler,
-                predefinedPasswordCallbackHandler);
+                keystorePwdCallbackHandler);
 
-        keyStore.store(new FileOutputStream(keyStorefile), keystorePasswordCallBack.getPassword());
-        keystorePasswordCallBack.clearPassword();
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        keyStore.store(bos, "".toCharArray());
+
+        return bos.toByteArray();
     }
 
-    /**
-     * Creates a self-seigned certificate from a PGP Secret Key and stores it in the Apple Keychain.
-     * This will throw a NoSuchProviderException or KeyStoreException if you're not using the Apple
-     * JVM (or at least its security provider).
-     * 
-     * @param pgpSecKey
-     * @param subjAltNameURI
-     * @param pgpPwdCallbackHandler
-     * @throws PGPException
-     * @throws NoSuchProviderException
-     * @throws InvalidKeyException
-     * @throws NoSuchAlgorithmException
-     * @throws SignatureException
-     * @throws CertificateException
-     * @throws KeyStoreException
-     * @throws IOException
-     * @throws UnsupportedCallbackException
-     */
-    public static void createAndSaveSelfSignedCertInOSXKeychain(PGPSecretKey pgpSecKey,
-            String subjAltNameURI, CallbackHandler pgpPwdCallbackHandler) throws PGPException,
-            NoSuchProviderException, InvalidKeyException, NoSuchAlgorithmException,
-            SignatureException, CertificateException, KeyStoreException, IOException,
-            UnsupportedCallbackException {
-        KeyStore keyStore = KeyStore.getInstance("KeychainStore");
+    // /**
+    // * Creates a self-seigned certificate from a PGP Secret Key and stores it in the Apple
+    // Keychain.
+    // * This will throw a NoSuchProviderException or KeyStoreException if you're not using the
+    // Apple
+    // * JVM (or at least its security provider).
+    // *
+    // * @param pgpSecKey
+    // * @param subjAltNameURI
+    // * @param pgpPwdCallbackHandler
+    // * @throws PGPException
+    // * @throws NoSuchProviderException
+    // * @throws InvalidKeyException
+    // * @throws NoSuchAlgorithmException
+    // * @throws SignatureException
+    // * @throws CertificateException
+    // * @throws KeyStoreException
+    // * @throws IOException
+    // * @throws UnsupportedCallbackException
+    // */
+    // public static void createAndSaveSelfSignedCertInOSXKeychain(PGPSecretKey pgpSecKey,
+    // String subjAltNameURI, CallbackHandler pgpPwdCallbackHandler) throws PGPException,
+    // NoSuchProviderException, InvalidKeyException, NoSuchAlgorithmException,
+    // SignatureException, CertificateException, KeyStoreException, IOException,
+    // UnsupportedCallbackException {
+    // KeyStore keyStore = KeyStore.getInstance("KeychainStore");
+    //
+    // PredefinedPasswordCallbackHandler predefinedPasswordCallbackHandler = new
+    // PredefinedPasswordCallbackHandler(
+    // "-".toCharArray(), KEYSTORE_KEY_PASSWORD_PROMPT);
+    //
+    // keyStore.load(null, "-".toCharArray());
+    //
+    // createAndSaveSelfSignedCert(keyStore, pgpSecKey, subjAltNameURI, pgpPwdCallbackHandler,
+    // predefinedPasswordCallbackHandler);
+    //
+    // keyStore.store(null, "-".toCharArray());
+    // }
 
-        PredefinedPasswordCallbackHandler predefinedPasswordCallbackHandler = new PredefinedPasswordCallbackHandler(
-                "-".toCharArray(), KEYSTORE_KEY_PASSWORD_PROMPT);
+    // private static void usage(String message) {
+    // System.out.println("error: " + message);
+    // System.out.println("");
+    // System.out.println("PgpX509Bridge -gpg secretRing [-foaf idurl] [ -out outputFile ]");
+    // System.out.println("args:");
+    // System.out.println("  secretRing: a file such as ~/.gnupg/secring.gpg");
+    // System.out.println("  idurl: foaf id, eg: http://bblfish.net/people/henry/card");
+    // System.out.println("  outputFile: file to send output to, if missing standard out");
+    // System.out
+    // .println("the pgp passoword can be passed as a property (someone who needs this, fill in details)");
+    // System.exit(-1);
+    // }
 
-        keyStore.load(null, "-".toCharArray());
-
-        createAndSaveSelfSignedCert(keyStore, pgpSecKey, subjAltNameURI, pgpPwdCallbackHandler,
-                predefinedPasswordCallbackHandler);
-
-        keyStore.store(null, "-".toCharArray());
-    }
-
-    private static void usage(String message) {
-        System.out.println("error: " + message);
-        System.out.println("");
-        System.out.println("PgpX509Bridge -gpg secretRing [-foaf idurl] [ -out outputFile ]");
-        System.out.println("args:");
-        System.out.println("  secretRing: a file such as ~/.gnupg/secring.gpg");
-        System.out.println("  idurl: foaf id, eg: http://bblfish.net/people/henry/card");
-        System.out.println("  outputFile: file to send output to, if missing standard out");
-        System.out
-                .println("the pgp passoword can be passed as a property (someone who needs this, fill in details)");
-        System.exit(-1);
-    }
-
-//    /**
-//     * Usage: java -Dpgp509bridge.pgpPassword=XXXX -Dpgp509bridge.keystorePassword=YYYYYY
-//     * ~/.gnupg/secring.gpg ~/test.p12
-//     * 
-//     * -Dpgp509bridge.pgpPassword=XXXX -Dpgp509bridge.keystorePassword=YYYYYY are optional and
-//     * should not be used for anything else than testing (putting password in readable system
-//     * properties could be read by things that are not supposed to if the security manager isn't
-//     * configured properly).
-//     * 
-//     * if the output file is not given then it will try to save the key in the OSX keychain
-//     * 
-//     * 
-//     * @param args
-//     * @throws Exception
-//     */
-//    public static void main(String[] args) throws Exception {
-//        String gpgSecRingFilename = null;
-//        String foafid = null;
-//        String pkcs12Filename = null;
-//
-//        for (int i = 0; i < args.length; i++) {
-//            if ("-gpg".equals(args[i])) {
-//                gpgSecRingFilename = args[++i];
-//            } else if ("-foaf".equals(args[i])) {
-//                foafid = args[++i];
-//            } else if ("-out".equals(args[i])) {
-//                pkcs12Filename = args[++i];
-//            }
-//        }
-//
-//        if (gpgSecRingFilename == null) {
-//            usage("missing secret ring file");
-//        }
-//        if (pkcs12Filename == null) {
-//            usage("missing pkcs12 output file name");
-//        }
-//
-//        Provider p = new BouncyCastleProvider();
-//        Security.addProvider(p);
-//
-//        CallbackHandler pgpPwdCallbackHandler = null;
-//        CallbackHandler keystorePwdCallbackHandler = null;
-//
-//        String pgpPassword = System.getProperty("pgp509bridge.pgpPassword");
-//        if (pgpPassword != null) {
-//            pgpPwdCallbackHandler = new PredefinedPasswordCallbackHandler(pgpPassword,
-//                    PGP_KEY_PASSWORD_PROMPT);
-//        } else {
-//            pgpPwdCallbackHandler = new TextCallbackHandler();
-//        }
-//        String keystorePassword = System.getProperty("pgp509bridge.keystorePassword");
-//        if (keystorePassword != null) {
-//            keystorePwdCallbackHandler = new PredefinedPasswordCallbackHandler(keystorePassword,
-//                    KEYSTORE_PASSWORD_PROMPT);
-//        } else {
-//            keystorePwdCallbackHandler = new TextCallbackHandler();
-//        }
-//
-//        FileInputStream secringFileInputStream = new FileInputStream(gpgSecRingFilename);
-//
-//        PGPSecretKeyRingCollection pgpSecKeyRings = new PGPSecretKeyRingCollection(
-//                secringFileInputStream);
-//        @SuppressWarnings("unchecked")
-//        Iterator<PGPSecretKeyRing> ringIt = (Iterator<PGPSecretKeyRing>) pgpSecKeyRings
-//                .getKeyRings();
-//
-//        while (ringIt.hasNext()) {
-//            PGPSecretKeyRing pgpSecKeyRing = ringIt.next();
-//            @SuppressWarnings("unchecked")
-//            Iterator<PGPSecretKey> keyIt = (Iterator<PGPSecretKey>) pgpSecKeyRing.getSecretKeys();
-//
-//            while (keyIt.hasNext()) {
-//                PGPSecretKey pgpSecKey = keyIt.next();
-//
-//                if (pgpSecKey != null) {
-//
-//                    if (pkcs12Filename != null) {
-//                        createAndSaveSelfSignedCertInPKCS12(pgpSecKey, foafid,
-//                                pgpPwdCallbackHandler, keystorePwdCallbackHandler, pkcs12Filename);
-//                    } else {
-//                        createAndSaveSelfSignedCertInOSXKeychain(pgpSecKey, foafid,
-//                                pgpPwdCallbackHandler);
-//                    }
-//
-//                    break;
-//                }
-//            }
-//        }
-//    }
+    // /**
+    // * Usage: java -Dpgp509bridge.pgpPassword=XXXX -Dpgp509bridge.keystorePassword=YYYYYY
+    // * ~/.gnupg/secring.gpg ~/test.p12
+    // *
+    // * -Dpgp509bridge.pgpPassword=XXXX -Dpgp509bridge.keystorePassword=YYYYYY are optional and
+    // * should not be used for anything else than testing (putting password in readable system
+    // * properties could be read by things that are not supposed to if the security manager isn't
+    // * configured properly).
+    // *
+    // * if the output file is not given then it will try to save the key in the OSX keychain
+    // *
+    // *
+    // * @param args
+    // * @throws Exception
+    // */
+    // public static void main(String[] args) throws Exception {
+    // String gpgSecRingFilename = null;
+    // String foafid = null;
+    // String pkcs12Filename = null;
+    //
+    // for (int i = 0; i < args.length; i++) {
+    // if ("-gpg".equals(args[i])) {
+    // gpgSecRingFilename = args[++i];
+    // } else if ("-foaf".equals(args[i])) {
+    // foafid = args[++i];
+    // } else if ("-out".equals(args[i])) {
+    // pkcs12Filename = args[++i];
+    // }
+    // }
+    //
+    // if (gpgSecRingFilename == null) {
+    // usage("missing secret ring file");
+    // }
+    // if (pkcs12Filename == null) {
+    // usage("missing pkcs12 output file name");
+    // }
+    //
+    // Provider p = new BouncyCastleProvider();
+    // Security.addProvider(p);
+    //
+    // CallbackHandler pgpPwdCallbackHandler = null;
+    // CallbackHandler keystorePwdCallbackHandler = null;
+    //
+    // String pgpPassword = System.getProperty("pgp509bridge.pgpPassword");
+    // if (pgpPassword != null) {
+    // pgpPwdCallbackHandler = new PredefinedPasswordCallbackHandler(pgpPassword,
+    // PGP_KEY_PASSWORD_PROMPT);
+    // } else {
+    // pgpPwdCallbackHandler = new TextCallbackHandler();
+    // }
+    // String keystorePassword = System.getProperty("pgp509bridge.keystorePassword");
+    // if (keystorePassword != null) {
+    // keystorePwdCallbackHandler = new PredefinedPasswordCallbackHandler(keystorePassword,
+    // KEYSTORE_PASSWORD_PROMPT);
+    // } else {
+    // keystorePwdCallbackHandler = new TextCallbackHandler();
+    // }
+    //
+    // FileInputStream secringFileInputStream = new FileInputStream(gpgSecRingFilename);
+    //
+    // PGPSecretKeyRingCollection pgpSecKeyRings = new PGPSecretKeyRingCollection(
+    // secringFileInputStream);
+    // @SuppressWarnings("unchecked")
+    // Iterator<PGPSecretKeyRing> ringIt = (Iterator<PGPSecretKeyRing>) pgpSecKeyRings
+    // .getKeyRings();
+    //
+    // while (ringIt.hasNext()) {
+    // PGPSecretKeyRing pgpSecKeyRing = ringIt.next();
+    // @SuppressWarnings("unchecked")
+    // Iterator<PGPSecretKey> keyIt = (Iterator<PGPSecretKey>) pgpSecKeyRing.getSecretKeys();
+    //
+    // while (keyIt.hasNext()) {
+    // PGPSecretKey pgpSecKey = keyIt.next();
+    //
+    // if (pgpSecKey != null) {
+    //
+    // if (pkcs12Filename != null) {
+    // createAndSaveSelfSignedCertInPKCS12(pgpSecKey, foafid,
+    // pgpPwdCallbackHandler, keystorePwdCallbackHandler, pkcs12Filename);
+    // } else {
+    // createAndSaveSelfSignedCertInOSXKeychain(pgpSecKey, foafid,
+    // pgpPwdCallbackHandler);
+    // }
+    //
+    // break;
+    // }
+    // }
+    // }
+    // }
 
     /**
      * This is a password callback handler that will fill in a password automatically. Useful to

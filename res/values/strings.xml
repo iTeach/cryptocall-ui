@@ -12,6 +12,7 @@
     <string name="base_menu_debug">Debug</string>
     <string name="base_menu_preferences">Preferences</string>
     <string name="base_menu_scan_barcode">Scan QR Code</string>
+    <string name="base_menu_sync">Sync APG with Contacts</string>
     <string name="base_menu_help">Help</string>
 
     <!-- Wizard -->
@@ -45,8 +46,8 @@
 
     <!-- Activities -->
     <string name="activity_help_label">Help</string>
-    <string name="activity_call_label">Call</string>
-    <string name="activity_debug_label">Debug</string>
+    <string name="activity_sending_sms_label">Sending SMS…</string>
+    <string name="activity_received_sms_label">Received CryptoCall SMS!</string>
     <string name="activity_wizard_label">First time wizard</string>
 
     <!-- Base -->
@@ -55,6 +56,7 @@
     <string name="activity_show_contact_label">Contact</string>
     <string name="base_tab_contacts">Contacts</string>
     <string name="base_tab_information">Information</string>
+    <string name="base_tab_manual_connection">Manual Connection</string>
     <string name="base_contacts_list_emty">No contacts with @crytocall.org email address!</string>
 
     <!-- permission strings -->

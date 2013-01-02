@@ -22,8 +22,10 @@
 package org.cryptocall.util;
 
 import org.cryptocall.R;
+import org.cryptocall.ui.SmsSendingActivity;
 
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.provider.ContactsContract.CommonDataKinds.Email;
 import android.support.v4.widget.SimpleCursorAdapter;
@@ -73,7 +75,11 @@ public class ContactsCursorAdapter extends SimpleCursorAdapter {
                 // get email from tag
                 String email = (String) v.getTag();
 
-                // TODO: start intent?
+                // start sending sms activity
+                Intent activityIntent = new Intent();
+                activityIntent.setClass(context, SmsSendingActivity.class);
+                activityIntent.putExtra(SmsSendingActivity.EXTRA_CRYPTOCALL_EMAIL, email);
+                context.startActivity(activityIntent);
             }
         });
     }
