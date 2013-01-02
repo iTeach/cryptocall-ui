@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2012 Sergej Dechand <cryptocall@serj.de>
- *                    Dominik Schürmann <dominik@dominikschuermann.de>
+ * Copyright (C) 2011-2013 Sergej Dechand <cryptocall@serj.de>
+ *                         Dominik Schürmann <dominik@dominikschuermann.de>
  * 
  * This file is part of CryptoCall.
  * 
@@ -18,7 +18,6 @@
  * along with CryptoCall.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
 package org.cryptocall.service;
 
 import java.math.BigInteger;

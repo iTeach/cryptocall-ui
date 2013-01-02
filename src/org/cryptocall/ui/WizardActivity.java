@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2012 Sergej Dechand <cryptocall@serj.de>
- *                    Dominik Schürmann <dominik@dominikschuermann.de>
- *
+ * Copyright (C) 2011-2013 Sergej Dechand <cryptocall@serj.de>
+ *                         Dominik Schürmann <dominik@dominikschuermann.de>
+ * 
  * This file is part of CryptoCall.
  * 
  * CryptoCall is free software: you can redistribute it and/or modify
