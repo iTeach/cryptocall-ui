@@ -59,12 +59,6 @@
     <string name="base_tab_manual_connection">Manual Connection</string>
     <string name="base_contacts_list_emty">No contacts with @crytocall.org email address!</string>
 
-    <!-- permission strings -->
-    <string name="permission_group_label">CryptoCall</string>
-    <string name="permission_group_description">Permissions to use CryptoCall functionality</string>
-    <string name="permission_access_keys_label">THIS SHOULD ONLY BE USED BY CSIPSIMPLE! Import/Export actual public and secret keys</string>
-    <string name="permission_access_keys_description">Import and export actual private and public keys directly without user interaction.</string>
-
     <!-- Help -->
     <string name="help_tab_about">About</string>
     <string name="help_tab_donate">Donate</string>

@@ -12,6 +12,7 @@
     <uses-feature
         android:name="android.hardware.wifi"
         android:required="false" />
+    <!-- TODO: change those: -->
     <uses-feature
         android:name="android.hardware.telephony"
         android:required="false" />
@@ -22,6 +23,7 @@
         android:name="android.hardware.touchscreen"
         android:required="false" />
 
+    <!-- permissions needed by CryptoCall -->
     <uses-permission android:name="org.thialfihar.android.apg.permission.ACCESS_API" />
     <uses-permission android:name="org.thialfihar.android.apg.permission.ACCESS_KEYS" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -33,21 +35,45 @@
     <uses-permission android:name="android.permission.SEND_SMS" />
     <uses-permission android:name="android.permission.RECEIVE_SMS" />
     <uses-permission android:name="android.permission.READ_SMS" />
-    <uses-permission android:name="android.permission.VIBRATE" />
+
+    <!-- permissions needed by CSipSimple library -->
+    <!-- <uses-permission android:name="android.permission.INTERNET" /> -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+    <uses-permission android:name="android.permission.PROCESS_OUTGOING_CALLS" />
+    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
+    <!-- <uses-permission android:name="android.permission.READ_PHONE_STATE" /> -->
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <!-- <uses-permission android:name="android.permission.READ_CONTACTS" /> -->
+    <!-- <uses-permission android:name="android.permission.WRITE_CONTACTS" /> -->
+    <uses-permission android:name="android.permission.CALL_PHONE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.READ_LOGS" />
+    <uses-permission android:name="android.permission.USE_SIP" />
+    <uses-permission android:name="android.permission.CONFIGURE_SIP" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.BROADCAST_STICKY" />
+    <uses-permission android:name="android.permission.READ_PROFILE" />
 
-    <permission-group
-        android:name="org.cryptocall.permission-group.CRYPTOCALL"
-        android:description="@string/permission_group_description"
-        android:icon="@drawable/icon"
-        android:label="@string/permission_group_label" />
-
-    <permission
-        android:name="org.cryptocall.permission.ACCESS_KEYS"
-        android:description="@string/permission_access_keys_description"
-        android:label="@string/permission_access_keys_label"
-        android:permissionGroup="org.cryptocall.permission-group.CRYPTOCALL"
-        android:protectionLevel="dangerous" />
+    <!-- permissions provided by CSipSimple, currently unused -->
+    <!-- <permission -->
+    <!-- android:name="android.permission.USE_SIP" -->
+    <!-- android:description="@string/permdesc_useSip" -->
+    <!-- android:label="@string/permlab_useSip" -->
+    <!-- android:permissionGroup="android.permission-group.COST_MONEY" -->
+    <!-- android:protectionLevel="dangerous" /> -->
+    <!-- <permission -->
+    <!-- android:name="android.permission.CONFIGURE_SIP" -->
+    <!-- android:description="@string/permdesc_configureSip" -->
+    <!-- android:label="@string/permlab_configureSip" -->
+    <!-- android:permissionGroup="android.permission-group.COST_MONEY" -->
+    <!-- android:protectionLevel="dangerous" /> -->
 
     <application
         android:name="CryptoCallApplication"
@@ -64,6 +90,49 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- BEGIN CSIPSIMPLE -->
+
+
+        <!-- To be able to do video, this has to be launched in sipStack process -->
+        <activity
+            android:name="com.csipsimple.ui.incall.InCallActivity"
+            android:allowTaskReparenting="true"
+            android:configChanges="orientation"
+            android:excludeFromRecents="true"
+            android:launchMode="singleTask"
+            android:process=":sipStack"
+            android:taskAffinity=""
+            android:theme="@style/DarkTheme.NoTitle" >
+            <intent-filter android:priority="10" >
+                <action android:name="com.csipsimple.phone.action.INCALL" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <!-- Require at least the configure permission to use -->
+        <service
+            android:name="com.csipsimple.service.SipService"
+            android:exported="true"
+            android:permission="android.permission.CONFIGURE_SIP"
+            android:process=":sipStack" >
+            <intent-filter>
+                <action android:name="com.csipsimple.service.SipService" />
+                <action android:name="com.csipsimple.service.SipConfiguration" />
+            </intent-filter>
+        </service>
+
+        <!-- Databases providers -->
+        <provider
+            android:name="com.csipsimple.service.PreferenceProvider"
+            android:authorities="com.csipsimple.prefs" />
+        <provider
+            android:name="com.csipsimple.db.DBProvider"
+            android:authorities="com.csipsimple.db"
+            android:process=":sipStack" />
+
+        <!-- END CSIPSIMPLE -->
         <activity
             android:name=".ui.SmsSendingActivity"
             android:label="@string/activity_sending_sms_label" />
