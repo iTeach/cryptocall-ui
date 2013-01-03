@@ -34,7 +34,7 @@ import org.cryptocall.util.CryptoCallSessionFactory;
 import org.cryptocall.util.Log;
 import org.cryptocall.util.NetworkUtils;
 import org.cryptocall.util.PgpHelper;
-import org.cryptocall.util.PgpX509Bridge;
+import org.cryptocall.util.PgpToX509;
 import org.cryptocall.util.PreferencesHelper;
 import org.cryptocall.util.SmsHelper;
 import org.spongycastle.bcpg.BCPGKey;
@@ -111,7 +111,7 @@ public class CryptoCallIntentService extends IntentService {
     public void onDestroy() {
         super.onDestroy();
 
-        mSmsHelper.unregisterReceivers(this);
+        // mSmsHelper.unregisterReceivers(this);
     }
 
     private final IApgGetKeyringsHandler.Stub getPublicKeyringHandler = new IApgGetKeyringsHandler.Stub() {
@@ -277,25 +277,20 @@ public class CryptoCallIntentService extends IntentService {
                                     + "\npubKeyContent:\n" + session.publicKeyHex);
 
                             // TODO: for pgp keyrings with password
-                            CallbackHandler pgpPwdCallbackHandler = new PgpX509Bridge.PredefinedPasswordCallbackHandler(
+                            CallbackHandler pgpPwdCallbackHandler = new PgpToX509.PredefinedPasswordCallbackHandler(
                                     "");
 
-                            byte[] x509cert = PgpX509Bridge
-                                    .createAndSaveSelfSignedCertInPKCS12AsByteArray(
-                                            mMySecretKeyring.getSecretKey(), "",
-                                            pgpPwdCallbackHandler);
+                            PgpToX509.createFiles(this, mMySecretKeyring.getSecretKey(), "",
+                                    pgpPwdCallbackHandler);
 
-                            // END OF APG
-
-                            // Write x509cert and privKey into files
-                            String x509CertFilename = "x509cert.pem";
-                            FileOutputStream fos = openFileOutput(x509CertFilename,
-                                    Context.MODE_PRIVATE);
-                            fos.write(x509cert);
-                            fos.close();
-
-                            session.X509CertFile = (new File(getFilesDir(), x509CertFilename))
+                            session.X509CertFile = (new File(getFilesDir(), PgpToX509.CERT_FILENAME))
                                     .getAbsolutePath();
+                            Log.d(Constants.TAG, "session.X509CertFile: " + session.X509CertFile);
+
+                            session.X509PrivKeyFile = (new File(getFilesDir(),
+                                    PgpToX509.PRIV_KEY_FILENAME)).getAbsolutePath();
+                            Log.d(Constants.TAG, "session.X509PrivKeyFile: "
+                                    + session.X509PrivKeyFile);
 
                             /* 1. Open CSipSimple port with X509 certificate and pub key of receiver */
                             // start sip service to open port etc.

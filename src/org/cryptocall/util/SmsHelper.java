@@ -31,10 +31,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 
-import android.os.Bundle;
-import android.os.Message;
-import android.os.Messenger;
-import android.os.RemoteException;
 import android.telephony.PhoneNumberUtils;
 import android.telephony.SmsManager;
 
@@ -42,10 +38,10 @@ import android.util.Log;
 
 public class SmsHelper {
 
-    CryptoCallIntentService mService;
+    CryptoCallIntentService mCryptoCallService;
 
-    public SmsHelper(CryptoCallIntentService service) {
-        this.mService = service;
+    public SmsHelper(CryptoCallIntentService cryptoCallService) {
+        this.mCryptoCallService = cryptoCallService;
     }
 
     /**
@@ -70,19 +66,19 @@ public class SmsHelper {
         public void onReceive(Context arg0, Intent arg1) {
             switch (getResultCode()) {
             case Activity.RESULT_OK:
-                mService.sendUpdateUiToHandler("SMS was send!");
+                mCryptoCallService.sendUpdateUiToHandler("SMS was send!");
                 break;
             case SmsManager.RESULT_ERROR_GENERIC_FAILURE:
-                mService.sendUpdateUiToHandler("Generic failure");
+                mCryptoCallService.sendUpdateUiToHandler("Generic failure");
                 break;
             case SmsManager.RESULT_ERROR_NO_SERVICE:
-                mService.sendUpdateUiToHandler("No service");
+                mCryptoCallService.sendUpdateUiToHandler("No service");
                 break;
             case SmsManager.RESULT_ERROR_NULL_PDU:
-                mService.sendUpdateUiToHandler("Null PDU");
+                mCryptoCallService.sendUpdateUiToHandler("Null PDU");
                 break;
             case SmsManager.RESULT_ERROR_RADIO_OFF:
-                mService.sendUpdateUiToHandler("Radio off");
+                mCryptoCallService.sendUpdateUiToHandler("Radio off");
                 break;
             }
         }
@@ -93,10 +89,10 @@ public class SmsHelper {
         public void onReceive(Context arg0, Intent arg1) {
             switch (getResultCode()) {
             case Activity.RESULT_OK:
-                mService.sendUpdateUiToHandler("SMS delivered");
+                mCryptoCallService.sendUpdateUiToHandler("SMS delivered");
                 break;
             case Activity.RESULT_CANCELED:
-                mService.sendUpdateUiToHandler("SMS not delivered");
+                mCryptoCallService.sendUpdateUiToHandler("SMS not delivered");
                 break;
             }
         }
@@ -109,7 +105,7 @@ public class SmsHelper {
      * @param message
      */
     public void sendSms(Context context, String phoneNumber, String message) {
-        mService.sendUpdateUiToHandler("Sending CryptoCall SMS...");
+        mCryptoCallService.sendUpdateUiToHandler("Sending CryptoCall SMS...");
 
         if (PhoneNumberUtils.isWellFormedSmsAddress(phoneNumber)) {
             String SENT = "SMS_SENT";
@@ -132,7 +128,7 @@ public class SmsHelper {
             sms.sendTextMessage(phoneNumber, null, message, sentPI, deliveredPI);
 
         } else {
-            mService.sendUpdateUiToHandler("SMS destination invalid - try again");
+            mCryptoCallService.sendUpdateUiToHandler("SMS destination invalid - try again");
         }
     }
 

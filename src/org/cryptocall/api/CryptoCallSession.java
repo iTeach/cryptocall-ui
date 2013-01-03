@@ -47,6 +47,27 @@ public class CryptoCallSession implements Parcelable {
         dest.writeString(X509PrivKeyFile);
     }
 
+    /**
+     * 
+     * This field is needed for Android to be able to create new objects, individually or as arrays.
+     * 
+     * This also means that you can use use the default constructor to create the object and use
+     * another method to hyrdate it as necessary.
+     * 
+     * I just find it easier to use the constructor. It makes sense for the way my brain thinks ;-)
+     * 
+     */
+    @SuppressWarnings("rawtypes")
+    public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
+        public CryptoCallSession createFromParcel(Parcel in) {
+            return new CryptoCallSession(in);
+        }
+
+        public CryptoCallSession[] newArray(int size) {
+            return new CryptoCallSession[size];
+        }
+    };
+
     @Override
     public int describeContents() {
         // TODO Auto-generated method stub

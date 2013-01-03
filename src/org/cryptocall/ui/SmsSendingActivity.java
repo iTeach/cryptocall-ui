@@ -22,12 +22,9 @@
 package org.cryptocall.ui;
 
 import org.cryptocall.R;
-import org.cryptocall.api.CryptoCallSession;
 import org.cryptocall.service.CryptoCallIntentService;
 import org.cryptocall.util.Constants;
-import org.cryptocall.util.CryptoCallSessionFactory;
 import org.cryptocall.util.Log;
-import org.cryptocall.util.NetworkUtils;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -42,7 +39,6 @@ import com.actionbarsherlock.app.SherlockActivity;
 
 public class SmsSendingActivity extends SherlockActivity {
     public static final String EXTRA_CRYPTOCALL_EMAIL = "email";
-
     public static final String EXTRA_SEND_SMS = "sendSms";
 
     Activity mActivity;
@@ -86,7 +82,7 @@ public class SmsSendingActivity extends SherlockActivity {
 
             String email = extras.getString(EXTRA_CRYPTOCALL_EMAIL);
 
-            // default: send a sms with ip and port
+            // Send a sms with ip and port, when done manual connection this should not be done
             boolean sendSms = true;
             if (extras.containsKey(EXTRA_SEND_SMS)) {
                 sendSms = extras.getBoolean(EXTRA_SEND_SMS);
@@ -104,7 +100,6 @@ public class SmsSendingActivity extends SherlockActivity {
             serviceIntent.putExtra(CryptoCallIntentService.EXTRA_DATA, data);
 
             startService(serviceIntent);
-
         } else {
             Log.e(Constants.TAG, "Missing email in intent!");
         }
