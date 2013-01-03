@@ -22,12 +22,12 @@
 package org.cryptocall.ui;
 
 import org.cryptocall.R;
+import org.cryptocall.api.CryptoCallSession;
 import org.cryptocall.service.CryptoCallIntentService;
 import org.cryptocall.util.Constants;
-import org.cryptocall.util.CryptoCallSession;
+import org.cryptocall.util.CryptoCallSessionFactory;
 import org.cryptocall.util.Log;
 import org.cryptocall.util.NetworkUtils;
-import org.cryptocall.util.SmsHelper;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -49,21 +49,15 @@ public class SmsSendingActivity extends SherlockActivity {
     ProgressBar mProgress;
     static TextView mStatus;
 
-    CryptoCallSession mCryptoCallSession;
-    SmsHelper mSmsHelper;
-
     private static Handler mHandler = new Handler() {
 
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             switch (msg.what) {
-            case SmsHelper.HANDLER_MSG_UPDATE_UI:
-                mStatus.setText(msg.getData().getString(SmsHelper.HANDLER_DATA_MESSAGE));
-                break;
-
-            case CryptoCallIntentService.HANDLER_MSG_OKAY:
-
+            case CryptoCallIntentService.HANDLER_MSG_UPDATE_UI:
+                mStatus.setText(msg.getData().getString(
+                        CryptoCallIntentService.HANDLER_DATA_MESSAGE));
                 break;
 
             default:
@@ -87,8 +81,6 @@ public class SmsSendingActivity extends SherlockActivity {
         mProgress = (ProgressBar) findViewById(R.id.sms_sending_progress);
         mStatus = (TextView) findViewById(R.id.sms_sending_status);
 
-        mSmsHelper = new SmsHelper(new Messenger(mHandler));
-
         Bundle extras = getIntent().getExtras();
         if (extras != null && extras.containsKey(EXTRA_CRYPTOCALL_EMAIL)) {
 
@@ -100,52 +92,22 @@ public class SmsSendingActivity extends SherlockActivity {
                 sendSms = extras.getBoolean(EXTRA_SEND_SMS);
             }
 
-            mCryptoCallSession = new CryptoCallSession(email);
+            Intent serviceIntent = new Intent(mActivity, CryptoCallIntentService.class);
+            serviceIntent.putExtra(CryptoCallIntentService.EXTRA_ACTION,
+                    CryptoCallIntentService.ACTION_START);
+            serviceIntent
+                    .putExtra(CryptoCallIntentService.EXTRA_MESSENGER, new Messenger(mHandler));
 
-            /* 0. Get corresponding telephoneNumber, name of receiver */
-            mCryptoCallSession.getNameAndTelephoneNumber(mActivity);
+            Bundle data = new Bundle();
+            data.putString(CryptoCallIntentService.DATA_CRYPTOCALL_EMAIL, email);
+            data.putBoolean(CryptoCallIntentService.DATA_SEND_SMS, sendSms);
+            serviceIntent.putExtra(CryptoCallIntentService.EXTRA_DATA, data);
 
-            String myIp = NetworkUtils.getLocalIpAddress(this);
+            startService(serviceIntent);
 
-            // TODO: choose from random?
-            int port = 6666;
-
-            if (myIp != null) {
-                /* 1. get X509 certificate and pub key of receiver */
-                Intent serviceIntent = new Intent(mActivity, CryptoCallIntentService.class);
-                serviceIntent.putExtra(CryptoCallIntentService.EXTRA_ACTION,
-                        CryptoCallIntentService.ACTION_PUB_KEY_AND_CERT);
-                serviceIntent.putExtra(CryptoCallIntentService.EXTRA_MESSENGER, new Messenger(
-                        mHandler));
-
-                Bundle data = new Bundle();
-                data.putString(CryptoCallIntentService.DATA_CRYPTOCALL_RECEIVER_EMAIL,
-                        mCryptoCallSession.getEmail());
-                serviceIntent.putExtra(CryptoCallIntentService.EXTRA_DATA, data);
-
-                startService(serviceIntent);
-
-                /* 2. Send SMS with my ip, port. TODO: sign? */
-                // No sms in manual mode!
-
-                /* 1. Open CSipSimple port with X509 certificate and pub key of receiver */
-
-                if (sendSms) {
-                    /* 2. Send SMS with my ip, port. TODO: sign? */
-                    mSmsHelper.sendCryptoCallSms(mActivity,
-                            mCryptoCallSession.getTelephoneNumber(), myIp, port, "");
-                }
-            }
         } else {
             Log.e(Constants.TAG, "Missing email in intent!");
         }
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-
-        mSmsHelper.unregisterReceivers(mActivity);
     }
 
 }

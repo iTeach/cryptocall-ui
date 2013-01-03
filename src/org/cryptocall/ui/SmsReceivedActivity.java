@@ -22,9 +22,10 @@
 package org.cryptocall.ui;
 
 import org.cryptocall.R;
+import org.cryptocall.api.CryptoCallSession;
 import org.cryptocall.service.CryptoCallIntentService;
 import org.cryptocall.util.Constants;
-import org.cryptocall.util.CryptoCallSession;
+import org.cryptocall.util.CryptoCallSessionFactory;
 import org.cryptocall.util.Log;
 import org.cryptocall.util.NetworkUtils;
 import org.cryptocall.util.SmsHelper;
@@ -59,12 +60,8 @@ public class SmsReceivedActivity extends SherlockActivity {
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             switch (msg.what) {
-            case SmsHelper.HANDLER_MSG_UPDATE_UI:
-                mStatus.setText(msg.getData().getString(SmsHelper.HANDLER_DATA_MESSAGE));
-                break;
-
-            case CryptoCallIntentService.HANDLER_MSG_OKAY:
-
+            case CryptoCallIntentService.HANDLER_MSG_UPDATE_UI:
+                mStatus.setText(msg.getData().getString(CryptoCallIntentService.HANDLER_DATA_MESSAGE));
                 break;
 
             default:
@@ -93,42 +90,43 @@ public class SmsReceivedActivity extends SherlockActivity {
 
             String email = extras.getString(EXTRA_CRYPTOCALL_EMAIL);
 
-            mCryptoCallSession = new CryptoCallSession(email);
+            mCryptoCallSession = CryptoCallSessionFactory
+                    .generateSessionWithNameAndTelephoneNumber(mActivity, email);
 
             /* 0. Get corresponding telephoneNumber, name of receiver */
-//            mCryptoCallSession.getNameAndTelephoneNumber(mActivity);
+            // mCryptoCallSession.getNameAndTelephoneNumber(mActivity);
 
             if (extras.containsKey(EXTRA_MANUAL_IP)) {
                 String ip = extras.getString(EXTRA_MANUAL_IP);
                 int port = extras.getInt(EXTRA_MANUAL_PORT);
 
                 /* 1. get X509 certificate and pub key of receiver */
-//                Intent serviceIntent = new Intent(mActivity, CryptoCallIntentService.class);
-//                serviceIntent.putExtra(CryptoCallIntentService.EXTRA_ACTION,
-//                        CryptoCallIntentService.ACTION_PUB_KEY_AND_CERT);
-//                serviceIntent.putExtra(CryptoCallIntentService.EXTRA_MESSENGER, new Messenger(
-//                        mHandler));
-//
-//                Bundle data = new Bundle();
-//                data.putString(CryptoCallIntentService.DATA_CRYPTOCALL_RECEIVER_EMAIL,
-//                        mCryptoCallSession.getEmail());
-//                serviceIntent.putExtra(CryptoCallIntentService.EXTRA_DATA, data);
-//
-//                startService(serviceIntent);
+                // Intent serviceIntent = new Intent(mActivity, CryptoCallIntentService.class);
+                // serviceIntent.putExtra(CryptoCallIntentService.EXTRA_ACTION,
+                // CryptoCallIntentService.ACTION_PUB_KEY_AND_CERT);
+                // serviceIntent.putExtra(CryptoCallIntentService.EXTRA_MESSENGER, new Messenger(
+                // mHandler));
+                //
+                // Bundle data = new Bundle();
+                // data.putString(CryptoCallIntentService.DATA_CRYPTOCALL_RECEIVER_EMAIL,
+                // mCryptoCallSession.getEmail());
+                // serviceIntent.putExtra(CryptoCallIntentService.EXTRA_DATA, data);
+                //
+                // startService(serviceIntent);
 
                 /* 2. Send SMS with my ip, port. TODO: sign? */
                 // No sms in manual mode!
             } else {
                 // get ip and port from sms
 
-//                int port = 666;
-//
-//                /* 1. Open CSipSimple port with X509 certificate and pub key of receiver */
-//
-//                /* 2. Send SMS with my ip, port. TODO: sign? */
-//                SmsHelper smsHelper = new SmsHelper(new Messenger(mHandler));
-//                smsHelper.sendCryptoCallSms(mActivity, mCryptoCallSession.getTelephoneNumber(),
-//                        myIp, port, "");
+                // int port = 666;
+                //
+                // /* 1. Open CSipSimple port with X509 certificate and pub key of receiver */
+                //
+                // /* 2. Send SMS with my ip, port. TODO: sign? */
+                // SmsHelper smsHelper = new SmsHelper(new Messenger(mHandler));
+                // smsHelper.sendCryptoCallSms(mActivity, mCryptoCallSession.getTelephoneNumber(),
+                // myIp, port, "");
             }
         } else {
             Log.e(Constants.TAG, "Missing email in intent!");
