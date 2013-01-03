@@ -537,9 +537,6 @@ public abstract class ActionBarSherlock {
      */
     public void dispatchDestroy() {}
 
-    public void dispatchSaveInstanceState(Bundle outState) {}
-
-    public void dispatchRestoreInstanceState(Bundle savedInstanceState) {}
 
     ///////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////
@@ -772,7 +769,7 @@ public abstract class ActionBarSherlock {
         // Make sure that action views can get an appropriate theme.
         if (mMenuInflater == null) {
             if (getActionBar() != null) {
-                mMenuInflater = new MenuInflater(getThemedContext(), mActivity);
+                mMenuInflater = new MenuInflater(getThemedContext());
             } else {
                 mMenuInflater = new MenuInflater(mActivity);
             }

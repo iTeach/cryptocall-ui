@@ -25,6 +25,7 @@ import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.Xml;
+
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlSerializer;
@@ -38,11 +39,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 
 /**
  * <p>
@@ -561,7 +562,33 @@ class ActivityChooserModel extends DataSetObservable {
         }
     }
 
-    private static final Executor SERIAL_EXECUTOR = Executors.newSingleThreadExecutor();
+    private static final SerialExecutor SERIAL_EXECUTOR = new SerialExecutor();
+
+    private static class SerialExecutor implements Executor {
+        final LinkedList<Runnable> mTasks = new LinkedList<Runnable>();
+        Runnable mActive;
+
+        public synchronized void execute(final Runnable r) {
+            mTasks.offer(new Runnable() {
+                public void run() {
+                    try {
+                        r.run();
+                    } finally {
+                        scheduleNext();
+                    }
+                }
+            });
+            if (mActive == null) {
+                scheduleNext();
+            }
+        }
+
+        protected synchronized void scheduleNext() {
+            if ((mActive = mTasks.poll()) != null) {
+                mActive.run();
+            }
+        }
+    }
 
     /**
      * Persists the history data to the backing file if the latter

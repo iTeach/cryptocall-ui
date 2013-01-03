@@ -50,6 +50,7 @@ public class SmsSendingActivity extends SherlockActivity {
     static TextView mStatus;
 
     CryptoCallSession mCryptoCallSession;
+    SmsHelper mSmsHelper;
 
     private static Handler mHandler = new Handler() {
 
@@ -85,6 +86,8 @@ public class SmsSendingActivity extends SherlockActivity {
         mActivity = this;
         mProgress = (ProgressBar) findViewById(R.id.sms_sending_progress);
         mStatus = (TextView) findViewById(R.id.sms_sending_status);
+
+        mSmsHelper = new SmsHelper(new Messenger(mHandler));
 
         Bundle extras = getIntent().getExtras();
         if (extras != null && extras.containsKey(EXTRA_CRYPTOCALL_EMAIL)) {
@@ -129,13 +132,20 @@ public class SmsSendingActivity extends SherlockActivity {
 
                 if (sendSms) {
                     /* 2. Send SMS with my ip, port. TODO: sign? */
-                    SmsHelper smsHelper = new SmsHelper(new Messenger(mHandler));
-                    smsHelper.sendCryptoCallSms(mActivity, mCryptoCallSession.getTelephoneNumber(),
-                            myIp, port, "");
+                    mSmsHelper.sendCryptoCallSms(mActivity,
+                            mCryptoCallSession.getTelephoneNumber(), myIp, port, "");
                 }
             }
         } else {
             Log.e(Constants.TAG, "Missing email in intent!");
         }
     }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        mSmsHelper.unregisterReceivers(mActivity);
+    }
+
 }

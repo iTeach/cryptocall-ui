@@ -18,6 +18,7 @@ package com.actionbarsherlock.widget;
 
 import android.os.Build;
 import com.actionbarsherlock.R;
+import com.actionbarsherlock.internal.utils.UtilityWrapper;
 import com.actionbarsherlock.internal.widget.IcsLinearLayout;
 import com.actionbarsherlock.internal.widget.IcsListPopupWindow;
 import com.actionbarsherlock.view.ActionProvider;
@@ -405,11 +406,7 @@ class ActivityChooserView extends ViewGroup implements ActivityChooserModelClien
         super.onDetachedFromWindow();
         ActivityChooserModel dataModel = mAdapter.getDataModel();
         if (dataModel != null) {
-            try {
-                dataModel.unregisterObserver(mModelDataSetOberver);
-            } catch (IllegalStateException e) {
-                //Oh, well... fixes issue #557
-            }
+            dataModel.unregisterObserver(mModelDataSetOberver);
         }
         ViewTreeObserver viewTreeObserver = getViewTreeObserver();
         if (viewTreeObserver.isAlive()) {
@@ -530,7 +527,6 @@ class ActivityChooserView extends ViewGroup implements ActivityChooserModelClien
             mActivityChooserContent.setBackgroundDrawable(mActivityChooserContentBackground);
         } else {
             mActivityChooserContent.setBackgroundDrawable(null);
-            mActivityChooserContent.setPadding(0, 0, 0, 0);
         }
     }
 
@@ -619,7 +615,7 @@ class ActivityChooserView extends ViewGroup implements ActivityChooserModelClien
 
     private static class SetActivated {
         public static void invoke(View view, boolean activated) {
-            view.setActivated(activated);
+            UtilityWrapper.getInstance().viewSetActivated(view, activated);
         }
     }
 
@@ -653,11 +649,7 @@ class ActivityChooserView extends ViewGroup implements ActivityChooserModelClien
         public void setDataModel(ActivityChooserModel dataModel) {
             ActivityChooserModel oldDataModel = mAdapter.getDataModel();
             if (oldDataModel != null && isShown()) {
-                try {
-                    oldDataModel.unregisterObserver(mModelDataSetOberver);
-                } catch (IllegalStateException e) {
-                    //Oh, well... fixes issue #557
-                }
+                oldDataModel.unregisterObserver(mModelDataSetOberver);
             }
             mDataModel = dataModel;
             if (dataModel != null && isShown()) {

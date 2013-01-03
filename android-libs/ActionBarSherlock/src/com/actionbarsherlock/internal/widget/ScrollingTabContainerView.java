@@ -188,7 +188,6 @@ public class ScrollingTabContainerView extends NineHorizontalScrollView
     private IcsLinearLayout createTabLayout() {
         final IcsLinearLayout tabLayout = (IcsLinearLayout) LayoutInflater.from(getContext())
                 .inflate(R.layout.abs__action_bar_tab_bar_view, null);
-        tabLayout.setMeasureWithLargestChildEnabled(true);
         tabLayout.setLayoutParams(new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.MATCH_PARENT));
         return tabLayout;
@@ -203,7 +202,6 @@ public class ScrollingTabContainerView extends NineHorizontalScrollView
         return spinner;
     }
 
-    @Override
     protected void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
 
@@ -221,16 +219,16 @@ public class ScrollingTabContainerView extends NineHorizontalScrollView
         }
         if (visibility == VISIBLE) {
             if (getVisibility() != VISIBLE) {
-                setAlpha(0);
+                setSupportAlpha(0);
             }
-            ObjectAnimator anim = ObjectAnimator.ofFloat(this, "alpha", 1);
+            ObjectAnimator anim = ObjectAnimator.ofFloat(this, "supportAlpha", 1);
             anim.setDuration(FADE_DURATION);
             anim.setInterpolator(sAlphaInterpolator);
 
             anim.addListener(mVisAnimListener.withFinalVisibility(visibility));
             anim.start();
         } else {
-            ObjectAnimator anim = ObjectAnimator.ofFloat(this, "alpha", 0);
+            ObjectAnimator anim = ObjectAnimator.ofFloat(this, "supportAlpha", 0);
             anim.setDuration(FADE_DURATION);
             anim.setInterpolator(sAlphaInterpolator);
 

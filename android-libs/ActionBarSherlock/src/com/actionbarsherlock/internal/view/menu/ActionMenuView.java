@@ -68,12 +68,9 @@ public class ActionMenuView extends IcsLinearLayout implements MenuBuilder.ItemI
     public boolean isExpandedFormat() {
         return mFormatItems;
     }
-
-    @Override
+    
     public void onConfigurationChanged(Configuration newConfig) {
-        if (IS_FROYO) {
-            super.onConfigurationChanged(newConfig);
-        }
+        super.onConfigurationChanged(newConfig);
         mPresenter.updateMenuView(false);
 
         if (mPresenter != null && mPresenter.isOverflowMenuShowing()) {
@@ -81,6 +78,7 @@ public class ActionMenuView extends IcsLinearLayout implements MenuBuilder.ItemI
             mPresenter.showOverflowMenu();
         }
     }
+
 
     @Override
     protected void onDraw(Canvas canvas) {
@@ -520,9 +518,6 @@ public class ActionMenuView extends IcsLinearLayout implements MenuBuilder.ItemI
 
     //@Override
     protected boolean hasDividerBeforeChildAt(int childIndex) {
-        if (childIndex == 0) {
-            return false;
-        }
         final View childBefore = getChildAt(childIndex - 1);
         final View child = getChildAt(childIndex);
         boolean result = false;

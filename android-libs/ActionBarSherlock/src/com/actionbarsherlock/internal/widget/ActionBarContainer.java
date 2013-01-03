@@ -18,11 +18,8 @@ package com.actionbarsherlock.internal.widget;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -62,16 +59,6 @@ public class ActionBarContainer extends NineFrameLayout {
         mBackground = a.getDrawable(R.styleable.SherlockActionBar_background);
         mStackedBackground = a.getDrawable(
                 R.styleable.SherlockActionBar_backgroundStacked);
-
-        //Fix for issue #379
-        if (mStackedBackground instanceof ColorDrawable && Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-            Bitmap bitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888);
-            Canvas c = new Canvas(bitmap);
-            mStackedBackground.draw(c);
-            int color = bitmap.getPixel(0, 0);
-            bitmap.recycle();
-            mStackedBackground = new IcsColorDrawable(color);
-        }
 
         if (getId() == R.id.abs__split_action_bar) {
             mIsSplit = true;
@@ -124,6 +111,7 @@ public class ActionBarContainer extends NineFrameLayout {
         return mIsTransitioning || super.onInterceptTouchEvent(ev);
     }
 
+    /*
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
         super.onTouchEvent(ev);
@@ -134,11 +122,12 @@ public class ActionBarContainer extends NineFrameLayout {
 
     @Override
     public boolean onHoverEvent(MotionEvent ev) {
-        super.onHoverEvent(ev);
+        super.supportOnHoverEvent(ev);
 
         // An action bar always eats hover events.
         return true;
     }
+    */
 
     public void setTabContainer(ScrollingTabContainerView tabView) {
         if (mTabContainer != null) {

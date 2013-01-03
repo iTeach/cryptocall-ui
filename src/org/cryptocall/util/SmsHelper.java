@@ -65,13 +65,50 @@ public class SmsHelper {
         sendSms(context, telephoneNumber, message);
     }
 
+    public BroadcastReceiver SmsSendReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context arg0, Intent arg1) {
+            switch (getResultCode()) {
+            case Activity.RESULT_OK:
+                sendUpdateUiToHandler("SMS was send!");
+                break;
+            case SmsManager.RESULT_ERROR_GENERIC_FAILURE:
+                sendUpdateUiToHandler("Generic failure");
+                break;
+            case SmsManager.RESULT_ERROR_NO_SERVICE:
+                sendUpdateUiToHandler("No service");
+                break;
+            case SmsManager.RESULT_ERROR_NULL_PDU:
+                sendUpdateUiToHandler("Null PDU");
+                break;
+            case SmsManager.RESULT_ERROR_RADIO_OFF:
+                sendUpdateUiToHandler("Radio off");
+                break;
+            }
+        }
+    };
+
+    public BroadcastReceiver SmsDeliveredReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context arg0, Intent arg1) {
+            switch (getResultCode()) {
+            case Activity.RESULT_OK:
+                sendUpdateUiToHandler("SMS delivered");
+                break;
+            case Activity.RESULT_CANCELED:
+                sendUpdateUiToHandler("SMS not delivered");
+                break;
+            }
+        }
+    };
+
     /**
      * Send generic SMS
      * 
      * @param phoneNumber
      * @param message
      */
-    public void sendSms(final Context context, String phoneNumber, String message) {
+    public void sendSms(Context context, String phoneNumber, String message) {
         sendUpdateUiToHandler("Sending CryptoCall SMS...");
 
         if (PhoneNumberUtils.isWellFormedSmsAddress(phoneNumber)) {
@@ -84,43 +121,10 @@ public class SmsHelper {
                     new Intent(DELIVERED), 0);
 
             /* when the SMS has been sent */
-            context.registerReceiver(new BroadcastReceiver() {
-                @Override
-                public void onReceive(Context arg0, Intent arg1) {
-                    switch (getResultCode()) {
-                    case Activity.RESULT_OK:
-                        sendUpdateUiToHandler("SMS was send!");
-                        break;
-                    case SmsManager.RESULT_ERROR_GENERIC_FAILURE:
-                        sendUpdateUiToHandler("Generic failure");
-                        break;
-                    case SmsManager.RESULT_ERROR_NO_SERVICE:
-                        sendUpdateUiToHandler("No service");
-                        break;
-                    case SmsManager.RESULT_ERROR_NULL_PDU:
-                        sendUpdateUiToHandler("Null PDU");
-                        break;
-                    case SmsManager.RESULT_ERROR_RADIO_OFF:
-                        sendUpdateUiToHandler("Radio off");
-                        break;
-                    }
-                }
-            }, new IntentFilter(SENT));
+            context.registerReceiver(SmsSendReceiver, new IntentFilter(SENT));
 
             /* when the SMS has been delivered */
-            context.registerReceiver(new BroadcastReceiver() {
-                @Override
-                public void onReceive(Context arg0, Intent arg1) {
-                    switch (getResultCode()) {
-                    case Activity.RESULT_OK:
-                        sendUpdateUiToHandler("SMS delivered");
-                        break;
-                    case Activity.RESULT_CANCELED:
-                        sendUpdateUiToHandler("SMS not delivered");
-                        break;
-                    }
-                }
-            }, new IntentFilter(DELIVERED));
+            context.registerReceiver(SmsDeliveredReceiver, new IntentFilter(DELIVERED));
 
             Log.d(Constants.TAG, "Sending SMS to " + phoneNumber + " with message: " + message);
 
@@ -130,6 +134,11 @@ public class SmsHelper {
         } else {
             sendUpdateUiToHandler("SMS destination invalid - try again");
         }
+    }
+
+    public void unregisterReceivers(Context context) {
+        context.unregisterReceiver(SmsSendReceiver);
+        context.unregisterReceiver(SmsDeliveredReceiver);
     }
 
     private void sendUpdateUiToHandler(String message) {

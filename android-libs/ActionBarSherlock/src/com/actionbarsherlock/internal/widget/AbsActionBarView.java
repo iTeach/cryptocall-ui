@@ -15,6 +15,7 @@
  */
 package com.actionbarsherlock.internal.widget;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
@@ -65,11 +66,8 @@ public abstract class AbsActionBarView extends NineViewGroup {
         super(context, attrs, defStyle);
         mContext = context;
     }
-
-    /*
-     * Must be public so we can dispatch pre-2.2 via ActionBarImpl.
-     */
-    @Override
+    
+    @TargetApi(8)
     public void onConfigurationChanged(Configuration newConfig) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
             super.onConfigurationChanged(newConfig);
@@ -137,17 +135,17 @@ public abstract class AbsActionBarView extends NineViewGroup {
         }
         if (visibility == VISIBLE) {
             if (getVisibility() != VISIBLE) {
-                setAlpha(0);
+                setSupportAlpha(0);
                 if (mSplitView != null && mMenuView != null) {
-                    mMenuView.setAlpha(0);
+                    mMenuView.setSupportAlpha(0);
                 }
             }
-            ObjectAnimator anim = ObjectAnimator.ofFloat(this, "alpha", 1);
+            ObjectAnimator anim = ObjectAnimator.ofFloat(this, "supportAlpha", 1);
             anim.setDuration(FADE_DURATION);
             anim.setInterpolator(sAlphaInterpolator);
             if (mSplitView != null && mMenuView != null) {
                 AnimatorSet set = new AnimatorSet();
-                ObjectAnimator splitAnim = ObjectAnimator.ofFloat(mMenuView, "alpha", 1);
+                ObjectAnimator splitAnim = ObjectAnimator.ofFloat(mMenuView, "supportAlpha", 1);
                 splitAnim.setDuration(FADE_DURATION);
                 set.addListener(mVisAnimListener.withFinalVisibility(visibility));
                 set.play(anim).with(splitAnim);
@@ -157,12 +155,12 @@ public abstract class AbsActionBarView extends NineViewGroup {
                 anim.start();
             }
         } else {
-            ObjectAnimator anim = ObjectAnimator.ofFloat(this, "alpha", 0);
+            ObjectAnimator anim = ObjectAnimator.ofFloat(this, "supportAlpha", 0);
             anim.setDuration(FADE_DURATION);
             anim.setInterpolator(sAlphaInterpolator);
             if (mSplitView != null && mMenuView != null) {
                 AnimatorSet set = new AnimatorSet();
-                ObjectAnimator splitAnim = ObjectAnimator.ofFloat(mMenuView, "alpha", 0);
+                ObjectAnimator splitAnim = ObjectAnimator.ofFloat(mMenuView, "supportAlpha", 0);
                 splitAnim.setDuration(FADE_DURATION);
                 set.addListener(mVisAnimListener.withFinalVisibility(visibility));
                 set.play(anim).with(splitAnim);

@@ -79,15 +79,10 @@ public class MenuWrapper implements Menu {
 
     @Override
     public int addIntentOptions(int groupId, int itemId, int order, ComponentName caller, Intent[] specifics, Intent intent, int flags, MenuItem[] outSpecificItems) {
-        int result;
-        if (outSpecificItems != null) {
-            android.view.MenuItem[] nativeOutItems = new android.view.MenuItem[outSpecificItems.length];
-            result = mNativeMenu.addIntentOptions(groupId, itemId, order, caller, specifics, intent, flags, nativeOutItems);
-            for (int i = 0, length = outSpecificItems.length; i < length; i++) {
-                outSpecificItems[i] = new MenuItemWrapper(nativeOutItems[i]);
-            }
-        } else {
-            result = mNativeMenu.addIntentOptions(groupId, itemId, order, caller, specifics, intent, flags, null);
+        android.view.MenuItem[] nativeOutItems = new android.view.MenuItem[outSpecificItems.length];
+        int result = mNativeMenu.addIntentOptions(groupId, itemId, order, caller, specifics, intent, flags, nativeOutItems);
+        for (int i = 0, length = outSpecificItems.length; i < length; i++) {
+            outSpecificItems[i] = new MenuItemWrapper(nativeOutItems[i]);
         }
         return result;
     }

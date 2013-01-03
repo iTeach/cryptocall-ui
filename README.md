@@ -11,13 +11,13 @@ Fork CryptoCall and do a merge request. I will merge your changes back into the 
 ## Build with Ant
 
 1. Have Android SDK in your path
-2. Execute ``android update project -p .``
-3. Execute ``ant release``
+2. Execute ``android update project -p .`` in ``.`` and ``android-libs/ActionBarSherlock``
+3. Execute ``ant debug``
 
 ## Build with Eclipse
 
-1. File -> Import -> Android -> Existing Android Code Into Workspace, choose ``android-libs/ActionBarSherlock``
-2. File -> Import -> Android -> Existing Android Code Into Workspace, choose ``CryptoCall``
+1. File -> Import -> Android -> Existing Android Code Into Workspace, choose "android-libs/ActionBarSherlock"
+2. File -> Import -> Android -> Existing Android Code Into Workspace, choose main directory
 3. CryptoCall can now be build
 
 # Libraries

@@ -18,6 +18,7 @@ package com.actionbarsherlock.internal.app;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
@@ -26,7 +27,6 @@ import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Handler;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import android.util.TypedValue;
 import android.view.ContextThemeWrapper;
@@ -37,6 +37,7 @@ import android.view.accessibility.AccessibilityEvent;
 import android.widget.SpinnerAdapter;
 import com.actionbarsherlock.R;
 import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.internal.nineoldandroids.animation.Animator;
 import com.actionbarsherlock.internal.nineoldandroids.animation.AnimatorListenerAdapter;
 import com.actionbarsherlock.internal.nineoldandroids.animation.AnimatorSet;
@@ -111,8 +112,8 @@ public class ActionBarImpl extends ActionBar {
         @Override
         public void onAnimationEnd(Animator animation) {
             if (mContentView != null) {
-                mContentView.setTranslationY(0);
-                mContainerView.setTranslationY(0);
+                mContentView.setSupportTranslationY(0);
+                mContainerView.setSupportTranslationY(0);
             }
             if (mSplitView != null && mContextDisplayMode == CONTEXT_DISPLAY_SPLIT) {
                 mSplitView.setVisibility(View.GONE);
@@ -176,6 +177,7 @@ public class ActionBarImpl extends ActionBar {
                 R.bool.abs__action_bar_embed_tabs));
     }
 
+    @TargetApi(8)
     public void onConfigurationChanged(Configuration newConfig) {
         setHasEmbeddedTabs(getResources_getBoolean(mContext,
                 R.bool.abs__action_bar_embed_tabs));
@@ -506,8 +508,8 @@ public class ActionBarImpl extends ActionBar {
         }
 
         FragmentTransaction trans = null;
-        if (mActivity instanceof FragmentActivity) {
-            trans = ((FragmentActivity)mActivity).getSupportFragmentManager().beginTransaction()
+        if (mActivity instanceof SherlockFragmentActivity) {
+            trans = ((SherlockFragmentActivity)mActivity).getSupportFragmentManager().beginTransaction()
                     .disallowAddToBackStack();
         }
 
@@ -558,17 +560,17 @@ public class ActionBarImpl extends ActionBar {
         mContainerView.setVisibility(View.VISIBLE);
 
         if (mShowHideAnimationEnabled) {
-            mContainerView.setAlpha(0);
+            mContainerView.setSupportAlpha(0);
             AnimatorSet anim = new AnimatorSet();
-            AnimatorSet.Builder b = anim.play(ObjectAnimator.ofFloat(mContainerView, "alpha", 1));
+            AnimatorSet.Builder b = anim.play(ObjectAnimator.ofFloat(mContainerView, "supportAlpha", 1));
             if (mContentView != null) {
                 b.with(ObjectAnimator.ofFloat(mContentView, "translationY",
                         -mContainerView.getHeight(), 0));
-                mContainerView.setTranslationY(-mContainerView.getHeight());
+                mContainerView.setSupportTranslationY(-mContainerView.getHeight());
                 b.with(ObjectAnimator.ofFloat(mContainerView, "translationY", 0));
             }
             if (mSplitView != null && mContextDisplayMode == CONTEXT_DISPLAY_SPLIT) {
-                mSplitView.setAlpha(0);
+                mSplitView.setSupportAlpha(0);
                 mSplitView.setVisibility(View.VISIBLE);
                 b.with(ObjectAnimator.ofFloat(mSplitView, "alpha", 1));
             }
@@ -576,8 +578,8 @@ public class ActionBarImpl extends ActionBar {
             mCurrentShowAnim = anim;
             anim.start();
         } else {
-            mContainerView.setAlpha(1);
-            mContainerView.setTranslationY(0);
+            mContainerView.setSupportAlpha(1);
+            mContainerView.setSupportTranslationY(0);
             mShowListener.onAnimationEnd(null);
         }
     }
@@ -592,10 +594,10 @@ public class ActionBarImpl extends ActionBar {
         }
 
         if (mShowHideAnimationEnabled) {
-            mContainerView.setAlpha(1);
+            mContainerView.setSupportAlpha(1);
             mContainerView.setTransitioning(true);
             AnimatorSet anim = new AnimatorSet();
-            AnimatorSet.Builder b = anim.play(ObjectAnimator.ofFloat(mContainerView, "alpha", 0));
+            AnimatorSet.Builder b = anim.play(ObjectAnimator.ofFloat(mContainerView, "supportAlpha", 0));
             if (mContentView != null) {
                 b.with(ObjectAnimator.ofFloat(mContentView, "translationY",
                         0, -mContainerView.getHeight()));
@@ -603,8 +605,8 @@ public class ActionBarImpl extends ActionBar {
                         -mContainerView.getHeight()));
             }
             if (mSplitView != null && mSplitView.getVisibility() == View.VISIBLE) {
-                mSplitView.setAlpha(1);
-                b.with(ObjectAnimator.ofFloat(mSplitView, "alpha", 0));
+                mSplitView.setSupportAlpha(1);
+                b.with(ObjectAnimator.ofFloat(mSplitView, "supportAlpha", 0));
             }
             anim.addListener(mHideListener);
             mCurrentShowAnim = anim;

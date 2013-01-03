@@ -6,6 +6,7 @@ import com.actionbarsherlock.internal.app.ActionBarWrapper;
 import com.actionbarsherlock.internal.view.menu.MenuWrapper;
 import com.actionbarsherlock.view.ActionMode;
 import com.actionbarsherlock.view.MenuInflater;
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
@@ -15,6 +16,7 @@ import android.view.View;
 import android.view.Window;
 import android.view.ViewGroup.LayoutParams;
 
+@TargetApi(14)
 @ActionBarSherlock.Implementation(api = 14)
 public class ActionBarSherlockNative extends ActionBarSherlock {
     private ActionBarWrapper mActionBar;
@@ -208,12 +210,7 @@ public class ActionBarSherlockNative extends ActionBarSherlock {
         //is where we will set the new instance to mActionMode since we need
         //to pass it through to the sherlock callbacks and the call below
         //will not have returned yet to store its value.
-        if (mActivity.startActionMode(wrapped) == null) {
-            mActionMode = null;
-        }
-        if (mActivity instanceof OnActionModeStartedListener && mActionMode != null) {
-            ((OnActionModeStartedListener)mActivity).onActionModeStarted(mActionMode);
-        }
+        mActivity.startActionMode(wrapped);
 
         return mActionMode;
     }
@@ -246,9 +243,6 @@ public class ActionBarSherlockNative extends ActionBarSherlock {
         @Override
         public void onDestroyActionMode(android.view.ActionMode mode) {
             mCallback.onDestroyActionMode(mActionMode);
-            if (mActivity instanceof OnActionModeFinishedListener) {
-                ((OnActionModeFinishedListener)mActivity).onActionModeFinished(mActionMode);
-            }
         }
     }
 
