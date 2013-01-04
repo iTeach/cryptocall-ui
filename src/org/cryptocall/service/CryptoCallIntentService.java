@@ -21,14 +21,13 @@
 package org.cryptocall.service;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.math.BigInteger;
 import java.util.List;
 
 import javax.security.auth.callback.CallbackHandler;
 
 import org.cryptocall.CryptoCallApplication;
-import org.cryptocall.api.CryptoCallSession;
+import org.cryptocall.CryptoCallSession;
 import org.cryptocall.util.Constants;
 import org.cryptocall.util.CryptoCallSessionFactory;
 import org.cryptocall.util.Log;
@@ -49,7 +48,6 @@ import org.thialfihar.android.apg.service.handler.IApgGetKeyringsHandler;
 import com.csipsimple.api.SipManager;
 
 import android.app.IntentService;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Message;
@@ -77,9 +75,6 @@ public class CryptoCallIntentService extends IntentService {
 
     /* Return values */
     public static final int HANDLER_MSG_OKAY = 10001;
-
-    public static final int KEY_TYPE_RSA = 1;
-    public static final int KEY_TYPE_DSA = 2;
 
     /* internal variables */
     private PGPPublicKeyRing mReceiverPublicKeyring;
@@ -261,10 +256,10 @@ public class CryptoCallIntentService extends IntentService {
                             BigInteger pubKeyContentBI = null;
                             if (key instanceof RSAPublicBCPGKey) {
                                 pubKeyContentBI = ((RSAPublicBCPGKey) key).getModulus();
-                                session.publicKeyType = KEY_TYPE_RSA;
+                                session.publicKeyType = CryptoCallSession.KEY_TYPE_RSA;
                             } else if (key instanceof DSAPublicBCPGKey) {
                                 pubKeyContentBI = ((DSAPublicBCPGKey) key).getY();
-                                session.publicKeyType = KEY_TYPE_DSA;
+                                session.publicKeyType = CryptoCallSession.KEY_TYPE_DSA;
                             }
 
                             session.publicKeyHex = pubKeyContentBI.toString(16);

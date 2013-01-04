@@ -27,7 +27,11 @@ import org.cryptocall.service.ApgKeyServiceConnection;
 import org.spongycastle.jce.provider.BouncyCastleProvider;
 import org.thialfihar.android.apg.service.IApgKeyService;
 
+import com.csipsimple.api.SipConfigManager;
+
 import android.app.Application;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 
 public class CryptoCallApplication extends Application {
     public final ApgKeyServiceConnection mApgKeyServiceConnection = new ApgKeyServiceConnection(
@@ -48,6 +52,16 @@ public class CryptoCallApplication extends Application {
 
         // Apg service
         mApgKeyServiceConnection.bindToApgKeyService();
+        
+        // Retrieve private preferences
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+//        boolean alreadySetup = prefs.getBoolean(SAMPLE_ALREADY_SETUP, false);
+//        if(!alreadySetup) {
+            // Activate debugging .. here can come various other options
+            // One can also decide to reuse csipsimple activities to setup config
+            SipConfigManager.setPreferenceStringValue(this, SipConfigManager.LOG_LEVEL, "5");
+//        }
+        
     }
 
     @Override
