@@ -92,6 +92,90 @@
         </activity>
 
         <!-- BEGIN CSIPSIMPLE -->
+        
+        <!-- TODO: check properties of poutgoing call activities -->
+        
+        <activity
+            android:name="com.csipsimple.ui.outgoingcall.OutgoingCallChooser"
+            android:allowTaskReparenting="false"
+            android:configChanges="orientation"
+            android:excludeFromRecents="true"
+            android:label="@string/call"
+            android:launchMode="singleTask"
+            android:permission="android.permission.USE_SIP"
+            android:process=":sipStack"
+            android:taskAffinity=""
+            android:theme="@style/DarkTheme.Dialog" >
+            <intent-filter>
+                <action android:name="android.intent.action.CALL" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:scheme="csip" />
+                <data android:scheme="sip" />
+                <data android:scheme="sips" />
+            </intent-filter>
+            <intent-filter android:priority="10" >
+                <action android:name="android.phone.extra.NEW_CALL_INTENT" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:scheme="csip" />
+                <data android:scheme="sip" />
+                <data android:scheme="sips" />
+            </intent-filter>
+        </activity>
+
+        <activity-alias
+            android:name="com.csipsimple.ui.PrivilegedOutgoingSipCallBroadcaster"
+            android:configChanges="orientation"
+            android:excludeFromRecents="true"
+            android:launchMode="singleTask"
+            android:permission="android.permission.CALL_PRIVILEGED"
+            android:targetActivity="com.csipsimple.ui.outgoingcall.OutgoingCallChooser"
+            android:theme="@style/DarkTheme.Dialog" >
+            <intent-filter>
+                <action android:name="android.intent.action.CALL_PRIVILEGED" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:scheme="sip" />
+            </intent-filter>
+        </activity-alias>
+        <activity-alias
+            android:name="com.csipsimple.ui.PrivilegedOutgoingCallBroadcaster"
+            android:configChanges="orientation"
+            android:enabled="false"
+            android:excludeFromRecents="true"
+            android:label="@string/sip_call"
+            android:launchMode="singleTask"
+            android:permission="android.permission.CALL_PRIVILEGED"
+            android:targetActivity="com.csipsimple.ui.outgoingcall.OutgoingCallChooser"
+            android:theme="@style/DarkTheme.Dialog" >
+            <intent-filter>
+                <action android:name="android.intent.action.CALL_PRIVILEGED" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:scheme="tel" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.CALL_PRIVILEGED" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:mimeType="vnd.android.cursor.item/phone" />
+                <data android:mimeType="vnd.android.cursor.item/phone_v2" />
+                <data android:mimeType="vnd.android.cursor.item/person" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.SENDTO" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:scheme="smsto" />
+            </intent-filter>
+        </activity-alias>
 
 
         <!-- To be able to do video, this has to be launched in sipStack process -->
