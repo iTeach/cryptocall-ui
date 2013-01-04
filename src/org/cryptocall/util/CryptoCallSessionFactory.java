@@ -38,9 +38,10 @@ public class CryptoCallSessionFactory {
      * 
      * @param context
      */
-    public static CryptoCallSession generateSessionWithNameAndTelephoneNumber(Context context, String email) {
+    public static CryptoCallSession generateSessionWithNameAndTelephoneNumber(Context context,
+            String email) {
         CryptoCallSession session = new CryptoCallSession();
-        session.email = email;
+        session.peerEmail = email;
 
         byte[] pgpEmailSalt = null;
         try {
@@ -59,7 +60,7 @@ public class CryptoCallSessionFactory {
 
         // get the contact for this email
         if (cursor.moveToFirst()) {
-            session.name = cursor.getString(cursor.getColumnIndex(Contacts.DISPLAY_NAME));
+            session.peerName = cursor.getString(cursor.getColumnIndex(Contacts.DISPLAY_NAME));
             long rawContactId = cursor.getLong(cursor.getColumnIndex(Data.RAW_CONTACT_ID));
 
             Cursor phonesCursor = context.getContentResolver().query(
@@ -79,11 +80,11 @@ public class CryptoCallSessionFactory {
                 String generatedEmail = ProtectedEmailUtils.generateProtectedEmail(telephoneNumber,
                         pgpEmailSalt);
 
-                if (generatedEmail != null && generatedEmail.equals(session.email)) {
-                    Log.d(Constants.TAG, "Found telephoneNumber! email: " + session.email
+                if (generatedEmail != null && generatedEmail.equals(session.peerEmail)) {
+                    Log.d(Constants.TAG, "Found telephoneNumber! email: " + session.peerEmail
                             + " for telephoneNumber " + telephoneNumber);
 
-                    session.telephoneNumber = telephoneNumber;
+                    session.peerTelephoneNumber = telephoneNumber;
                 }
 
             }
@@ -91,7 +92,7 @@ public class CryptoCallSessionFactory {
 
         }
         cursor.close();
-        
+
         return session;
     }
 }

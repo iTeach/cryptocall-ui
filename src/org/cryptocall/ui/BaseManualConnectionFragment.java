@@ -105,12 +105,12 @@ public class BaseManualConnectionFragment extends Fragment {
                 try {
                     // start sending sms activity
                     Intent activityIntent = new Intent();
-                    activityIntent.setClass(mBaseActivity, SmsSendingActivity.class);
+                    activityIntent.setClass(mBaseActivity, SmsReceivedActivity.class);
                     activityIntent.putExtra(SmsReceivedActivity.EXTRA_CRYPTOCALL_EMAIL,
                             mReceiveEmail.getText().toString());
-                    activityIntent.putExtra(SmsReceivedActivity.EXTRA_MANUAL_IP, mIp.getText()
+                    activityIntent.putExtra(SmsReceivedActivity.EXTRA_SERVER_IP, mIp.getText()
                             .toString());
-                    activityIntent.putExtra(SmsReceivedActivity.EXTRA_MANUAL_PORT,
+                    activityIntent.putExtra(SmsReceivedActivity.EXTRA_SERVER_PORT,
                             Integer.valueOf(mPort.getText().toString()));
                     mBaseActivity.startActivity(activityIntent);
                 } catch (Exception e) {

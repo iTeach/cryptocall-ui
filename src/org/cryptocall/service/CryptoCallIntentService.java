@@ -67,21 +67,25 @@ public class CryptoCallIntentService extends IntentService {
     public static final String EXTRA_DATA = "data";
 
     /* possible EXTRA_ACTIONs */
-    public static final int ACTION_START = 10;
+    public static final int ACTION_START_SENDING = 10;
+    public static final int ACTION_START_RECEIVED = 20;
 
     /* values for data bundle */
+    public static final String DATA_PEER_CRYPTOCALL_EMAIL = "email";
+    // sending
     public static final String DATA_SEND_SMS = "sendSms";
-    public static final String DATA_CRYPTOCALL_EMAIL = "session";
+    // received
+    public static final String DATA_SERVER_IP = "serverIp";
+    public static final String DATA_SERVER_PORT = "serverPort";
 
     /* Return values */
     public static final int HANDLER_MSG_OKAY = 10001;
 
     /* internal variables */
-    private PGPPublicKeyRing mReceiverPublicKeyring;
+    private PGPPublicKeyRing mPeerPublicKeyring;
     private PGPSecretKeyRing mMySecretKeyring;
 
     Messenger mMessenger;
-
     SmsHelper mSmsHelper;
 
     public CryptoCallIntentService() {
@@ -105,7 +109,7 @@ public class CryptoCallIntentService extends IntentService {
         // mSmsHelper.unregisterReceivers(this);
     }
 
-    private final IApgGetKeyringsHandler.Stub getPublicKeyringHandler = new IApgGetKeyringsHandler.Stub() {
+    private final IApgGetKeyringsHandler.Stub getPeerPublicKeyringHandler = new IApgGetKeyringsHandler.Stub() {
 
         @Override
         public void onException(final int exceptionId, final String message) throws RemoteException {
@@ -117,7 +121,7 @@ public class CryptoCallIntentService extends IntentService {
                 throws RemoteException {
             Log.d(Constants.TAG, "getPublicKeyringHandler on success");
 
-            mReceiverPublicKeyring = (PGPPublicKeyRing) PgpHelper.BytesToPGPKeyRing(outputBytes);
+            mPeerPublicKeyring = (PGPPublicKeyRing) PgpHelper.BytesToPGPKeyRing(outputBytes);
 
             // notify main thread that keyring was successfully retrieved
             synchronized (syncToken) {
@@ -127,7 +131,7 @@ public class CryptoCallIntentService extends IntentService {
 
     };
 
-    private final IApgGetKeyringsHandler.Stub getSecretKeyringHandler = new IApgGetKeyringsHandler.Stub() {
+    private final IApgGetKeyringsHandler.Stub getMySecretKeyringHandler = new IApgGetKeyringsHandler.Stub() {
 
         @Override
         public void onException(final int exceptionId, final String message) throws RemoteException {
@@ -177,113 +181,113 @@ public class CryptoCallIntentService extends IntentService {
 
         int action = extras.getInt(EXTRA_ACTION);
 
-        // execute action from extra bundle
-        switch (action) {
-        case ACTION_START:
-            Log.d(Constants.TAG, "ACTION_PUB_KEY_AND_CERT");
+        try {
+            /* Input */
+            String peerEmail = data.getString(DATA_PEER_CRYPTOCALL_EMAIL);
 
-            try {
-                /* Input */
-                String email = data.getString(DATA_CRYPTOCALL_EMAIL);
-                boolean sendSms = data.getBoolean(DATA_SEND_SMS);
+            /* 0. Get corresponding telephoneNumber, name of receiver */
+            CryptoCallSession session = CryptoCallSessionFactory
+                    .generateSessionWithNameAndTelephoneNumber(this, peerEmail);
 
-                /* 0. Get corresponding telephoneNumber, name of receiver */
-                CryptoCallSession session = CryptoCallSessionFactory
-                        .generateSessionWithNameAndTelephoneNumber(this, email);
+            String myIp = NetworkUtils.getLocalIpAddress(this);
 
-                String myIp = NetworkUtils.getLocalIpAddress(this);
+            // if we have a local ip address
+            if (myIp != null) {
 
-                // TODO: choose from random?
-                session.serverPort = 6666;
+                ApgContentProviderHelper apgContentProviderHelper = new ApgContentProviderHelper(
+                        this);
+                long[] peerKeyringIds = apgContentProviderHelper
+                        .getPublicKeyringIdsByEmail(session.peerEmail);
 
-                // if we have a local ip address
-                if (myIp != null) {
+                // Get actual key!
+                if (peerKeyringIds != null) {
+                    long peerKeringId = peerKeyringIds[0];
+                    long myKeyringId = PreferencesHelper.getPgpMasterKeyId(this);
 
-                    ApgContentProviderHelper apgContentProviderHelper = new ApgContentProviderHelper(
-                            this);
-                    long[] receiverKeyringIds = apgContentProviderHelper
-                            .getPublicKeyringIdsByEmail(session.email);
+                    if (mIApgKeyService != null) {
+                        /* Get PGP public keyring of peer */
+                        try {
+                            mIApgKeyService.getPublicKeyRings(new long[] { peerKeringId }, false,
+                                    getPeerPublicKeyringHandler);
+                        } catch (RemoteException e) {
+                            Log.e(Constants.TAG, "RemoteException", e);
+                        }
 
-                    // Get actual key!
-                    if (receiverKeyringIds != null) {
-                        long receiverKeringId = receiverKeyringIds[0];
-                        long myKeyringId = PreferencesHelper.getPgpMasterKeyId(this);
-
-                        if (mIApgKeyService != null) {
-
-                            /* 1. get X509 certificate and pub key of receiver */
-
-                            /* Get public key of receiver */
+                        // wait for asynchronous getPublicKeyringHandler
+                        synchronized (syncToken) {
                             try {
-                                mIApgKeyService.getPublicKeyRings(new long[] { receiverKeringId },
-                                        false, getPublicKeyringHandler);
-                            } catch (RemoteException e) {
-                                Log.e(Constants.TAG, "RemoteException", e);
+                                syncToken.wait();
+                            } catch (InterruptedException e) {
+                                Log.e(Constants.TAG, "InterruptedException", e);
                             }
+                        }
+                        Log.d(Constants.TAG, "After sync token");
 
-                            // wait for asynchronous getPublicKeyringHandler
-                            synchronized (syncToken) {
-                                try {
-                                    syncToken.wait();
-                                } catch (InterruptedException e) {
-                                    Log.e(Constants.TAG, "InterruptedException", e);
-                                }
-                            }
-                            Log.d(Constants.TAG, "After sync token");
+                        /* get my PGP secret keyring */
+                        try {
+                            mIApgKeyService.getSecretKeyRings(new long[] { myKeyringId }, false,
+                                    getMySecretKeyringHandler);
+                        } catch (RemoteException e) {
+                            Log.e(Constants.TAG, "RemoteException", e);
+                        }
 
-                            /* get my secret keyring */
+                        // wait for asynchronous getSecretKeyringHandler
+                        synchronized (syncToken) {
                             try {
-                                mIApgKeyService.getSecretKeyRings(new long[] { myKeyringId },
-                                        false, getSecretKeyringHandler);
-                            } catch (RemoteException e) {
-                                Log.e(Constants.TAG, "RemoteException", e);
+                                syncToken.wait();
+                            } catch (InterruptedException e) {
+                                Log.e(Constants.TAG, "InterruptedException", e);
                             }
+                        }
+                        Log.d(Constants.TAG, "After sync token 2");
 
-                            // wait for asynchronous getSecretKeyringHandler
-                            synchronized (syncToken) {
-                                try {
-                                    syncToken.wait();
-                                } catch (InterruptedException e) {
-                                    Log.e(Constants.TAG, "InterruptedException", e);
-                                }
-                            }
-                            Log.d(Constants.TAG, "After sync token 2");
+                        /* Get actual pub key values */
+                        BCPGKey key = mPeerPublicKeyring.getPublicKey().getPublicKeyPacket()
+                                .getKey();
 
-                            /* Get actual pub key values */
-                            BCPGKey key = mReceiverPublicKeyring.getPublicKey()
-                                    .getPublicKeyPacket().getKey();
+                        BigInteger pubKeyContentBI = null;
+                        if (key instanceof RSAPublicBCPGKey) {
+                            pubKeyContentBI = ((RSAPublicBCPGKey) key).getModulus();
+                            session.peerPublicKeyType = CryptoCallSession.KEY_TYPE_RSA;
+                        } else if (key instanceof DSAPublicBCPGKey) {
+                            pubKeyContentBI = ((DSAPublicBCPGKey) key).getY();
+                            session.peerPublicKeyType = CryptoCallSession.KEY_TYPE_DSA;
+                        }
 
-                            BigInteger pubKeyContentBI = null;
-                            if (key instanceof RSAPublicBCPGKey) {
-                                pubKeyContentBI = ((RSAPublicBCPGKey) key).getModulus();
-                                session.publicKeyType = CryptoCallSession.KEY_TYPE_RSA;
-                            } else if (key instanceof DSAPublicBCPGKey) {
-                                pubKeyContentBI = ((DSAPublicBCPGKey) key).getY();
-                                session.publicKeyType = CryptoCallSession.KEY_TYPE_DSA;
-                            }
+                        session.peerPublicKeyHex = pubKeyContentBI.toString(16);
 
-                            session.publicKeyHex = pubKeyContentBI.toString(16);
+                        Log.d(Constants.TAG, "pubKeyType: " + session.peerPublicKeyType
+                                + "\npubKeyContent:\n" + session.peerPublicKeyHex);
 
-                            Log.d(Constants.TAG, "pubKeyType: " + session.publicKeyType
-                                    + "\npubKeyContent:\n" + session.publicKeyHex);
+                        // TODO: for pgp keyrings with password
+                        CallbackHandler pgpPwdCallbackHandler = new PgpToX509.PredefinedPasswordCallbackHandler(
+                                "");
 
-                            // TODO: for pgp keyrings with password
-                            CallbackHandler pgpPwdCallbackHandler = new PgpToX509.PredefinedPasswordCallbackHandler(
-                                    "");
+                        PgpToX509.createFiles(this, mMySecretKeyring.getSecretKey(), "",
+                                pgpPwdCallbackHandler);
 
-                            PgpToX509.createFiles(this, mMySecretKeyring.getSecretKey(), "",
-                                    pgpPwdCallbackHandler);
+                        session.myX509CertFile = (new File(getFilesDir(), PgpToX509.CERT_FILENAME))
+                                .getAbsolutePath();
+                        Log.d(Constants.TAG, "session.myX509CertFile: " + session.myX509CertFile);
 
-                            session.X509CertFile = (new File(getFilesDir(), PgpToX509.CERT_FILENAME))
-                                    .getAbsolutePath();
-                            Log.d(Constants.TAG, "session.X509CertFile: " + session.X509CertFile);
+                        session.myX509PrivKeyFile = (new File(getFilesDir(),
+                                PgpToX509.PRIV_KEY_FILENAME)).getAbsolutePath();
+                        Log.d(Constants.TAG, "session.myX509PrivKeyFile: "
+                                + session.myX509PrivKeyFile);
 
-                            session.X509PrivKeyFile = (new File(getFilesDir(),
-                                    PgpToX509.PRIV_KEY_FILENAME)).getAbsolutePath();
-                            Log.d(Constants.TAG, "session.X509PrivKeyFile: "
-                                    + session.X509PrivKeyFile);
+                        // execute action from extra bundle
+                        switch (action) {
+                        case ACTION_START_SENDING:
+                            Log.d(Constants.TAG, "ACTION_START_SENDING");
 
-                            /* 1. Open CSipSimple port with X509 certificate and pub key of receiver */
+                            boolean sendSms = data.getBoolean(DATA_SEND_SMS);
+
+                            // set ip
+                            session.serverIp = myIp;
+
+                            // TODO: choose from random?
+                            session.serverPort = 6666;
+
                             // start sip service to open port etc.
                             Intent it = new Intent(SipManager.INTENT_SIP_SERVICE);
                             it.putExtra(SipManager.EXTRA_CRYPTOCALL_SESSION, session);
@@ -294,23 +298,38 @@ public class CryptoCallIntentService extends IntentService {
                                 mSmsHelper.sendCryptoCallSms(this, session);
                             }
 
+                            break;
+
+                        case ACTION_START_RECEIVED:
+                            Log.d(Constants.TAG, "ACTION_START_RECEIVED");
+
+                            // get server ip and port from intent data (originally retrieved from
+                            // sms)
+                            session.serverIp = data.getString(DATA_SERVER_IP);
+                            session.serverPort = data.getInt(DATA_SERVER_PORT);
+
+                            // start sip service to open port etc.
+                            Intent it2 = new Intent(SipManager.INTENT_SIP_SERVICE);
+                            it2.putExtra(SipManager.EXTRA_CRYPTOCALL_SESSION, session);
+                            startService(it2);
+
+                            break;
+
+                        default:
+                            break;
                         }
 
-                    } else {
-                        Log.e(Constants.TAG, "mIApgKeyService is null!");
                     }
-                } else {
-                    Log.e(Constants.TAG, "public keyring not found for this email!");
-                }
 
-            } catch (Exception e) {
-                sendErrorToHandler(e);
+                } else {
+                    Log.e(Constants.TAG, "mIApgKeyService is null!");
+                }
+            } else {
+                Log.e(Constants.TAG, "public keyring not found for this email!");
             }
 
-            break;
-
-        default:
-            break;
+        } catch (Exception e) {
+            sendErrorToHandler(e);
         }
 
     }

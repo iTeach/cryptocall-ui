@@ -90,12 +90,12 @@ public class SmsSendingActivity extends SherlockActivity {
 
             Intent serviceIntent = new Intent(mActivity, CryptoCallIntentService.class);
             serviceIntent.putExtra(CryptoCallIntentService.EXTRA_ACTION,
-                    CryptoCallIntentService.ACTION_START);
+                    CryptoCallIntentService.ACTION_START_SENDING);
             serviceIntent
                     .putExtra(CryptoCallIntentService.EXTRA_MESSENGER, new Messenger(mHandler));
 
             Bundle data = new Bundle();
-            data.putString(CryptoCallIntentService.DATA_CRYPTOCALL_EMAIL, email);
+            data.putString(CryptoCallIntentService.DATA_PEER_CRYPTOCALL_EMAIL, email);
             data.putBoolean(CryptoCallIntentService.DATA_SEND_SMS, sendSms);
             serviceIntent.putExtra(CryptoCallIntentService.EXTRA_DATA, data);
 

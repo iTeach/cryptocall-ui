@@ -58,7 +58,7 @@ public class SmsHelper {
         String message = Constants.SMS_PREFIX + session.serverIp + Constants.SMS_SEPERATOR
                 + session.serverPort + Constants.SMS_SEPERATOR + "-"; // reserved for future
 
-        sendSms(context, session.telephoneNumber, message);
+        sendSms(context, session.peerTelephoneNumber, message);
     }
 
     public BroadcastReceiver SmsSendReceiver = new BroadcastReceiver() {
