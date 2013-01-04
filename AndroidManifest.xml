@@ -126,10 +126,12 @@
         <!-- Databases providers -->
         <provider
             android:name="com.csipsimple.service.PreferenceProvider"
-            android:authorities="com.csipsimple.prefs" />
+            android:authorities="com.csipsimple.prefs.cryptocall"
+            android:exported="false" />
         <provider
             android:name="com.csipsimple.db.DBProvider"
-            android:authorities="com.csipsimple.db"
+            android:authorities="com.csipsimple.db.cryptocall"
+            android:exported="false"
             android:process=":sipStack" />
 
         <!-- END CSIPSIMPLE -->
