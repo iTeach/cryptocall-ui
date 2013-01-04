@@ -78,10 +78,6 @@ public class CryptoCallIntentService extends IntentService {
     /* Return values */
     public static final int HANDLER_MSG_OKAY = 10001;
 
-    // public static final String RESULT_X509_CERT = "X509cert";
-    // public static final String RESULT_PUB_KEY_CONTENT = "pubKeyContent";
-    // public static final String RESULT_PUB_KEY_TYPE = "pubKeyType";
-
     public static final int KEY_TYPE_RSA = 1;
     public static final int KEY_TYPE_DSA = 2;
 
