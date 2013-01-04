@@ -29,7 +29,7 @@ import javax.security.auth.callback.CallbackHandler;
 import org.cryptocall.CryptoCallApplication;
 import org.cryptocall.CryptoCallSession;
 import org.cryptocall.util.Constants;
-import org.cryptocall.util.CryptoCallSessionFactory;
+import org.cryptocall.util.CryptoCallSessionUtils;
 import org.cryptocall.util.Log;
 import org.cryptocall.util.NetworkUtils;
 import org.cryptocall.util.PgpHelper;
@@ -69,14 +69,16 @@ public class CryptoCallIntentService extends IntentService {
     /* possible EXTRA_ACTIONs */
     public static final int ACTION_START_SENDING = 10;
     public static final int ACTION_START_RECEIVED = 20;
+    public static final int ACTION_START_PARSE_SMS = 30;
 
     /* values for data bundle */
-    public static final String DATA_PEER_CRYPTOCALL_EMAIL = "email";
-    // sending
+    // ACTION_START_SENDING and ACTION_START_RECEIVED
+    public static final String DATA_PEER_CRYPTOCALL_SESSION = "session";
+    // ACTION_START_SENDING
     public static final String DATA_SEND_SMS = "sendSms";
-    // received
-    public static final String DATA_SERVER_IP = "serverIp";
-    public static final String DATA_SERVER_PORT = "serverPort";
+    // ACTION_START_PARSE_SMS
+    public static final String DATA_SMS_BODY = "smsBody";
+    public static final String DATA_SMS_FROM = "smsFrom";
 
     /* Return values */
     public static final int HANDLER_MSG_OKAY = 10001;
@@ -183,17 +185,15 @@ public class CryptoCallIntentService extends IntentService {
 
         try {
             /* Input */
-            String peerEmail = data.getString(DATA_PEER_CRYPTOCALL_EMAIL);
+            CryptoCallSession session = data.getParcelable(DATA_PEER_CRYPTOCALL_SESSION);
 
             /* 0. Get corresponding telephoneNumber, name of receiver */
-            CryptoCallSession session = CryptoCallSessionFactory
-                    .generateSessionWithNameAndTelephoneNumber(this, peerEmail);
+            session = CryptoCallSessionUtils.getNameAndTelephoneNumberFromEmail(this, session);
 
             String myIp = NetworkUtils.getLocalIpAddress(this);
 
             // if we have a local ip address
             if (myIp != null) {
-
                 ApgContentProviderHelper apgContentProviderHelper = new ApgContentProviderHelper(
                         this);
                 long[] peerKeyringIds = apgContentProviderHelper
@@ -303,15 +303,26 @@ public class CryptoCallIntentService extends IntentService {
                         case ACTION_START_RECEIVED:
                             Log.d(Constants.TAG, "ACTION_START_RECEIVED");
 
-                            // get server ip and port from intent data (originally retrieved from
-                            // sms)
-                            session.serverIp = data.getString(DATA_SERVER_IP);
-                            session.serverPort = data.getInt(DATA_SERVER_PORT);
-
                             // start sip service to open port etc.
                             Intent it2 = new Intent(SipManager.INTENT_SIP_SERVICE);
                             it2.putExtra(SipManager.EXTRA_CRYPTOCALL_SESSION, session);
                             startService(it2);
+
+                            break;
+
+                        case ACTION_START_PARSE_SMS:
+                            Log.d(Constants.TAG, "ACTION_START_RECEIVED");
+
+                            String body = data.getString(DATA_SEND_SMS);
+                            String from = data.getString(DATA_SMS_FROM);
+
+                            CryptoCallSession newSession = new CryptoCallSession();
+                            newSession = CryptoCallSessionUtils.getIpPortAndTelephoneNumberFromSms(
+                                    newSession, body, from);
+                            newSession = CryptoCallSessionUtils.getEmailFromTelephoneNumber(this,
+                                    newSession);
+
+                            // return session
 
                             break;
 

@@ -103,7 +103,7 @@ public class BaseManualConnectionFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 try {
-                    // start sending sms activity
+                    // start received sms activity
                     Intent activityIntent = new Intent();
                     activityIntent.setClass(mBaseActivity, SmsReceivedActivity.class);
                     activityIntent.putExtra(SmsReceivedActivity.EXTRA_CRYPTOCALL_EMAIL,

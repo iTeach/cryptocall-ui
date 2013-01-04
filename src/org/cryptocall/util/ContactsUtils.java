@@ -68,7 +68,7 @@ public class ContactsUtils {
                             .getColumnIndex(Data.RAW_CONTACT_ID));
 
                     String telephoneNumber = phonesCursor.getString(phonesCursor
-                            .getColumnIndex(Phone.NUMBER));
+                            .getColumnIndex(Phone.NORMALIZED_NUMBER));
 
                     Log.d(Constants.TAG, "telephoneNumber: " + telephoneNumber);
 

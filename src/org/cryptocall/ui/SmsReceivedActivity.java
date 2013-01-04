@@ -21,6 +21,7 @@
 
 package org.cryptocall.ui;
 
+import org.cryptocall.CryptoCallSession;
 import org.cryptocall.R;
 import org.cryptocall.service.CryptoCallIntentService;
 import org.cryptocall.util.Constants;
@@ -44,6 +45,9 @@ public class SmsReceivedActivity extends SherlockActivity {
     public static final String EXTRA_CRYPTOCALL_EMAIL = "email";
     public static final String EXTRA_SERVER_IP = "serverIp";
     public static final String EXTRA_SERVER_PORT = "serverPort";
+    // or
+    public static final String EXTRA_SMS_BODY = "smsMessage";
+    public static final String EXTRA_SMS_FROM = "smsFrom";
 
     Activity mActivity;
     ProgressBar mProgress;
@@ -51,9 +55,7 @@ public class SmsReceivedActivity extends SherlockActivity {
     Button mAccept;
     Button mDecline;
 
-    String mEmail;
-    String mServerIp;
-    int mServerPort;
+    CryptoCallSession mSession;
 
     private static Handler mHandler = new Handler() {
 
@@ -89,16 +91,22 @@ public class SmsReceivedActivity extends SherlockActivity {
         mDecline = (Button) findViewById(R.id.sms_received_decline_button);
 
         Bundle extras = getIntent().getExtras();
-        if (extras != null && extras.containsKey(EXTRA_CRYPTOCALL_EMAIL)) {
+        if (extras != null && extras.containsKey(EXTRA_CRYPTOCALL_EMAIL)
+                && extras.containsKey(EXTRA_SERVER_IP) && extras.containsKey(EXTRA_SERVER_PORT)) {
 
-            mEmail = extras.getString(EXTRA_CRYPTOCALL_EMAIL);
-            mServerIp = extras.getString(EXTRA_SERVER_IP);
-            mServerPort = extras.getInt(EXTRA_SERVER_PORT);
+            mSession = new CryptoCallSession();
+            mSession.peerEmail = extras.getString(EXTRA_CRYPTOCALL_EMAIL);
+            mSession.serverIp = extras.getString(EXTRA_SERVER_IP);
+            mSession.serverPort = extras.getInt(EXTRA_SERVER_PORT);
 
-            mStatus.setText("Do you want to connect to " + mServerIp + ":" + mServerPort + "?");
+            mStatus.setText("Do you want to connect to " + mSession.serverIp + ":"
+                    + mSession.serverPort + "?");
+
+        } else if (extras != null && extras.containsKey(EXTRA_SMS_BODY)
+                && extras.containsKey(EXTRA_SMS_FROM)) {
 
         } else {
-            Log.e(Constants.TAG, "Missing email in intent!");
+            Log.e(Constants.TAG, "Missing extras in intent!");
         }
 
         mAccept.setOnClickListener(new OnClickListener() {
@@ -112,15 +120,10 @@ public class SmsReceivedActivity extends SherlockActivity {
                         mHandler));
 
                 Bundle data = new Bundle();
-                data.putString(CryptoCallIntentService.DATA_PEER_CRYPTOCALL_EMAIL, mEmail);
-
-                data.putString(CryptoCallIntentService.DATA_SERVER_IP, mServerIp);
-                data.putInt(CryptoCallIntentService.DATA_SERVER_PORT, mServerPort);
-
+                data.putParcelable(CryptoCallIntentService.DATA_PEER_CRYPTOCALL_SESSION, mSession);
                 serviceIntent.putExtra(CryptoCallIntentService.EXTRA_DATA, data);
 
                 startService(serviceIntent);
-
             }
         });
 

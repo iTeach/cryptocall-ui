@@ -21,6 +21,7 @@
 
 package org.cryptocall.ui;
 
+import org.cryptocall.CryptoCallSession;
 import org.cryptocall.R;
 import org.cryptocall.service.CryptoCallIntentService;
 import org.cryptocall.util.Constants;
@@ -44,6 +45,8 @@ public class SmsSendingActivity extends SherlockActivity {
     Activity mActivity;
     ProgressBar mProgress;
     static TextView mStatus;
+
+    CryptoCallSession mSession;
 
     private static Handler mHandler = new Handler() {
 
@@ -88,6 +91,9 @@ public class SmsSendingActivity extends SherlockActivity {
                 sendSms = extras.getBoolean(EXTRA_SEND_SMS);
             }
 
+            mSession = new CryptoCallSession();
+            mSession.peerEmail = email;
+
             Intent serviceIntent = new Intent(mActivity, CryptoCallIntentService.class);
             serviceIntent.putExtra(CryptoCallIntentService.EXTRA_ACTION,
                     CryptoCallIntentService.ACTION_START_SENDING);
@@ -95,7 +101,7 @@ public class SmsSendingActivity extends SherlockActivity {
                     .putExtra(CryptoCallIntentService.EXTRA_MESSENGER, new Messenger(mHandler));
 
             Bundle data = new Bundle();
-            data.putString(CryptoCallIntentService.DATA_PEER_CRYPTOCALL_EMAIL, email);
+            data.putParcelable(CryptoCallIntentService.DATA_PEER_CRYPTOCALL_SESSION, mSession);
             data.putBoolean(CryptoCallIntentService.DATA_SEND_SMS, sendSms);
             serviceIntent.putExtra(CryptoCallIntentService.EXTRA_DATA, data);
 

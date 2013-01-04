@@ -39,6 +39,26 @@ public class ProtectedEmailUtils {
     static final int PBKDF2_KEY_LENGTH = 256;
 
     /**
+     * Reformats phone numbers (strip whitespace, slashes, etc.)
+     * 
+     * @param internationalPhoneNumber
+     * @return
+     */
+    public static String normalizeTelephoneNumber(String internationalPhoneNumber) {
+        Log.d(Constants.TAG, "input phone number: " + internationalPhoneNumber);
+
+        // basic formatting
+        internationalPhoneNumber = PhoneNumberUtils.formatNumber(internationalPhoneNumber);
+
+        // strip whitespace, -, etc.
+        internationalPhoneNumber = PhoneNumberUtils.stripSeparators(internationalPhoneNumber);
+
+        Log.d(Constants.TAG, "formatted phone number: " + internationalPhoneNumber);
+
+        return internationalPhoneNumber;
+    }
+
+    /**
      * Out of a phone number like "+491609999999", this produces a Base64 encoded
      * "versionNr+salt+hash@cryptocall.org" using PBKDF2 with HMAC, SHA1
      * 
@@ -47,15 +67,7 @@ public class ProtectedEmailUtils {
      */
     public static String generateProtectedEmail(String internationalPhoneNumber, byte[] salt) {
         if (internationalPhoneNumber != null && salt != null) {
-            Log.d(Constants.TAG, "input phone number: " + internationalPhoneNumber);
-
-            // basic formatting
-            internationalPhoneNumber = PhoneNumberUtils.formatNumber(internationalPhoneNumber);
-
-            // strip whitespace, -, etc.
-            internationalPhoneNumber = PhoneNumberUtils.stripSeparators(internationalPhoneNumber);
-
-            Log.d(Constants.TAG, "formatted phone number: " + internationalPhoneNumber);
+            internationalPhoneNumber = normalizeTelephoneNumber(internationalPhoneNumber);
 
             // hash it!
             String output = null;

@@ -21,7 +21,8 @@
 
 package org.cryptocall.service;
 
-import org.cryptocall.util.CryptoCallSms;
+import org.cryptocall.ui.SmsReceivedActivity;
+import org.cryptocall.util.CryptoCallSessionUtils;
 import org.cryptocall.util.Constants;
 
 import android.content.BroadcastReceiver;
@@ -57,9 +58,17 @@ public class SmsReceiver extends BroadcastReceiver {
                     Log.i(Constants.TAG, "[SmsReceiver] onReceiveIntent: " + from + ": " + body);
 
                     // check if its a cryptocall sms
-                    if (CryptoCallSms.isCryptoCallSms(body)) {
+                    if (CryptoCallSessionUtils.isCryptoCallSms(body)) {
 
-                        //TODO: INCOMING CALL!
+                        // start received sms activity
+                        Intent activityIntent = new Intent();
+                        activityIntent.setClass(context, SmsReceivedActivity.class);
+                        activityIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        
+                        activityIntent.putExtra(SmsReceivedActivity.EXTRA_SMS_BODY, body);
+                        activityIntent.putExtra(SmsReceivedActivity.EXTRA_SMS_FROM, from);
+
+                        context.startActivity(activityIntent);
 
                         // this is a cryptocall sms, don't let the other applications get the
                         // intent!
@@ -71,5 +80,4 @@ public class SmsReceiver extends BroadcastReceiver {
 
         }
     }
-
 }
