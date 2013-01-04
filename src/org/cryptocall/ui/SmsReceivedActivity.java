@@ -22,7 +22,7 @@
 package org.cryptocall.ui;
 
 import org.cryptocall.R;
-import org.cryptocall.api.CryptoCallSession;
+import org.cryptocall.CryptoCallSession;
 import org.cryptocall.service.CryptoCallIntentService;
 import org.cryptocall.util.Constants;
 import org.cryptocall.util.CryptoCallSessionFactory;

@@ -21,7 +21,7 @@
 
 package org.cryptocall.util;
 
-import org.cryptocall.api.CryptoCallSession;
+import org.cryptocall.CryptoCallSession;
 import org.cryptocall.service.CryptoCallIntentService;
 
 import android.app.Activity;
