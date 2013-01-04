@@ -43,8 +43,8 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingTop="40dp"
-            android:orientation="horizontal" >
+            android:orientation="horizontal"
+            android:paddingTop="40dp" >
 
             <Button
                 android:id="@+id/base_manual_connection_receive_email_button"
@@ -86,8 +86,7 @@
                 android:layout_alignParentBottom="true"
                 android:layout_alignParentLeft="true"
                 android:layout_toLeftOf="@+id/base_manual_connection_port"
-                android:hint="IP Address"
-                android:inputType="numberDecimal" />
+                android:hint="IP Address" />
         </RelativeLayout>
 
         <Button

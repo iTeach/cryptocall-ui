@@ -51,21 +51,30 @@ public class SmsReceivedActivity extends SherlockActivity {
 
     Activity mActivity;
     ProgressBar mProgress;
-    static TextView mStatus;
+    TextView mStatus;
     Button mAccept;
     Button mDecline;
 
     CryptoCallSession mSession;
 
-    private static Handler mHandler = new Handler() {
+    private Handler mHandler = new Handler() {
 
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             switch (msg.what) {
             case CryptoCallIntentService.HANDLER_MSG_UPDATE_UI:
+
                 mStatus.setText(msg.getData().getString(
                         CryptoCallIntentService.HANDLER_DATA_MESSAGE));
+                break;
+
+            case CryptoCallIntentService.HANDLER_MSG_RETURN_SESSION:
+                // get returned session
+                Bundle data = msg.getData();
+                mSession = data.getParcelable(CryptoCallIntentService.DATA_CRYPTOCALL_SESSION);
+                
+                enableButtons();
                 break;
 
             default:
@@ -75,6 +84,11 @@ public class SmsReceivedActivity extends SherlockActivity {
         }
 
     };
+
+    private void enableButtons() {
+        mAccept.setEnabled(true);
+        mDecline.setEnabled(true);
+    }
 
     /**
      * Executed onCreate of Activity
@@ -102,9 +116,24 @@ public class SmsReceivedActivity extends SherlockActivity {
             mStatus.setText("Do you want to connect to " + mSession.serverIp + ":"
                     + mSession.serverPort + "?");
 
+            enableButtons();
         } else if (extras != null && extras.containsKey(EXTRA_SMS_BODY)
                 && extras.containsKey(EXTRA_SMS_FROM)) {
 
+            // get session from sms asynchronous in service, result is handled in mHandler
+            Intent serviceIntent = new Intent(mActivity, CryptoCallIntentService.class);
+            serviceIntent.putExtra(CryptoCallIntentService.EXTRA_ACTION,
+                    CryptoCallIntentService.ACTION_START_PARSE_SMS);
+            serviceIntent
+                    .putExtra(CryptoCallIntentService.EXTRA_MESSENGER, new Messenger(mHandler));
+
+            Bundle data = new Bundle();
+            data.putString(CryptoCallIntentService.DATA_SMS_BODY, extras.getString(EXTRA_SMS_BODY));
+            data.putString(CryptoCallIntentService.DATA_SMS_FROM, extras.getString(EXTRA_SMS_FROM));
+
+            serviceIntent.putExtra(CryptoCallIntentService.EXTRA_DATA, data);
+
+            startService(serviceIntent);
         } else {
             Log.e(Constants.TAG, "Missing extras in intent!");
         }
@@ -120,7 +149,7 @@ public class SmsReceivedActivity extends SherlockActivity {
                         mHandler));
 
                 Bundle data = new Bundle();
-                data.putParcelable(CryptoCallIntentService.DATA_PEER_CRYPTOCALL_SESSION, mSession);
+                data.putParcelable(CryptoCallIntentService.DATA_CRYPTOCALL_SESSION, mSession);
                 serviceIntent.putExtra(CryptoCallIntentService.EXTRA_DATA, data);
 
                 startService(serviceIntent);

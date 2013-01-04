@@ -27,6 +27,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/button_green"
+            android:enabled="false"
             android:text="Accept SMS and start SIP connection" />
 
         <Button
@@ -35,6 +36,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/button_red"
+            android:enabled="false"
             android:text="Decline SMS (do nothing)" />
     </LinearLayout>
 

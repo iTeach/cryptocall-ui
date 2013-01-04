@@ -44,11 +44,11 @@ public class SmsSendingActivity extends SherlockActivity {
 
     Activity mActivity;
     ProgressBar mProgress;
-    static TextView mStatus;
+    TextView mStatus;
 
     CryptoCallSession mSession;
 
-    private static Handler mHandler = new Handler() {
+    private Handler mHandler = new Handler() {
 
         @Override
         public void handleMessage(Message msg) {
@@ -101,7 +101,7 @@ public class SmsSendingActivity extends SherlockActivity {
                     .putExtra(CryptoCallIntentService.EXTRA_MESSENGER, new Messenger(mHandler));
 
             Bundle data = new Bundle();
-            data.putParcelable(CryptoCallIntentService.DATA_PEER_CRYPTOCALL_SESSION, mSession);
+            data.putParcelable(CryptoCallIntentService.DATA_CRYPTOCALL_SESSION, mSession);
             data.putBoolean(CryptoCallIntentService.DATA_SEND_SMS, sendSms);
             serviceIntent.putExtra(CryptoCallIntentService.EXTRA_DATA, data);
 

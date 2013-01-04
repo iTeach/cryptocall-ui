@@ -59,6 +59,7 @@ public class CryptoCallIntentService extends IntentService {
     private IApgKeyService mIApgKeyService;
 
     public static final int HANDLER_MSG_UPDATE_UI = 20001;
+    public static final int HANDLER_MSG_RETURN_SESSION = 20002;
     public static final String HANDLER_DATA_MESSAGE = "message";
 
     /* extras that can be given by intent */
@@ -73,7 +74,7 @@ public class CryptoCallIntentService extends IntentService {
 
     /* values for data bundle */
     // ACTION_START_SENDING and ACTION_START_RECEIVED
-    public static final String DATA_PEER_CRYPTOCALL_SESSION = "session";
+    public static final String DATA_CRYPTOCALL_SESSION = "session";
     // ACTION_START_SENDING
     public static final String DATA_SEND_SMS = "sendSms";
     // ACTION_START_PARSE_SMS
@@ -185,7 +186,7 @@ public class CryptoCallIntentService extends IntentService {
 
         try {
             /* Input */
-            CryptoCallSession session = data.getParcelable(DATA_PEER_CRYPTOCALL_SESSION);
+            CryptoCallSession session = data.getParcelable(DATA_CRYPTOCALL_SESSION);
 
             /* 0. Get corresponding telephoneNumber, name of receiver */
             session = CryptoCallSessionUtils.getNameAndTelephoneNumberFromEmail(this, session);
@@ -323,6 +324,9 @@ public class CryptoCallIntentService extends IntentService {
                                     newSession);
 
                             // return session
+                            Bundle resultData = new Bundle();
+                            resultData.putParcelable(DATA_CRYPTOCALL_SESSION, newSession);
+                            sendMessageToHandler(HANDLER_MSG_RETURN_SESSION, resultData);
 
                             break;
 
