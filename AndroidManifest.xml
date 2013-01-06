@@ -83,18 +83,41 @@
         android:theme="@style/Theme.Sherlock" >
         <activity
             android:name=".ui.BaseActivity"
-            android:label="@string/app_name" >
+            android:label="@string/app_name"
+            android:screenOrientation="portrait" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".ui.SmsSendingActivity"
+            android:label="@string/activity_sending_sms_label" />
+        <activity
+            android:name=".ui.SmsReceivedActivity"
+            android:label="@string/activity_received_sms_label" />
+        <activity
+            android:name=".ui.HelpActivity"
+            android:label="@string/activity_help_label" />
+        <activity
+            android:name=".ui.ShowContactActivity"
+            android:label="@string/activity_show_contact_label" />
+        <activity
+            android:name=".ui.WizardActivity"
+            android:label="@string/activity_wizard_label" >
+        </activity>
+
+        <service
+            android:name=".service.CryptoCallIntentService"
+            android:enabled="true"
+            android:exported="false" />
 
         <!-- BEGIN CSIPSIMPLE -->
-        
+
+
         <!-- TODO: check properties of poutgoing call activities -->
-        
+
         <activity
             android:name="com.csipsimple.ui.outgoingcall.OutgoingCallChooser"
             android:allowTaskReparenting="false"
@@ -177,7 +200,6 @@
             </intent-filter>
         </activity-alias>
 
-
         <!-- To be able to do video, this has to be launched in sipStack process -->
         <activity
             android:name="com.csipsimple.ui.incall.InCallActivity"
@@ -220,43 +242,6 @@
             android:process=":sipStack" />
 
         <!-- END CSIPSIMPLE -->
-        <activity
-            android:name=".ui.SmsSendingActivity"
-            android:label="@string/activity_sending_sms_label" />
-        <activity
-            android:name=".ui.SmsReceivedActivity"
-            android:label="@string/activity_received_sms_label" />
-        <activity
-            android:name=".ui.HelpActivity"
-            android:label="@string/activity_help_label" />
-        <activity
-            android:name=".ui.ShowContactActivity"
-            android:label="@string/activity_show_contact_label" />
-        <activity
-            android:name=".ui.WizardActivity"
-            android:label="@string/activity_wizard_label" >
-        </activity>
-
-        <service
-            android:name=".service.CryptoCallIntentService"
-            android:enabled="true"
-            android:exported="false" />
-
-        <!-- <service -->
-        <!-- android:name="org.cryptocall.service.CryptoCallService" -->
-        <!-- android:enabled="true" -->
-        <!-- android:exported="true" -->
-        <!-- android:permission="org.cryptocall.permission.ACCESS_KEYS" -->
-        <!-- android:process=":remote" > -->
-        <!-- <intent-filter> -->
-        <!-- <action android:name="org.cryptocall.service.ICryptoCallService" /> -->
-        <!-- </intent-filter> -->
-
-
-        <!-- <meta-data -->
-        <!-- android:name="api_version" -->
-        <!-- android:value="1" /> -->
-        <!-- </service> -->
     </application>
 
 </manifest>
