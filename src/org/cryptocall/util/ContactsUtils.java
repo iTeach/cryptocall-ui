@@ -38,100 +38,111 @@ import android.provider.ContactsContract.CommonDataKinds.Phone;
 public class ContactsUtils {
 
     public static void syncContacts(Context context) {
-        // go through all APG emails with @cryptocall in it and find the one for this
-        // telephoneNumber
-        try {
-            Uri contentUri = Uri.withAppendedPath(
-                    ApgContentProviderHelper.CONTENT_URI_PUBLIC_KEY_RING_BY_LIKE_EMAIL,
-                    Constants.CRYPTOCALL_DOMAIN);
-            Cursor pgpKeyringsCursor = context.getContentResolver().query(contentUri,
-                    new String[] { "master_key_id", "user_id" }, null, null, null);
+        // open keyrings cursor, used later
+        Uri contentUri = Uri.withAppendedPath(
+                ApgContentProviderHelper.CONTENT_URI_PUBLIC_KEY_RING_BY_LIKE_EMAIL,
+                Constants.CRYPTOCALL_DOMAIN);
+        Cursor pgpKeyringsCursor = context.getContentResolver().query(contentUri,
+                new String[] { "master_key_id", "user_id" }, null, null, null);
 
-            while (pgpKeyringsCursor != null && pgpKeyringsCursor.moveToNext()) {
-                String pgpUserId = pgpKeyringsCursor.getString(1);
-                String[] pgpSplit = ApgUtil.splitUserId(pgpUserId);
-                String pgpEmail = pgpSplit[1];
+        Cursor phonesCursor = context.getContentResolver().query(Data.CONTENT_URI, null,
+                Data.MIMETYPE + "='" + Phone.CONTENT_ITEM_TYPE + "'", null, null);
 
-                byte[] pgpEmailSalt = null;
-                try {
-                    pgpEmailSalt = ProtectedEmailUtils.getSaltFromProtectedEmail(pgpEmail);
-                } catch (Exception e) {
-                    Log.e(Constants.TAG, "Exception", e);
-                }
+        // go through all phone numbers
+        while (phonesCursor != null && phonesCursor.moveToNext()) {
+            long rawContactId = phonesCursor.getLong(phonesCursor
+                    .getColumnIndex(Data.RAW_CONTACT_ID));
 
-                Cursor phonesCursor = context.getContentResolver().query(Data.CONTENT_URI, null,
-                        Data.MIMETYPE + "='" + Phone.CONTENT_ITEM_TYPE + "'", null, null);
+            String telephoneNumber = phonesCursor.getString(phonesCursor
+                    .getColumnIndex(Phone.NORMALIZED_NUMBER));
 
-                // go through all phone numbers
-                while (phonesCursor != null && phonesCursor.moveToNext()) {
-                    long rawContactId = phonesCursor.getLong(phonesCursor
-                            .getColumnIndex(Data.RAW_CONTACT_ID));
+            Log.d(Constants.TAG, "telephoneNumber: " + telephoneNumber);
 
-                    String telephoneNumber = phonesCursor.getString(phonesCursor
-                            .getColumnIndex(Phone.NORMALIZED_NUMBER));
+            try {
 
-                    Log.d(Constants.TAG, "telephoneNumber: " + telephoneNumber);
+                // go through all APG emails with @cryptocall in it and find the one for this
+                // telephoneNumber
+                if (pgpKeyringsCursor != null && pgpKeyringsCursor.moveToFirst()) {
+                    do {
+                        String pgpUserId = pgpKeyringsCursor.getString(1);
+                        String[] pgpSplit = ApgUtil.splitUserId(pgpUserId);
+                        String pgpEmail = pgpSplit[1];
 
-                    String generatedEmail = ProtectedEmailUtils.generateProtectedEmail(
-                            telephoneNumber, pgpEmailSalt);
+                        byte[] pgpEmailSalt = null;
+                        try {
+                            pgpEmailSalt = ProtectedEmailUtils.getSaltFromProtectedEmail(pgpEmail);
+                        } catch (Exception e) {
+                            Log.e(Constants.TAG, "Exception", e);
+                        }
 
-                    if (generatedEmail != null && generatedEmail.equals(pgpEmail)) {
-                        Log.d(Constants.TAG, "Found email! pgpEmail: " + pgpEmail
-                                + " for telephoneNumber " + telephoneNumber);
+                        String generatedEmail = ProtectedEmailUtils.generateProtectedEmail(
+                                telephoneNumber, pgpEmailSalt);
 
-                        Cursor emailsCursor = context.getContentResolver().query(
-                                Data.CONTENT_URI,
-                                null,
-                                Email.RAW_CONTACT_ID + "=?" + " AND " + Data.MIMETYPE + "='"
-                                        + Email.CONTENT_ITEM_TYPE + "'",
-                                new String[] { String.valueOf(rawContactId) }, null);
+                        if (generatedEmail != null && generatedEmail.equals(pgpEmail)) {
+                            Log.d(Constants.TAG, "Found email! pgpEmail: " + pgpEmail
+                                    + " for telephoneNumber " + telephoneNumber);
 
-                        // go through all email addresses of this user
-                        boolean existing = false;
-                        while (emailsCursor != null && emailsCursor.moveToNext()) {
-                            // This would allow you get several email addresses
-                            String emailAddress = emailsCursor.getString(emailsCursor
-                                    .getColumnIndex(Email.DATA));
+                            Cursor emailsCursor = context.getContentResolver().query(
+                                    Data.CONTENT_URI,
+                                    null,
+                                    Email.RAW_CONTACT_ID + "=? AND " + Email.DATA + " LIKE ? AND "
+                                            + Data.MIMETYPE + "='" + Email.CONTENT_ITEM_TYPE + "'",
+                                    new String[] { String.valueOf(rawContactId),
+                                            Constants.CRYPTOCALL_DOMAIN }, null);
 
-                            Log.d(Constants.TAG, "emailAddress: " + emailAddress);
-                            if (emailAddress.equals(generatedEmail)) {
-                                Log.d(Constants.TAG, "existing: true");
+                            // go through all cryptocall email addresses of this user
+                            boolean existing = false;
+                            while (emailsCursor != null && emailsCursor.moveToNext()) {
+                                // This would allow you get several email addresses
+                                String emailAddress = emailsCursor.getString(emailsCursor
+                                        .getColumnIndex(Email.DATA));
 
-                                existing = true;
+                                Log.d(Constants.TAG, "emailAddress: " + emailAddress);
+                                if (emailAddress.equals(generatedEmail)) {
+                                    Log.d(Constants.TAG, "existing: true");
+
+                                    existing = true;
+                                }
+
+                            }
+                            if (emailsCursor != null) {
+                                emailsCursor.close();
                             }
 
-                        }
-                        emailsCursor.close();
+                            if (!existing) {
+                                Log.d(Constants.TAG, "Adding new email...");
 
-                        if (!existing) {
-                            Log.d(Constants.TAG, "Adding new email...");
+                                ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
 
-                            ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
-
-                            ops.add(ContentProviderOperation.newInsert(Data.CONTENT_URI)
-                                    .withValue(Data.RAW_CONTACT_ID, rawContactId)
-                                    .withValue(Email.DATA, generatedEmail)
-                                    .withValue(Email.MIMETYPE, Email.CONTENT_ITEM_TYPE)
-                                    .withValue(Email.LABEL, "CryptoCall")
-                                    .withValue(Email.TYPE, Email.TYPE_CUSTOM).build());
-                            try {
-                                context.getContentResolver().applyBatch(ContactsContract.AUTHORITY,
-                                        ops);
-                            } catch (Exception e) {
-                                Log.e(Constants.TAG, "Problem while inserting email address!", e);
+                                ops.add(ContentProviderOperation.newInsert(Data.CONTENT_URI)
+                                        .withValue(Data.RAW_CONTACT_ID, rawContactId)
+                                        .withValue(Email.DATA, generatedEmail)
+                                        .withValue(Email.MIMETYPE, Email.CONTENT_ITEM_TYPE)
+                                        .withValue(Email.LABEL, "CryptoCall")
+                                        .withValue(Email.TYPE, Email.TYPE_CUSTOM).build());
+                                try {
+                                    context.getContentResolver().applyBatch(
+                                            ContactsContract.AUTHORITY, ops);
+                                } catch (Exception e) {
+                                    Log.e(Constants.TAG, "Problem while inserting email address!",
+                                            e);
+                                }
                             }
                         }
-                    }
 
+                    } while (pgpKeyringsCursor.moveToNext());
                 }
-                phonesCursor.close();
+
+            } catch (SecurityException e) {
+                Log.e(Constants.TAG, "insufficient permissions to use apg service!");
             }
 
-            if (pgpKeyringsCursor != null) {
-                pgpKeyringsCursor.close();
-            }
-        } catch (SecurityException e) {
-            Log.e(Constants.TAG, "insufficient permissions to use apg service!");
+        }
+        if (phonesCursor != null) {
+            phonesCursor.close();
+        }
+        if (pgpKeyringsCursor != null) {
+            pgpKeyringsCursor.close();
         }
     }
 }
