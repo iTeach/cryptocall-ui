@@ -30,6 +30,7 @@ import org.cryptocall.util.Constants;
 import org.cryptocall.util.Log;
 import org.cryptocall.util.PreferencesHelper;
 import org.cryptocall.util.QrCodeUtils;
+import org.thialfihar.android.apg.integration.ApgIntentHelper;
 import org.thialfihar.android.apg.service.IApgKeyService;
 import org.thialfihar.android.apg.service.handler.IApgGetKeyringsHandler;
 
@@ -41,6 +42,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -53,8 +55,12 @@ public class BaseInformationFragment extends Fragment {
     private TextView mTelTextView;
     private TextView mPgpMailTextView;
     private ImageView mQrCodeImageView;
+    private Button mShareNfcButton;
+    private Button mImportFromQrCode;
 
     private Bitmap mQrCodeBitmap;
+
+    private ApgIntentHelper mApgIntentHelper;
 
     /**
      * Inflate the layout for this fragment
@@ -63,17 +69,36 @@ public class BaseInformationFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.base_information_fragment, container, false);
 
+        mApgIntentHelper = new ApgIntentHelper(getActivity());
+
         // get views
         mTelTextView = (TextView) view.findViewById(R.id.base_information_fragment_tel);
         mPgpMailTextView = (TextView) view.findViewById(R.id.base_information_fragment_pgp_mail);
         mKeyTextView = (TextView) view.findViewById(R.id.base_information_fragment_key);
         mQrCodeImageView = (ImageView) view.findViewById(R.id.base_information_fragment_qr);
+        mShareNfcButton = (Button) view
+                .findViewById(R.id.base_information_fragment_share_nfc_button);
+        mImportFromQrCode = (Button) view
+                .findViewById(R.id.base_information_fragment_import_from_qr_code_button);
 
         mQrCodeImageView.setOnClickListener(new OnClickListener() {
             public void onClick(final View v) {
                 if (mQrCodeBitmap != null) {
                     QrCodeUtils.showQrCode(mBaseActivity, mQrCodeBitmap);
                 }
+            }
+        });
+
+        mShareNfcButton.setOnClickListener(new OnClickListener() {
+            public void onClick(final View v) {
+                long masterKeyId = PreferencesHelper.getPgpMasterKeyId(mBaseActivity);
+                mApgIntentHelper.shareWithNfc(masterKeyId);
+            }
+        });
+
+        mImportFromQrCode.setOnClickListener(new OnClickListener() {
+            public void onClick(final View v) {
+                mApgIntentHelper.importFromQrCode();
             }
         });
 

@@ -25,7 +25,6 @@ import org.cryptocall.R;
 import org.cryptocall.util.Constants;
 import org.cryptocall.util.ContactsUtils;
 import org.cryptocall.util.PreferencesHelper;
-import org.thialfihar.android.apg.integration.ApgIntentHelper;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -52,8 +51,6 @@ public class BaseActivity extends SherlockFragmentActivity {
     private ActionBar.Tab mTabInformation;
     private ActionBar.Tab mTabManualConnection;
 
-    private ApgIntentHelper mApgIntentHelper;
-
     /**
      * Inflate Menu
      */
@@ -71,10 +68,6 @@ public class BaseActivity extends SherlockFragmentActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle item selection
         switch (item.getItemId()) {
-
-        case R.id.base_menu_scan_barcode:
-            mApgIntentHelper.scanQrCode();
-            return true;
 
         case R.id.base_menu_sync:
             syncContacts();
@@ -173,7 +166,6 @@ public class BaseActivity extends SherlockFragmentActivity {
             mTabManualConnection.setText(getString(R.string.base_tab_manual_connection));
             mActionBar.addTab(mTabManualConnection);
         }
-        mApgIntentHelper = new ApgIntentHelper(mActivity);
     }
 
     private static class TabListener<T extends Fragment> implements ActionBar.TabListener {
