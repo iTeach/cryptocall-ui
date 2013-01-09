@@ -28,6 +28,7 @@ import javax.security.auth.callback.CallbackHandler;
 
 import org.cryptocall.CryptoCallApplication;
 import org.cryptocall.CryptoCallSession;
+import org.cryptocall.CurrentSessionSingelton;
 import org.cryptocall.util.Constants;
 import org.cryptocall.util.CryptoCallSessionUtils;
 import org.cryptocall.util.Log;
@@ -303,13 +304,15 @@ public class CryptoCallIntentService extends IntentService {
                             // TODO: choose from random?
                             session.serverPort = 6666;
 
-                            startSipStack(session);
+                            CurrentSessionSingelton.getInstance().setCryptoCallSession(session);
+
+                            startSipStack();
 
                             Log.d(Constants.TAG, "2Before Thread.sleep(3000);");
                             Thread.sleep(3000);
                             Log.d(Constants.TAG, "2After Thread.sleep(3000);");
 
-                            activateDeactivateAcc(mAccId, true);
+                            // activateDeactivateAcc(mAccId, true);
 
                             if (sendSms) {
                                 /* 2. Send SMS with my ip, port. TODO: sign? */
@@ -321,19 +324,21 @@ public class CryptoCallIntentService extends IntentService {
                         case ACTION_START_RECEIVED:
                             Log.d(Constants.TAG, "ACTION_START_RECEIVED");
 
+                            CurrentSessionSingelton.getInstance().setCryptoCallSession(session);
+
                             createAccount();
 
                             Log.d(Constants.TAG, "1Before Thread.sleep(3000);");
                             Thread.sleep(3000);
                             Log.d(Constants.TAG, "1After Thread.sleep(3000);");
 
-                            startSipStack(session);
+                            startSipStack();
 
                             Log.d(Constants.TAG, "2Before Thread.sleep(3000);");
                             Thread.sleep(3000);
                             Log.d(Constants.TAG, "2After Thread.sleep(3000);");
 
-                            activateDeactivateAcc(mAccId, true);
+                            // activateDeactivateAcc(mAccId, true);
 
                             Log.d(Constants.TAG, "3Before Thread.sleep(3000);");
                             Thread.sleep(3000);
@@ -381,10 +386,9 @@ public class CryptoCallIntentService extends IntentService {
 
     }
 
-    private void startSipStack(CryptoCallSession session) {
+    private void startSipStack() {
         // start sip service to open port etc.
         Intent it = new Intent(SipManager.INTENT_SIP_SERVICE);
-        it.putExtra(SipManager.EXTRA_CRYPTOCALL_SESSION, session);
         startService(it);
     }
 
