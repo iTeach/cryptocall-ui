@@ -46,9 +46,17 @@ import org.thialfihar.android.apg.service.IApgKeyService;
 import org.thialfihar.android.apg.service.handler.IApgGetKeyringsHandler;
 
 import com.csipsimple.api.SipManager;
+import com.csipsimple.api.SipProfile;
+import com.csipsimple.api.SipUri;
 
 import android.app.IntentService;
+import android.app.PendingIntent;
+import android.app.PendingIntent.CanceledException;
+import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Message;
 import android.os.Messenger;
@@ -87,6 +95,8 @@ public class CryptoCallIntentService extends IntentService {
     /* internal variables */
     private PGPPublicKeyRing mPeerPublicKeyring;
     private PGPSecretKeyRing mMySecretKeyring;
+    private SipProfile mSipProfile;
+    private long mAccId;
 
     Messenger mMessenger;
     SmsHelper mSmsHelper;
@@ -280,19 +290,16 @@ public class CryptoCallIntentService extends IntentService {
                         switch (action) {
                         case ACTION_START_SENDING:
                             Log.d(Constants.TAG, "ACTION_START_SENDING");
-
                             boolean sendSms = data.getBoolean(DATA_SEND_SMS);
 
                             // set ip
                             session.serverIp = myIp;
-
                             // TODO: choose from random?
                             session.serverPort = 6666;
 
-                            // start sip service to open port etc.
-                            Intent it = new Intent(SipManager.INTENT_SIP_SERVICE);
-                            it.putExtra(SipManager.EXTRA_CRYPTOCALL_SESSION, session);
-                            startService(it);
+                            startSipStack(session);
+                            createAccount();
+                            activateDeactivateAcc(mAccId, true);
 
                             if (sendSms) {
                                 /* 2. Send SMS with my ip, port. TODO: sign? */
@@ -304,10 +311,20 @@ public class CryptoCallIntentService extends IntentService {
                         case ACTION_START_RECEIVED:
                             Log.d(Constants.TAG, "ACTION_START_RECEIVED");
 
-                            // start sip service to open port etc.
-                            Intent it2 = new Intent(SipManager.INTENT_SIP_SERVICE);
-                            it2.putExtra(SipManager.EXTRA_CRYPTOCALL_SESSION, session);
-                            startService(it2);
+                            startSipStack(session);
+                            createAccount();
+
+                            Log.d(Constants.TAG, "Before Thread.sleep(3000);");
+                            Thread.sleep(3000);
+                            Log.d(Constants.TAG, "After Thread.sleep(3000);");
+
+                            activateDeactivateAcc(mAccId, true);
+
+                            Log.d(Constants.TAG, "Before Thread.sleep(3000);");
+                            Thread.sleep(3000);
+                            Log.d(Constants.TAG, "After Thread.sleep(3000);");
+
+                            call(session);
 
                             break;
 
@@ -347,6 +364,103 @@ public class CryptoCallIntentService extends IntentService {
             sendErrorToHandler(e);
         }
 
+    }
+
+    private void startSipStack(CryptoCallSession session) {
+        // start sip service to open port etc.
+        Intent it = new Intent(SipManager.INTENT_SIP_SERVICE);
+        it.putExtra(SipManager.EXTRA_CRYPTOCALL_SESSION, session);
+        startService(it);
+    }
+
+    private void call(CryptoCallSession session) {
+        // CryptoCall@ is needed, don't know why!
+        String sipUri = "CryptoCall@" + session.serverIp + ":" + session.serverPort;
+
+        Intent itCall = new Intent(Intent.ACTION_CALL);
+        // sipUri is the sip number or uri you'd like to call (domain added
+        // automatically if needed)
+        // PROTOCOL_CSIP to use csipsimple!
+        itCall.setData(SipUri.forgeSipUri(SipManager.PROTOCOL_CSIP, sipUri));
+        itCall.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        // disable choosing of account:
+        itCall.putExtra(SipManager.EXTRA_FALLBACK_BEHAVIOR, SipManager.FALLBACK_PREVENT);
+        // use this account:
+        itCall.putExtra(SipProfile.FIELD_ACC_ID, mAccId);
+        // id to use for this call
+        startActivity(itCall);
+    }
+
+    private void createAccount() {
+        // reset current object variables
+        mSipProfile = null;
+        mAccId = SipProfile.INVALID_ID;
+
+        // Get current account if any
+        Cursor c = getContentResolver().query(
+                SipProfile.ACCOUNT_URI,
+                new String[] { SipProfile.FIELD_ID, SipProfile.FIELD_ACC_ID,
+                        SipProfile.FIELD_REG_URI }, null, null, SipProfile.FIELD_PRIORITY + " ASC");
+        if (c != null) {
+            try {
+                // simply go to first found account
+                if (c.moveToFirst()) {
+                    SipProfile foundProfile = new SipProfile(c);
+                    Log.d(Constants.TAG, "Found profile with id " + foundProfile.id + ": "
+                            + foundProfile.getSipUserName() + "@" + foundProfile.getSipDomain());
+
+                    // direct return
+                    mSipProfile = foundProfile;
+                    mAccId = foundProfile.id;
+                }
+            } catch (Exception e) {
+                Log.e(Constants.TAG, "Some problem occured while accessing cursor", e);
+            } finally {
+                c.close();
+            }
+
+        }
+
+        // account settings
+        SipProfile builtProfile = new SipProfile();
+        builtProfile.display_name = "CryptoCall";
+        builtProfile.wizard = "LOCAL";
+        builtProfile.reg_uri = "";
+        builtProfile.acc_id = "";
+        // builtProfile.FIELD_USE_SRTP
+        // builtProfile.active = true;
+
+        ContentValues builtValues = builtProfile.getDbContentValues();
+
+        // if already existing account was found, update this with the account settings
+        if (mAccId != SipProfile.INVALID_ID) {
+            getContentResolver().update(
+                    ContentUris.withAppendedId(SipProfile.ACCOUNT_ID_URI_BASE, mAccId),
+                    builtValues, null, null);
+            Log.d(Constants.TAG, "Updated local acc with " + mAccId);
+        } else {
+            // else insert new account!
+            Uri savedUri = getContentResolver().insert(SipProfile.ACCOUNT_URI, builtValues);
+            if (savedUri != null) {
+                mAccId = ContentUris.parseId(savedUri);
+            }
+            Log.d(Constants.TAG, "Added local acc with " + mAccId);
+        }
+        mSipProfile = builtProfile;
+    }
+
+    private void activateDeactivateAcc(long accId, boolean activate) {
+        Log.d(Constants.TAG, "Activate account " + accId);
+        Intent it = new Intent(SipManager.INTENT_SIP_ACCOUNT_ACTIVATE);
+        it.putExtra(SipProfile.FIELD_ID, accId);
+        it.putExtra(SipProfile.FIELD_ACTIVE, activate);
+        PendingIntent pi = PendingIntent.getBroadcast(this, (int) accId, it,
+                PendingIntent.FLAG_UPDATE_CURRENT);
+        try {
+            pi.send();
+        } catch (CanceledException e) {
+            Log.e(Constants.TAG, "Pending intent execution canceled!", e);
+        }
     }
 
     private void sendErrorToHandler(Exception e) {

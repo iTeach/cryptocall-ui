@@ -61,19 +61,20 @@
     <uses-permission android:name="android.permission.BROADCAST_STICKY" />
     <uses-permission android:name="android.permission.READ_PROFILE" />
 
-    <!-- permissions provided by CSipSimple, currently unused -->
-    <!-- <permission -->
-    <!-- android:name="android.permission.USE_SIP" -->
-    <!-- android:description="@string/permdesc_useSip" -->
-    <!-- android:label="@string/permlab_useSip" -->
-    <!-- android:permissionGroup="android.permission-group.COST_MONEY" -->
-    <!-- android:protectionLevel="dangerous" /> -->
-    <!-- <permission -->
-    <!-- android:name="android.permission.CONFIGURE_SIP" -->
-    <!-- android:description="@string/permdesc_configureSip" -->
-    <!-- android:label="@string/permlab_configureSip" -->
-    <!-- android:permissionGroup="android.permission-group.COST_MONEY" -->
-    <!-- android:protectionLevel="dangerous" /> -->
+    <!-- BEGIN CSIPSIMPLE -->
+    <permission
+        android:name="android.permission.USE_SIP"
+        android:description="@string/permdesc_useSip"
+        android:label="@string/permlab_useSip"
+        android:permissionGroup="android.permission-group.COST_MONEY"
+        android:protectionLevel="dangerous" />
+    <permission
+        android:name="android.permission.CONFIGURE_SIP"
+        android:description="@string/permdesc_configureSip"
+        android:label="@string/permlab_configureSip"
+        android:permissionGroup="android.permission-group.COST_MONEY"
+        android:protectionLevel="dangerous" />
+    <!-- END CSIPSIMPLE -->
 
     <application
         android:name="CryptoCallApplication"
@@ -217,7 +218,16 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+        <activity
+            android:name="com.csipsimple.ui.incall.InCallMediaControl"
+            android:configChanges="orientation"
+            android:label="@string/prefs_media"
+            android:taskAffinity="com.csipsimple.ui.incall.InCallActivity"
+            android:theme="@style/DarkTheme.Dialog" />
 
+        <receiver android:name="com.csipsimple.service.HeadsetButtonReceiver" />
+
+        <!-- Main service -->
         <!-- Require at least the configure permission to use -->
         <service
             android:name="com.csipsimple.service.SipService"
@@ -229,6 +239,32 @@
                 <action android:name="com.csipsimple.service.SipConfiguration" />
             </intent-filter>
         </service>
+        <service android:name=".service.Downloader" />
+
+        <receiver
+            android:name="com.csipsimple.service.DeviceStateReceiver"
+            android:process=":sipStack" >
+
+            <!-- Here filter for protected-broadcasts -->
+            <intent-filter>
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.PACKAGE_ADDED" />
+                <action android:name="android.intent.action.PACKAGE_REMOVED" />
+
+                <data android:scheme="package" />
+            </intent-filter>
+        </receiver>
+        <receiver
+            android:name="com.csipsimple.service.DeviceStateReceiver"
+            android:permission="android.permission.CONFIGURE_SIP"
+            android:process=":sipStack" >
+            <intent-filter>
+                <action android:name="com.csipsimple.accounts.activate" />
+            </intent-filter>
+        </receiver>
 
         <!-- Databases providers -->
         <provider

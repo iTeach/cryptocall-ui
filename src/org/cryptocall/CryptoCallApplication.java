@@ -52,16 +52,21 @@ public class CryptoCallApplication extends Application {
 
         // Apg service
         mApgKeyServiceConnection.bindToApgKeyService();
-        
+
         // Retrieve private preferences
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-//        boolean alreadySetup = prefs.getBoolean(SAMPLE_ALREADY_SETUP, false);
-//        if(!alreadySetup) {
-            // Activate debugging .. here can come various other options
-            // One can also decide to reuse csipsimple activities to setup config
-            SipConfigManager.setPreferenceStringValue(this, SipConfigManager.LOG_LEVEL, "5");
-//        }
-        
+        // boolean alreadySetup = prefs.getBoolean(SAMPLE_ALREADY_SETUP, false);
+        // if(!alreadySetup) {
+        // Activate debugging .. here can come various other options
+        // One can also decide to reuse csipsimple activities to setup config
+        SipConfigManager.setPreferenceStringValue(this, SipConfigManager.LOG_LEVEL, "5");
+
+        SipConfigManager
+                .setPreferenceStringValue(this, SipConfigManager.UDP_TRANSPORT_PORT, "5060");
+        SipConfigManager.setPreferenceBooleanValue(this, SipConfigManager.ENABLE_DNS_SRV, false);
+
+        // }
+
     }
 
     @Override
