@@ -54,7 +54,7 @@ public class CryptoCallApplication extends Application {
         mApgKeyServiceConnection.bindToApgKeyService();
 
         // Retrieve private preferences
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        // SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         // boolean alreadySetup = prefs.getBoolean(SAMPLE_ALREADY_SETUP, false);
         // if(!alreadySetup) {
         // Activate debugging .. here can come various other options
@@ -82,13 +82,10 @@ public class CryptoCallApplication extends Application {
         // false);
         // SipConfigManager
         // .setPreferenceBooleanValue(this, SipConfigManager.ICON_IN_STATUS_BAR, false);
-        SipConfigManager.setPreferenceBooleanValue(this, SipConfigManager.ICON_IN_STATUS_BAR_NBR,
-                true);
-        SipConfigManager.setPreferenceBooleanValue(this, SipConfigManager.ICON_IN_STATUS_BAR, true);
 
         // ssl etc.
-        SipConfigManager
-                .setPreferenceStringValue(this, SipConfigManager.UDP_TRANSPORT_PORT, "5060");
+        // SipConfigManager
+        // .setPreferenceStringValue(this, SipConfigManager.UDP_TRANSPORT_PORT, "5060");
 
         // other settings
         SipConfigManager.setPreferenceBooleanValue(this, SipConfigManager.ENABLE_DNS_SRV, false);

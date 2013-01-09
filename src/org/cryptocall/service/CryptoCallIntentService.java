@@ -294,6 +294,10 @@ public class CryptoCallIntentService extends IntentService {
 
                             createAccount();
 
+                            Log.d(Constants.TAG, "1Before Thread.sleep(3000);");
+                            Thread.sleep(3000);
+                            Log.d(Constants.TAG, "1After Thread.sleep(3000);");
+
                             // set ip
                             session.serverIp = myIp;
                             // TODO: choose from random?
@@ -301,7 +305,10 @@ public class CryptoCallIntentService extends IntentService {
 
                             startSipStack(session);
 
-                            
+                            Log.d(Constants.TAG, "2Before Thread.sleep(3000);");
+                            Thread.sleep(3000);
+                            Log.d(Constants.TAG, "2After Thread.sleep(3000);");
+
                             activateDeactivateAcc(mAccId, true);
 
                             if (sendSms) {
@@ -315,17 +322,22 @@ public class CryptoCallIntentService extends IntentService {
                             Log.d(Constants.TAG, "ACTION_START_RECEIVED");
 
                             createAccount();
+
+                            Log.d(Constants.TAG, "1Before Thread.sleep(3000);");
+                            Thread.sleep(3000);
+                            Log.d(Constants.TAG, "1After Thread.sleep(3000);");
+
                             startSipStack(session);
 
-                            Log.d(Constants.TAG, "Before Thread.sleep(3000);");
+                            Log.d(Constants.TAG, "2Before Thread.sleep(3000);");
                             Thread.sleep(3000);
-                            Log.d(Constants.TAG, "After Thread.sleep(3000);");
+                            Log.d(Constants.TAG, "2After Thread.sleep(3000);");
 
                             activateDeactivateAcc(mAccId, true);
 
-                            Log.d(Constants.TAG, "Before Thread.sleep(3000);");
+                            Log.d(Constants.TAG, "3Before Thread.sleep(3000);");
                             Thread.sleep(3000);
-                            Log.d(Constants.TAG, "After Thread.sleep(3000);");
+                            Log.d(Constants.TAG, "3After Thread.sleep(3000);");
 
                             call(session);
 
