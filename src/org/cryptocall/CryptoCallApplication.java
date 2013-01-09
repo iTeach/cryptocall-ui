@@ -61,8 +61,36 @@ public class CryptoCallApplication extends Application {
         // One can also decide to reuse csipsimple activities to setup config
         SipConfigManager.setPreferenceStringValue(this, SipConfigManager.LOG_LEVEL, "5");
 
+        // Enable usage for in and outgoing calls for following networks
+        // TODO: Is anyways enough???
+        SipConfigManager.setPreferenceBooleanValue(this, SipConfigManager.USE_ANYWAY_IN, true);
+        SipConfigManager.setPreferenceBooleanValue(this, SipConfigManager.USE_ANYWAY_OUT, true);
+
+        SipConfigManager.setPreferenceBooleanValue(this, SipConfigManager.USE_3G_IN, true);
+        SipConfigManager.setPreferenceBooleanValue(this, SipConfigManager.USE_3G_OUT, true);
+        SipConfigManager.setPreferenceBooleanValue(this, SipConfigManager.USE_EDGE_IN, true);
+        SipConfigManager.setPreferenceBooleanValue(this, SipConfigManager.USE_EDGE_OUT, true);
+        SipConfigManager.setPreferenceBooleanValue(this, SipConfigManager.USE_GPRS_IN, true);
+        SipConfigManager.setPreferenceBooleanValue(this, SipConfigManager.USE_GPRS_OUT, true);
+        SipConfigManager.setPreferenceBooleanValue(this, SipConfigManager.USE_OTHER_IN, true);
+        SipConfigManager.setPreferenceBooleanValue(this, SipConfigManager.USE_OTHER_OUT, true);
+        SipConfigManager.setPreferenceBooleanValue(this, SipConfigManager.USE_WIFI_IN, true);
+        SipConfigManager.setPreferenceBooleanValue(this, SipConfigManager.USE_WIFI_OUT, true);
+
+        // deactivate icon in status on registration of sip account
+        // SipConfigManager.setPreferenceBooleanValue(this, SipConfigManager.ICON_IN_STATUS_BAR_NBR,
+        // false);
+        // SipConfigManager
+        // .setPreferenceBooleanValue(this, SipConfigManager.ICON_IN_STATUS_BAR, false);
+        SipConfigManager.setPreferenceBooleanValue(this, SipConfigManager.ICON_IN_STATUS_BAR_NBR,
+                true);
+        SipConfigManager.setPreferenceBooleanValue(this, SipConfigManager.ICON_IN_STATUS_BAR, true);
+
+        // ssl etc.
         SipConfigManager
                 .setPreferenceStringValue(this, SipConfigManager.UDP_TRANSPORT_PORT, "5060");
+
+        // other settings
         SipConfigManager.setPreferenceBooleanValue(this, SipConfigManager.ENABLE_DNS_SRV, false);
 
         // }

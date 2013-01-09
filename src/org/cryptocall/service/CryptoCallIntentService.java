@@ -292,13 +292,16 @@ public class CryptoCallIntentService extends IntentService {
                             Log.d(Constants.TAG, "ACTION_START_SENDING");
                             boolean sendSms = data.getBoolean(DATA_SEND_SMS);
 
+                            createAccount();
+
                             // set ip
                             session.serverIp = myIp;
                             // TODO: choose from random?
                             session.serverPort = 6666;
 
                             startSipStack(session);
-                            createAccount();
+
+                            
                             activateDeactivateAcc(mAccId, true);
 
                             if (sendSms) {
@@ -311,8 +314,8 @@ public class CryptoCallIntentService extends IntentService {
                         case ACTION_START_RECEIVED:
                             Log.d(Constants.TAG, "ACTION_START_RECEIVED");
 
-                            startSipStack(session);
                             createAccount();
+                            startSipStack(session);
 
                             Log.d(Constants.TAG, "Before Thread.sleep(3000);");
                             Thread.sleep(3000);
@@ -376,6 +379,8 @@ public class CryptoCallIntentService extends IntentService {
     private void call(CryptoCallSession session) {
         // CryptoCall@ is needed, don't know why!
         String sipUri = "CryptoCall@" + session.serverIp + ":" + session.serverPort;
+        // String sipUri = "CryptoCall@" + session.serverIp + ":" + session.serverPort
+        // + ";transport=tls";
 
         Intent itCall = new Intent(Intent.ACTION_CALL);
         // sipUri is the sip number or uri you'd like to call (domain added
@@ -427,7 +432,8 @@ public class CryptoCallIntentService extends IntentService {
         builtProfile.wizard = "LOCAL";
         builtProfile.reg_uri = "";
         builtProfile.acc_id = "";
-        // builtProfile.FIELD_USE_SRTP
+        // builtProfile.transport = SipProfile.TRANSPORT_TLS;
+        // builtProfile.use_srtp = 1;
         // builtProfile.active = true;
 
         ContentValues builtValues = builtProfile.getDbContentValues();
