@@ -73,10 +73,10 @@ public class CryptoCallApplication extends Application {
         SipConfigManager.setPreferenceBooleanValue(this, SipConfigManager.USE_WIFI_OUT, true);
 
         // deactivate icon in status on registration of sip account
-        // SipConfigManager.setPreferenceBooleanValue(this, SipConfigManager.ICON_IN_STATUS_BAR_NBR,
-        // false);
-        // SipConfigManager
-        // .setPreferenceBooleanValue(this, SipConfigManager.ICON_IN_STATUS_BAR, false);
+        SipConfigManager.setPreferenceBooleanValue(this, SipConfigManager.ICON_IN_STATUS_BAR_NBR,
+                false);
+        SipConfigManager
+                .setPreferenceBooleanValue(this, SipConfigManager.ICON_IN_STATUS_BAR, false);
 
         // other settings
         SipConfigManager.setPreferenceBooleanValue(this, SipConfigManager.ENABLE_DNS_SRV, false);
