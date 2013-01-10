@@ -23,13 +23,10 @@ import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.callback.UnsupportedCallbackException;
 
 import org.spongycastle.asn1.DERObjectIdentifier;
-import org.spongycastle.asn1.misc.MiscObjectIdentifiers;
-import org.spongycastle.asn1.misc.NetscapeCertType;
 import org.spongycastle.asn1.x509.AuthorityKeyIdentifier;
 import org.spongycastle.asn1.x509.BasicConstraints;
 import org.spongycastle.asn1.x509.GeneralName;
 import org.spongycastle.asn1.x509.GeneralNames;
-import org.spongycastle.asn1.x509.KeyUsage;
 import org.spongycastle.asn1.x509.SubjectKeyIdentifier;
 import org.spongycastle.asn1.x509.X509Extensions;
 import org.spongycastle.asn1.x509.X509Name;
@@ -143,19 +140,6 @@ public class PgpToX509 {
          */
         certGenerator.addExtension(X509Extensions.BasicConstraints, true,
                 new BasicConstraints(true));
-
-        /*
-         * Adds the Key Usage extension.
-         */
-        certGenerator.addExtension(X509Extensions.KeyUsage, true, new KeyUsage(
-                KeyUsage.digitalSignature | KeyUsage.nonRepudiation | KeyUsage.keyEncipherment
-                        | KeyUsage.keyAgreement | KeyUsage.keyCertSign));
-
-        /*
-         * Adds the Netscape certificate type extension.
-         */
-        certGenerator.addExtension(MiscObjectIdentifiers.netscapeCertType, false,
-                new NetscapeCertType(NetscapeCertType.sslClient | NetscapeCertType.smime));
 
         /*
          * Adds the subject key identifier extension.
