@@ -62,18 +62,18 @@
     <uses-permission android:name="android.permission.READ_PROFILE" />
 
     <!-- BEGIN CSIPSIMPLE -->
-    <permission
-        android:name="android.permission.USE_SIP"
-        android:description="@string/permdesc_useSip"
-        android:label="@string/permlab_useSip"
-        android:permissionGroup="android.permission-group.COST_MONEY"
-        android:protectionLevel="dangerous" />
-    <permission
-        android:name="android.permission.CONFIGURE_SIP"
-        android:description="@string/permdesc_configureSip"
-        android:label="@string/permlab_configureSip"
-        android:permissionGroup="android.permission-group.COST_MONEY"
-        android:protectionLevel="dangerous" />
+    <!-- <permission -->
+    <!-- android:name="android.permission.USE_SIP" -->
+    <!-- android:description="@string/permdesc_useSip" -->
+    <!-- android:label="@string/permlab_useSip" -->
+    <!-- android:permissionGroup="android.permission-group.COST_MONEY" -->
+    <!-- android:protectionLevel="dangerous" /> -->
+    <!-- <permission -->
+    <!-- android:name="android.permission.CONFIGURE_SIP" -->
+    <!-- android:description="@string/permdesc_configureSip" -->
+    <!-- android:label="@string/permlab_configureSip" -->
+    <!-- android:permissionGroup="android.permission-group.COST_MONEY" -->
+    <!-- android:protectionLevel="dangerous" /> -->
     <!-- END CSIPSIMPLE -->
 
     <application
@@ -244,8 +244,7 @@
         <!-- Require at least the configure permission to use -->
         <service
             android:name="com.csipsimple.service.SipService"
-            android:exported="true"
-            android:permission="android.permission.CONFIGURE_SIP"
+            android:exported="false"
             android:process=":sipStack" >
             <intent-filter>
                 <action android:name="com.csipsimple.service.SipService" />
@@ -254,6 +253,7 @@
         </service>
 
         <!-- <receiver -->
+        <!-- android:exported="false" -->
         <!-- android:name="com.csipsimple.service.DeviceStateReceiver" -->
         <!-- android:process=":sipStack" > -->
 
@@ -271,7 +271,7 @@
         <!-- </receiver> -->
         <receiver
             android:name="com.csipsimple.service.DeviceStateReceiver"
-            android:permission="android.permission.CONFIGURE_SIP"
+            android:exported="false"
             android:process=":sipStack" >
             <intent-filter>
                 <action android:name="com.csipsimple.accounts.activate" />

@@ -30,8 +30,6 @@ import org.thialfihar.android.apg.service.IApgKeyService;
 import com.csipsimple.api.SipConfigManager;
 
 import android.app.Application;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 
 public class CryptoCallApplication extends Application {
     public final ApgKeyServiceConnection mApgKeyServiceConnection = new ApgKeyServiceConnection(
@@ -53,12 +51,9 @@ public class CryptoCallApplication extends Application {
         // Apg service
         mApgKeyServiceConnection.bindToApgKeyService();
 
-        // Retrieve private preferences
-        // SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        // boolean alreadySetup = prefs.getBoolean(SAMPLE_ALREADY_SETUP, false);
-        // if(!alreadySetup) {
-        // Activate debugging .. here can come various other options
-        // One can also decide to reuse csipsimple activities to setup config
+        /* CSipSimple preferences */
+
+        // activate debugging
         SipConfigManager.setPreferenceStringValue(this, SipConfigManager.LOG_LEVEL, "5");
 
         // Enable usage for in and outgoing calls for following networks
@@ -83,15 +78,8 @@ public class CryptoCallApplication extends Application {
         // SipConfigManager
         // .setPreferenceBooleanValue(this, SipConfigManager.ICON_IN_STATUS_BAR, false);
 
-        // ssl etc.
-        // SipConfigManager
-        // .setPreferenceStringValue(this, SipConfigManager.UDP_TRANSPORT_PORT, "5060");
-
         // other settings
         SipConfigManager.setPreferenceBooleanValue(this, SipConfigManager.ENABLE_DNS_SRV, false);
-
-        // }
-
     }
 
     @Override

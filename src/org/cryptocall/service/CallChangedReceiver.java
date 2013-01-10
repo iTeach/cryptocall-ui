@@ -30,6 +30,7 @@ import com.csipsimple.api.SipManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 
 public class CallChangedReceiver extends BroadcastReceiver {
 
@@ -39,8 +40,21 @@ public class CallChangedReceiver extends BroadcastReceiver {
         SipCallSession sipCallSession = intent.getExtras()
                 .getParcelable(SipManager.EXTRA_CALL_INFO);
 
-        Log.d(Constants.TAG, "Call changed to " + sipCallSession.getCallState());
+        int newCallState = sipCallSession.getCallState();
 
+        Log.d(Constants.TAG, "Call changed to " + newCallState);
+
+        if (sipCallSession.isAfterEnded()) {
+            Log.d(Constants.TAG, "sipCallSession isAfterEnded");
+
+            // stop everything
+            Intent serviceIntent = new Intent(context, CryptoCallIntentService.class);
+            serviceIntent.putExtra(CryptoCallIntentService.EXTRA_ACTION,
+                    CryptoCallIntentService.ACTION_STOP_EVERYTHING);
+            Bundle data = new Bundle();
+            data.putParcelable(CryptoCallIntentService.DATA_SIP_CALL_SESSION, sipCallSession);
+            serviceIntent.putExtra(CryptoCallIntentService.EXTRA_DATA, data);
+            context.startService(serviceIntent);
+        }
     }
-
 }
