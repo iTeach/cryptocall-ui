@@ -1,43 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content" >
+    android:layout_height="match_parent" >
 
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical" >
+        android:layout_height="wrap_content" >
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="You received a cryptocall SMS. What to do?"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
-
-        <TextView
-            android:id="@+id/sms_received_status"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="status"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
-
-        <Button
-            android:id="@+id/sms_received_accept_button"
-            style="@style/ColorButton"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/button_green"
-            android:enabled="false"
-            android:text="Accept SMS and start SIP connection" />
+            android:orientation="vertical"
+            android:padding="16dp" >
 
-        <Button
-            android:id="@+id/sms_received_decline_button"
-            style="@style/ColorButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/button_red"
-            android:enabled="false"
-            android:text="Decline SMS (do nothing)" />
-    </LinearLayout>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:text="You received a cryptocall SMS. What to do?"
+                android:textAppearance="?android:attr/textAppearanceLarge" />
 
-</ScrollView>
+            <TextView
+                android:id="@+id/sms_received_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="status"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
+        </LinearLayout>
+    </ScrollView>
+
+    <Button
+        android:id="@+id/sms_received_accept_button"
+        style="@style/ColorButton"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_above="@+id/sms_received_decline_button"
+        android:layout_alignParentRight="true"
+        android:background="@drawable/button_green"
+        android:enabled="false"
+        android:text="Accept SMS and start SIP connection" />
+
+    <Button
+        android:id="@+id/sms_received_decline_button"
+        style="@style/ColorButton"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_alignParentBottom="true"
+        android:background="@drawable/button_red"
+        android:enabled="false"
+        android:text="Decline SMS (do nothing)" />
+
+</RelativeLayout>

@@ -73,7 +73,7 @@ public class SmsReceivedActivity extends SherlockActivity {
                 // get returned session
                 Bundle data = msg.getData();
                 mSession = data.getParcelable(CryptoCallIntentService.DATA_CRYPTOCALL_SESSION);
-                
+
                 enableButtons();
                 break;
 
@@ -161,6 +161,14 @@ public class SmsReceivedActivity extends SherlockActivity {
             @Override
             public void onClick(View v) {
                 finish();
+
+                // stop sip stack on decline
+                Intent serviceIntent = new Intent(mActivity, CryptoCallIntentService.class);
+                serviceIntent.putExtra(CryptoCallIntentService.EXTRA_ACTION,
+                        CryptoCallIntentService.ACTION_STOP_SIP_STACK);
+                serviceIntent.putExtra(CryptoCallIntentService.EXTRA_MESSENGER, new Messenger(
+                        mHandler));
+                startService(serviceIntent);
             }
         });
     }

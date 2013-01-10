@@ -33,6 +33,9 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Messenger;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -45,6 +48,7 @@ public class SmsSendingActivity extends SherlockActivity {
     Activity mActivity;
     ProgressBar mProgress;
     TextView mStatus;
+    Button mCancelButton;
 
     CryptoCallSession mSession;
 
@@ -79,6 +83,7 @@ public class SmsSendingActivity extends SherlockActivity {
         mActivity = this;
         mProgress = (ProgressBar) findViewById(R.id.sms_sending_progress);
         mStatus = (TextView) findViewById(R.id.sms_sending_status);
+        mCancelButton = (Button) findViewById(R.id.sms_sending_cancel_button);
 
         Bundle extras = getIntent().getExtras();
         if (extras != null && extras.containsKey(EXTRA_CRYPTOCALL_EMAIL)) {
@@ -109,6 +114,22 @@ public class SmsSendingActivity extends SherlockActivity {
         } else {
             Log.e(Constants.TAG, "Missing email in intent!");
         }
+
+        mCancelButton.setOnClickListener(new OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                finish();
+
+                // stop sip stack on cancel
+                Intent serviceIntent = new Intent(mActivity, CryptoCallIntentService.class);
+                serviceIntent.putExtra(CryptoCallIntentService.EXTRA_ACTION,
+                        CryptoCallIntentService.ACTION_STOP_SIP_STACK);
+                serviceIntent.putExtra(CryptoCallIntentService.EXTRA_MESSENGER, new Messenger(
+                        mHandler));
+                startService(serviceIntent);
+            }
+        });
     }
 
 }

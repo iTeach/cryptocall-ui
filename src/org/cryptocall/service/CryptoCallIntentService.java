@@ -82,6 +82,7 @@ public class CryptoCallIntentService extends IntentService {
     public static final int ACTION_START_RECEIVED = 20;
     public static final int ACTION_START_PARSE_SMS = 30;
     public static final int ACTION_CALL_STATE_CHANGED = 40;
+    public static final int ACTION_STOP_SIP_STACK = 50;
 
     /* values for data bundle */
     // ACTION_START_SENDING and ACTION_START_RECEIVED
@@ -315,7 +316,8 @@ public class CryptoCallIntentService extends IntentService {
                                 Thread.sleep(1000);
                                 Log.d(Constants.TAG, "1After Thread.sleep(1000);");
 
-                                createAccountAndStartSipStack();
+                                createAccount();
+                                startSipStack();
 
                                 Log.d(Constants.TAG, "2Before Thread.sleep(3000);");
                                 Thread.sleep(3000);
@@ -337,7 +339,8 @@ public class CryptoCallIntentService extends IntentService {
                                 Thread.sleep(3000);
                                 Log.d(Constants.TAG, "1After Thread.sleep(1000);");
 
-                                createAccountAndStartSipStack();
+                                createAccount();
+                                startSipStack();
 
                                 Log.d(Constants.TAG, "2Before Thread.sleep(3000);");
                                 Thread.sleep(3000);
@@ -385,15 +388,24 @@ public class CryptoCallIntentService extends IntentService {
                     sendMessageToHandler(HANDLER_MSG_RETURN_SESSION, resultData);
 
                     break;
+
                 case ACTION_CALL_STATE_CHANGED:
                     Log.d(Constants.TAG, "ACTION_CALL_STATE_CHANGED");
                     SipCallSession sipCallSession = data.getParcelable(DATA_SIP_CALL_SESSION);
 
                     if (sipCallSession.isAfterEnded()) {
                         Log.d(Constants.TAG, "Stop Sip stack!");
-
                         stopSipStack();
                     }
+
+                    break;
+
+                case ACTION_STOP_SIP_STACK:
+                    Log.d(Constants.TAG, "ACTION_STOP_SIP_STACK");
+
+                    Log.d(Constants.TAG, "Stop Sip stack!");
+                    stopSipStack();
+
                     break;
 
                 default:
@@ -416,12 +428,6 @@ public class CryptoCallIntentService extends IntentService {
         startService(it);
     }
 
-    // private void startSipStack() {
-    // // start sip service to open port etc.
-    // Intent it = new Intent(SipManager.INTENT_SIP_SERVICE);
-    // startService(it);
-    // }
-
     private void makeCall(CryptoCallSession session) {
         // CryptoCall@ is needed, don't know why!
         // String sipUri = "CryptoCall@" + session.serverIp + ":" + session.serverPort;
@@ -442,10 +448,7 @@ public class CryptoCallIntentService extends IntentService {
         startActivity(itCall);
     }
 
-    /**
-     * Changing a account also starts the sip stack!
-     */
-    private void createAccountAndStartSipStack() {
+    private void createAccount() {
         /*
          * Workaround To prevent DeviceStateReceiver to restart sip service even when we stopped the
          * service
@@ -511,6 +514,12 @@ public class CryptoCallIntentService extends IntentService {
             Log.d(Constants.TAG, "Added local acc with " + mAccId);
         }
         mSipProfile = builtProfile;
+    }
+
+    private void startSipStack() {
+        // start sip service to open port etc.
+        Intent it = new Intent(SipManager.INTENT_SIP_SERVICE);
+        startService(it);
     }
 
     private void stopSipStack() {
