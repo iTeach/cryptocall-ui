@@ -113,6 +113,11 @@
             android:name=".service.CryptoCallIntentService"
             android:enabled="true"
             android:exported="false" />
+        <service
+            android:name=".service.SetSessionIntentService"
+            android:enabled="true"
+            android:exported="false"
+            android:process=":sipStack" />
 
         <receiver
             android:name=".service.CallChangedReceiver"

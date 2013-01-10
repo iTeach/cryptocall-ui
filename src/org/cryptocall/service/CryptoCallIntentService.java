@@ -304,7 +304,11 @@ public class CryptoCallIntentService extends IntentService {
                             // TODO: choose from random?
                             session.serverPort = 6666;
 
-                            CurrentSessionSingelton.getInstance().setCryptoCallSession(session);
+                            setSessionInSingelton(session);
+
+                            Log.d(Constants.TAG, "1Before Thread.sleep(3000);");
+                            Thread.sleep(3000);
+                            Log.d(Constants.TAG, "1After Thread.sleep(3000);");
 
                             startSipStack();
 
@@ -324,7 +328,11 @@ public class CryptoCallIntentService extends IntentService {
                         case ACTION_START_RECEIVED:
                             Log.d(Constants.TAG, "ACTION_START_RECEIVED");
 
-                            CurrentSessionSingelton.getInstance().setCryptoCallSession(session);
+                            setSessionInSingelton(session);
+
+                            Log.d(Constants.TAG, "1Before Thread.sleep(3000);");
+                            Thread.sleep(3000);
+                            Log.d(Constants.TAG, "1After Thread.sleep(3000);");
 
                             createAccount();
 
@@ -384,6 +392,16 @@ public class CryptoCallIntentService extends IntentService {
             sendErrorToHandler(e);
         }
 
+    }
+
+    private void setSessionInSingelton(CryptoCallSession session) {
+        Intent it = new Intent(this, SetSessionIntentService.class);
+        it.putExtra(SetSessionIntentService.EXTRA_ACTION,
+                SetSessionIntentService.ACTION_SET_SESSION);
+        Bundle data = new Bundle();
+        data.putParcelable(SetSessionIntentService.DATA_CRYPTOCALL_SESSION, session);
+        it.putExtra(SetSessionIntentService.EXTRA_DATA, data);
+        startService(it);
     }
 
     private void startSipStack() {
