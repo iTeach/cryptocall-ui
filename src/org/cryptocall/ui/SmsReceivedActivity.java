@@ -64,9 +64,12 @@ public class SmsReceivedActivity extends SherlockActivity {
             super.handleMessage(msg);
             switch (msg.what) {
             case CryptoCallIntentService.HANDLER_MSG_UPDATE_UI:
-
-                mStatus.setText(msg.getData().getString(
-                        CryptoCallIntentService.HANDLER_DATA_MESSAGE));
+                Bundle dataUi = msg.getData();
+                mStatus.setText(dataUi.getString(CryptoCallIntentService.HANDLER_DATA_MESSAGE));
+                if (dataUi.containsKey(CryptoCallIntentService.HANDLER_DATA_PROGRESS)) {
+                    mProgress.setProgress(dataUi
+                            .getInt(CryptoCallIntentService.HANDLER_DATA_PROGRESS));
+                }
                 break;
 
             case CryptoCallIntentService.HANDLER_MSG_RETURN_SESSION:
@@ -101,6 +104,7 @@ public class SmsReceivedActivity extends SherlockActivity {
 
         mActivity = this;
         mStatus = (TextView) findViewById(R.id.sms_received_status);
+        mProgress = (ProgressBar) findViewById(R.id.sms_received_progress);
         mAccept = (Button) findViewById(R.id.sms_received_accept_button);
         mDecline = (Button) findViewById(R.id.sms_received_decline_button);
 

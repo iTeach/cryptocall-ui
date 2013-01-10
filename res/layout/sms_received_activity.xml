@@ -17,15 +17,21 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
-                android:text="You received a cryptocall SMS. What to do?"
+                android:text="@string/sms_received_title"
                 android:textAppearance="?android:attr/textAppearanceLarge" />
 
             <TextView
                 android:id="@+id/sms_received_status"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="status"
+                android:text=""
                 android:textAppearance="?android:attr/textAppearanceMedium" />
+
+            <ProgressBar
+                android:id="@+id/sms_received_progress"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="30dp" />
         </LinearLayout>
     </ScrollView>
 
@@ -38,7 +44,7 @@
         android:layout_alignParentRight="true"
         android:background="@drawable/button_green"
         android:enabled="false"
-        android:text="Accept SMS and start SIP connection" />
+        android:text="@string/sms_received_accept_button" />
 
     <Button
         android:id="@+id/sms_received_decline_button"
@@ -48,6 +54,6 @@
         android:layout_alignParentBottom="true"
         android:background="@drawable/button_red"
         android:enabled="false"
-        android:text="Decline SMS (do nothing)" />
+        android:text="@string/sms_received_decline_button" />
 
 </RelativeLayout>

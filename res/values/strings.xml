@@ -48,7 +48,7 @@
     <string name="button_finish">Finish</string>
     <string name="button_share_nfc">Share with NFC</string>
     <string name="button_share_import_from_qr_code">Import from QR Code</string>
-    
+
     <!-- Activities -->
     <string name="activity_help_label">Help</string>
     <string name="activity_sending_sms_label">Sending SMS…</string>
@@ -70,5 +70,29 @@
     <string name="help_tab_faq">FAQ</string>
     <string name="help_tab_problems">Problems</string>
     <string name="help_about_version">Version:</string>
+
+    <!-- SMS activities -->
+    <string name="sms_received_title">You received a cryptocall SMS. What to do?</string>
+    <string name="sms_received_accept_button">Accept SMS and start SIP connection</string>
+    <string name="sms_received_decline_button">Decline SMS (do nothing)</string>
+    <string name="sms_sending_cancel_button">Cancel</string>
+    <string name="sms_sending_title">Waiting for other side to receive SMS…</string>
+
+    <!-- Status -->
+    <string name="status_sending">Sending CryptoCall SMS…</string>
+    <string name="status_destination_invalid">SMS destination invalid!</string>
+    <string name="status_sms_sent">SMS was send successfully!</string>
+    <string name="status_sms_generic">Generic failure!</string>
+    <string name="status_sms_no_service">No service (Are your device capable of sending SMS?)!</string>
+    <string name="status_sms_null_pdu">Null PDU!</string>
+    <string name="status_sms_radio_off">Radio off!</string>
+    <string name="status_sms_delivered">SMS delivered successfully…</string>
+    <string name="status_sms_not_delivered">SMS NOT delivered!</string>
+    <string name="status_get_peer_pub_keyring">Get PGP public keyring of peer from APG…</string>
+    <string name="status_get_my_secret_keyring">Get my PGP secret keyring from APG…</string>
+    <string name="status_create_session">Create session with X509 cert and pub key information…</string>
+    <string name="status_set_session">Setting session in SIP stack…</string>
+    <string name="status_start_sip">Create account and start SIP stack…</string>
+    <string name="status_start_call">Start call</string>
 
 </resources>

@@ -59,8 +59,12 @@ public class SmsSendingActivity extends SherlockActivity {
             super.handleMessage(msg);
             switch (msg.what) {
             case CryptoCallIntentService.HANDLER_MSG_UPDATE_UI:
-                mStatus.setText(msg.getData().getString(
-                        CryptoCallIntentService.HANDLER_DATA_MESSAGE));
+                Bundle data = msg.getData();
+                mStatus.setText(data.getString(CryptoCallIntentService.HANDLER_DATA_MESSAGE));
+                if (data.containsKey(CryptoCallIntentService.HANDLER_DATA_PROGRESS)) {
+                    mProgress.setProgress(data
+                            .getInt(CryptoCallIntentService.HANDLER_DATA_PROGRESS));
+                }
                 break;
 
             default:

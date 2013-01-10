@@ -16,23 +16,22 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Waiting for other side to receive SMS..."
+                android:paddingBottom="8dp"
+                android:text="@string/sms_sending_title"
                 android:textAppearance="?android:attr/textAppearanceLarge" />
-
-            <ProgressBar
-                android:id="@+id/sms_sending_progress"
-                style="?android:attr/progressBarStyleHorizontal"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingTop="8dp" />
 
             <TextView
                 android:id="@+id/sms_sending_status"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:paddingTop="8dp"
-                android:text="status"
+                android:text=""
                 android:textAppearance="?android:attr/textAppearanceMedium" />
+
+            <ProgressBar
+                android:id="@+id/sms_sending_progress"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="30dp" />
         </LinearLayout>
     </ScrollView>
 
@@ -43,7 +42,6 @@
         android:layout_height="60dp"
         android:layout_alignParentBottom="true"
         android:background="@drawable/button_red"
-        android:enabled="false"
-        android:text="Cancel" />
+        android:text="@string/sms_sending_cancel_button" />
 
 </RelativeLayout>

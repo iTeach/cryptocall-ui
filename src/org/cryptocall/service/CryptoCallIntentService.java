@@ -29,6 +29,7 @@ import javax.security.auth.callback.CallbackHandler;
 
 import org.cryptocall.CryptoCallApplication;
 import org.cryptocall.CryptoCallSession;
+import org.cryptocall.R;
 import org.cryptocall.util.Constants;
 import org.cryptocall.util.CryptoCallSessionUtils;
 import org.cryptocall.util.Log;
@@ -71,6 +72,7 @@ public class CryptoCallIntentService extends IntentService {
     public static final int HANDLER_MSG_UPDATE_UI = 20001;
     public static final int HANDLER_MSG_RETURN_SESSION = 20002;
     public static final String HANDLER_DATA_MESSAGE = "message";
+    public static final String HANDLER_DATA_PROGRESS = "progress";
 
     /* extras that can be given by intent */
     public static final String EXTRA_MESSENGER = "messenger";
@@ -224,7 +226,9 @@ public class CryptoCallIntentService extends IntentService {
                         long myKeyringId = PreferencesHelper.getPgpMasterKeyId(this);
 
                         if (mIApgKeyService != null) {
+
                             /* Get PGP public keyring of peer */
+                            sendUpdateUiToHandler(R.string.status_get_peer_pub_keyring, 10);
                             try {
                                 mIApgKeyService.getPublicKeyRings(new long[] { peerKeringId },
                                         false, getPeerPublicKeyringHandler);
@@ -247,6 +251,7 @@ public class CryptoCallIntentService extends IntentService {
                             Log.d(Constants.TAG, "After Thread.sleep(3000);");
 
                             /* get my PGP secret keyring */
+                            sendUpdateUiToHandler(R.string.status_get_my_secret_keyring, 20);
                             try {
                                 mIApgKeyService.getSecretKeyRings(new long[] { myKeyringId },
                                         false, getMySecretKeyringHandler);
@@ -265,6 +270,8 @@ public class CryptoCallIntentService extends IntentService {
                             Log.d(Constants.TAG, "After sync token 2");
 
                             /* Get actual pub key values */
+                            sendUpdateUiToHandler(R.string.status_create_session, 30);
+
                             BCPGKey key = mPeerPublicKeyring.getPublicKey().getPublicKeyPacket()
                                     .getKey();
 
@@ -310,12 +317,14 @@ public class CryptoCallIntentService extends IntentService {
                                 // TODO: choose from random?
                                 session.serverPort = 6666;
 
+                                sendUpdateUiToHandler(R.string.status_set_session, 40);
                                 setSessionInSingelton(session);
 
                                 Log.d(Constants.TAG, "1Before Thread.sleep(1000);");
                                 Thread.sleep(1000);
                                 Log.d(Constants.TAG, "1After Thread.sleep(1000);");
 
+                                sendUpdateUiToHandler(R.string.status_start_sip, 60);
                                 createAccount();
                                 startSipStack();
 
@@ -324,6 +333,8 @@ public class CryptoCallIntentService extends IntentService {
                                 Log.d(Constants.TAG, "2After Thread.sleep(3000);");
 
                                 if (sendSms) {
+                                    sendUpdateUiToHandler(R.string.status_sending, 80);
+
                                     /* 2. Send SMS with my ip, port. TODO: sign? */
                                     mSmsHelper.sendCryptoCallSms(this, session);
                                 }
@@ -333,12 +344,14 @@ public class CryptoCallIntentService extends IntentService {
                             case ACTION_START_RECEIVED:
                                 Log.d(Constants.TAG, "ACTION_START_RECEIVED");
 
+                                sendUpdateUiToHandler(R.string.status_set_session, 40);
                                 setSessionInSingelton(session);
 
                                 Log.d(Constants.TAG, "1Before Thread.sleep(1000);");
                                 Thread.sleep(3000);
                                 Log.d(Constants.TAG, "1After Thread.sleep(1000);");
 
+                                sendUpdateUiToHandler(R.string.status_start_sip, 60);
                                 createAccount();
                                 startSipStack();
 
@@ -346,6 +359,7 @@ public class CryptoCallIntentService extends IntentService {
                                 Thread.sleep(3000);
                                 Log.d(Constants.TAG, "2After Thread.sleep(3000);");
 
+                                sendUpdateUiToHandler(R.string.status_start_call, 80);
                                 makeCall(session);
 
                                 break;
@@ -546,12 +560,15 @@ public class CryptoCallIntentService extends IntentService {
         // sendMessageToHandler(ApgIntentServiceHandler.MESSAGE_EXCEPTION, null, data);
     }
 
-    public void sendUpdateUiToHandler(String message) {
+    public void sendUpdateUiToHandler(String message, int progress) {
         Message msg = Message.obtain();
         msg.what = HANDLER_MSG_UPDATE_UI;
 
         Bundle data = new Bundle();
         data.putString(HANDLER_DATA_MESSAGE, message);
+        if (progress != -1) {
+            data.putInt(HANDLER_DATA_PROGRESS, progress);
+        }
         msg.setData(data);
 
         try {
@@ -561,6 +578,14 @@ public class CryptoCallIntentService extends IntentService {
         } catch (NullPointerException e) {
             Log.w(Constants.TAG, "Messenger is null!", e);
         }
+    }
+
+    public void sendUpdateUiToHandler(int messageRes, int progress) {
+        sendUpdateUiToHandler(getString(messageRes), progress);
+    }
+
+    public void sendUpdateUiToHandler(int messageRes) {
+        sendUpdateUiToHandler(getString(messageRes), -1);
     }
 
     private void sendMessageToHandler(Integer arg1, Integer arg2, Bundle data) {
