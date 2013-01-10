@@ -40,21 +40,15 @@ public class CallChangedReceiver extends BroadcastReceiver {
         SipCallSession sipCallSession = intent.getExtras()
                 .getParcelable(SipManager.EXTRA_CALL_INFO);
 
-        int newCallState = sipCallSession.getCallState();
+        Log.d(Constants.TAG, "Call changed to state " + sipCallSession.getCallState());
 
-        Log.d(Constants.TAG, "Call changed to " + newCallState);
-
-        if (sipCallSession.isAfterEnded()) {
-            Log.d(Constants.TAG, "sipCallSession isAfterEnded");
-
-            // stop everything
-            Intent serviceIntent = new Intent(context, CryptoCallIntentService.class);
-            serviceIntent.putExtra(CryptoCallIntentService.EXTRA_ACTION,
-                    CryptoCallIntentService.ACTION_STOP_EVERYTHING);
-            Bundle data = new Bundle();
-            data.putParcelable(CryptoCallIntentService.DATA_SIP_CALL_SESSION, sipCallSession);
-            serviceIntent.putExtra(CryptoCallIntentService.EXTRA_DATA, data);
-            context.startService(serviceIntent);
-        }
+        // delegate to intent service
+        Intent serviceIntent = new Intent(context, CryptoCallIntentService.class);
+        serviceIntent.putExtra(CryptoCallIntentService.EXTRA_ACTION,
+                CryptoCallIntentService.ACTION_CALL_STATE_CHANGED);
+        Bundle data = new Bundle();
+        data.putParcelable(CryptoCallIntentService.DATA_SIP_CALL_SESSION, sipCallSession);
+        serviceIntent.putExtra(CryptoCallIntentService.EXTRA_DATA, data);
+        context.startService(serviceIntent);
     }
 }

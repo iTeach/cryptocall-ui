@@ -18,6 +18,7 @@
  * along with CryptoCall.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+
 package org.cryptocall.service;
 
 import java.io.File;
@@ -28,7 +29,6 @@ import javax.security.auth.callback.CallbackHandler;
 
 import org.cryptocall.CryptoCallApplication;
 import org.cryptocall.CryptoCallSession;
-import org.cryptocall.CurrentSessionSingelton;
 import org.cryptocall.util.Constants;
 import org.cryptocall.util.CryptoCallSessionUtils;
 import org.cryptocall.util.Log;
@@ -50,11 +50,8 @@ import com.csipsimple.api.SipCallSession;
 import com.csipsimple.api.SipManager;
 import com.csipsimple.api.SipProfile;
 import com.csipsimple.api.SipUri;
-import com.csipsimple.service.SipService;
 
 import android.app.IntentService;
-import android.app.PendingIntent;
-import android.app.PendingIntent.CanceledException;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Intent;
@@ -82,7 +79,7 @@ public class CryptoCallIntentService extends IntentService {
     public static final int ACTION_START_SENDING = 10;
     public static final int ACTION_START_RECEIVED = 20;
     public static final int ACTION_START_PARSE_SMS = 30;
-    public static final int ACTION_STOP_EVERYTHING = 40;
+    public static final int ACTION_CALL_STATE_CHANGED = 40;
 
     /* values for data bundle */
     // ACTION_START_SENDING and ACTION_START_RECEIVED
@@ -305,12 +302,6 @@ public class CryptoCallIntentService extends IntentService {
                                 Log.d(Constants.TAG, "ACTION_START_SENDING");
                                 boolean sendSms = data.getBoolean(DATA_SEND_SMS);
 
-                                createAccount();
-
-                                Log.d(Constants.TAG, "1Before Thread.sleep(3000);");
-                                Thread.sleep(3000);
-                                Log.d(Constants.TAG, "1After Thread.sleep(3000);");
-
                                 // set ip
                                 session.serverIp = myIp;
                                 // TODO: choose from random?
@@ -318,11 +309,11 @@ public class CryptoCallIntentService extends IntentService {
 
                                 setSessionInSingelton(session);
 
-                                Log.d(Constants.TAG, "1Before Thread.sleep(3000);");
-                                Thread.sleep(3000);
-                                Log.d(Constants.TAG, "1After Thread.sleep(3000);");
+                                Log.d(Constants.TAG, "1Before Thread.sleep(1000);");
+                                Thread.sleep(1000);
+                                Log.d(Constants.TAG, "1After Thread.sleep(1000);");
 
-                                startSipStack();
+                                createAccountAndStartSipStack();
 
                                 Log.d(Constants.TAG, "2Before Thread.sleep(3000);");
                                 Thread.sleep(3000);
@@ -340,23 +331,17 @@ public class CryptoCallIntentService extends IntentService {
 
                                 setSessionInSingelton(session);
 
-                                Log.d(Constants.TAG, "1Before Thread.sleep(3000);");
+                                Log.d(Constants.TAG, "1Before Thread.sleep(1000);");
                                 Thread.sleep(3000);
-                                Log.d(Constants.TAG, "1After Thread.sleep(3000);");
+                                Log.d(Constants.TAG, "1After Thread.sleep(1000);");
 
-                                createAccount();
-
-                                Log.d(Constants.TAG, "1Before Thread.sleep(3000);");
-                                Thread.sleep(3000);
-                                Log.d(Constants.TAG, "1After Thread.sleep(3000);");
-
-                                startSipStack();
+                                createAccountAndStartSipStack();
 
                                 Log.d(Constants.TAG, "2Before Thread.sleep(3000);");
                                 Thread.sleep(3000);
                                 Log.d(Constants.TAG, "2After Thread.sleep(3000);");
 
-                                call(session);
+                                makeCall(session);
 
                                 break;
 
@@ -398,28 +383,18 @@ public class CryptoCallIntentService extends IntentService {
                     sendMessageToHandler(HANDLER_MSG_RETURN_SESSION, resultData);
 
                     break;
-                case ACTION_STOP_EVERYTHING:
-                    Log.d(Constants.TAG, "ACTION_STOP_EVERYTHING");
-
-                    Log.d(Constants.TAG, "ACTION_STOP_EVERYTHING Before Thread.sleep(5000);");
-                    Thread.sleep(5000);
-                    Log.d(Constants.TAG, "ACTION_STOP_EVERYTHING After Thread.sleep(5000);");
-
+                case ACTION_CALL_STATE_CHANGED:
+                    Log.d(Constants.TAG, "ACTION_CALL_STATE_CHANGED");
                     SipCallSession sipCallSession = data.getParcelable(DATA_SIP_CALL_SESSION);
 
-                    mAccId = sipCallSession.getAccId();
+                    if (sipCallSession.isAfterEnded()) {
 
-                    if (mAccId != SipProfile.INVALID_ID) {
-                        deactivateAcc(mAccId);
+                        Log.d(Constants.TAG, "3Before Thread.sleep(3000);");
+                        Thread.sleep(3000);
+                        Log.d(Constants.TAG, "3After Thread.sleep(3000);");
+
+                        stopSipStack();
                     }
-
-                    Log.d(Constants.TAG, "3Before Thread.sleep(3000);");
-                    Thread.sleep(3000);
-                    Log.d(Constants.TAG, "3After Thread.sleep(3000);");
-                    
-                    startSipStack();
-
-//                    stopSipStack();
                     break;
 
                 default:
@@ -442,13 +417,13 @@ public class CryptoCallIntentService extends IntentService {
         startService(it);
     }
 
-    private void startSipStack() {
-        // start sip service to open port etc.
-        Intent it = new Intent(SipManager.INTENT_SIP_SERVICE);
-        startService(it);
-    }
+    // private void startSipStack() {
+    // // start sip service to open port etc.
+    // Intent it = new Intent(SipManager.INTENT_SIP_SERVICE);
+    // startService(it);
+    // }
 
-    private void call(CryptoCallSession session) {
+    private void makeCall(CryptoCallSession session) {
         // CryptoCall@ is needed, don't know why!
         // String sipUri = "CryptoCall@" + session.serverIp + ":" + session.serverPort;
         String sipUri = "CryptoCall@" + session.serverIp + ":" + session.serverPort
@@ -468,7 +443,10 @@ public class CryptoCallIntentService extends IntentService {
         startActivity(itCall);
     }
 
-    private void createAccount() {
+    /**
+     * Changing a account also starts the sip stack!
+     */
+    private void createAccountAndStartSipStack() {
         // reset current object variables
         mSipProfile = null;
         mAccId = SipProfile.INVALID_ID;
@@ -527,49 +505,10 @@ public class CryptoCallIntentService extends IntentService {
         mSipProfile = builtProfile;
     }
 
-    private void deactivateAcc(long accId) {
-        Log.d(Constants.TAG, "deactivateAcc " + accId);
-        // Intent it = new Intent(SipManager.INTENT_SIP_ACCOUNT_ACTIVATE);
-        // it.putExtra(SipProfile.FIELD_ID, accId);
-        // it.putExtra(SipProfile.FIELD_ACTIVE, false);
-        // PendingIntent pi = PendingIntent.getBroadcast(this, (int) accId, it,
-        // PendingIntent.FLAG_UPDATE_CURRENT);
-        // try {
-        // pi.send();
-        // } catch (CanceledException e) {
-        // Log.e(Constants.TAG, "Pending intent execution canceled!", e);
-        // }
-
-        if (accId != SipProfile.INVALID_ID) {
-            ContentValues cv = new ContentValues();
-            cv.put(SipProfile.FIELD_ACTIVE, false);
-            int done = getContentResolver().update(
-                    ContentUris.withAppendedId(SipProfile.ACCOUNT_ID_URI_BASE, accId), cv, null,
-                    null);
-            if (done > 0) {
-                Log.d(Constants.TAG, "deactivateAcc done");
-
-                // if (prefWrapper.isValidConnectionForIncoming()) {
-                // Intent sipServiceIntent = new Intent(context, SipService.class);
-                // context.startService(sipServiceIntent);
-                // }
-            }
-        }
-    }
-
     private void stopSipStack() {
-        // TODO
         Log.d(Constants.TAG, "Stop sip stack!");
-        // Intent it = new Intent(SipManager.IN);
-        // it.putExtra(SipProfile.FIELD_ID, accId);
-        // it.putExtra(SipProfile.FIELD_ACTIVE, activate);
-        // PendingIntent pi = PendingIntent.getBroadcast(this, (int) accId, it,
-        // PendingIntent.FLAG_UPDATE_CURRENT);
-        // try {
-        // pi.send();
-        // } catch (CanceledException e) {
-        // Log.e(Constants.TAG, "Pending intent execution canceled!", e);
-        // }
+        Intent intent = new Intent(SipManager.ACTION_SIP_CAN_BE_STOPPED);
+        sendBroadcast(intent);
     }
 
     private void sendErrorToHandler(Exception e) {
