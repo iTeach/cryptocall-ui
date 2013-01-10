@@ -47,9 +47,11 @@ import org.thialfihar.android.apg.service.IApgKeyService;
 import org.thialfihar.android.apg.service.handler.IApgGetKeyringsHandler;
 
 import com.csipsimple.api.SipCallSession;
+import com.csipsimple.api.SipConfigManager;
 import com.csipsimple.api.SipManager;
 import com.csipsimple.api.SipProfile;
 import com.csipsimple.api.SipUri;
+import com.csipsimple.utils.PreferencesProviderWrapper;
 
 import android.app.IntentService;
 import android.content.ContentUris;
@@ -388,10 +390,7 @@ public class CryptoCallIntentService extends IntentService {
                     SipCallSession sipCallSession = data.getParcelable(DATA_SIP_CALL_SESSION);
 
                     if (sipCallSession.isAfterEnded()) {
-
-                        Log.d(Constants.TAG, "3Before Thread.sleep(3000);");
-                        Thread.sleep(3000);
-                        Log.d(Constants.TAG, "3After Thread.sleep(3000);");
+                        Log.d(Constants.TAG, "Stop Sip stack!");
 
                         stopSipStack();
                     }
@@ -447,6 +446,15 @@ public class CryptoCallIntentService extends IntentService {
      * Changing a account also starts the sip stack!
      */
     private void createAccountAndStartSipStack() {
+        /*
+         * Workaround To prevent DeviceStateReceiver to restart sip service even when we stopped the
+         * service
+         * 
+         * This is internal API!
+         */
+        SipConfigManager.setPreferenceBooleanValue(this, PreferencesProviderWrapper.HAS_BEEN_QUIT,
+                false);
+
         // reset current object variables
         mSipProfile = null;
         mAccId = SipProfile.INVALID_ID;
@@ -506,6 +514,15 @@ public class CryptoCallIntentService extends IntentService {
     }
 
     private void stopSipStack() {
+        /*
+         * Workaround To prevent DeviceStateReceiver to restart sip service even when we stopped the
+         * service
+         * 
+         * This is internal API!
+         */
+        SipConfigManager.setPreferenceBooleanValue(this, PreferencesProviderWrapper.HAS_BEEN_QUIT,
+                true);
+
         Log.d(Constants.TAG, "Stop sip stack!");
         Intent intent = new Intent(SipManager.ACTION_SIP_CAN_BE_STOPPED);
         sendBroadcast(intent);

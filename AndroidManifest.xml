@@ -252,23 +252,23 @@
             </intent-filter>
         </service>
 
-        <!-- <receiver -->
-        <!-- android:exported="false" -->
-        <!-- android:name="com.csipsimple.service.DeviceStateReceiver" -->
-        <!-- android:process=":sipStack" > -->
+        <receiver
+            android:name="com.csipsimple.service.DeviceStateReceiver"
+            android:exported="false"
+            android:process=":sipStack" >
 
+            <!-- Here filter for protected-broadcasts -->
+            <intent-filter>
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.PACKAGE_ADDED" />
+                <action android:name="android.intent.action.PACKAGE_REMOVED" />
 
-        <!-- Here filter for protected-broadcasts -->
-        <!-- <intent-filter> -->
-        <!-- <action android:name="android.net.conn.CONNECTIVITY_CHANGE" /> -->
-        <!-- <action android:name="android.intent.action.BOOT_COMPLETED" /> -->
-        <!-- </intent-filter> -->
-        <!-- <intent-filter> -->
-        <!-- <action android:name="android.intent.action.PACKAGE_ADDED" /> -->
-        <!-- <action android:name="android.intent.action.PACKAGE_REMOVED" /> -->
-        <!-- <data android:scheme="package" /> -->
-        <!-- </intent-filter> -->
-        <!-- </receiver> -->
+                <data android:scheme="package" />
+            </intent-filter>
+        </receiver>
         <receiver
             android:name="com.csipsimple.service.DeviceStateReceiver"
             android:exported="false"
