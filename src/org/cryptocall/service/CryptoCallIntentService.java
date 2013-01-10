@@ -113,7 +113,7 @@ public class CryptoCallIntentService extends IntentService {
         super("CryptoCallIntentService");
     }
 
-    Object syncToken = new Object();;
+    Object syncToken = new Object();
 
     @Override
     public void onCreate() {
