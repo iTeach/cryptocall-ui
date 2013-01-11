@@ -34,6 +34,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.Messenger;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.ProgressBar;
@@ -66,7 +67,7 @@ public class SmsSendingActivity extends SherlockActivity {
                             .getInt(CryptoCallIntentService.HANDLER_DATA_PROGRESS));
                 }
                 break;
-                
+
             default:
                 break;
             }
@@ -81,6 +82,10 @@ public class SmsSendingActivity extends SherlockActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // turn screen on while showing activity
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON,
+                WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
 
         setContentView(R.layout.sms_sending_activity);
 
