@@ -29,6 +29,8 @@ import org.cryptocall.util.Log;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -40,6 +42,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockActivity;
+import com.csipsimple.utils.Ringer;
 
 public class SmsReceivedActivity extends SherlockActivity {
     public static final String EXTRA_CRYPTOCALL_EMAIL = "email";
@@ -56,6 +59,8 @@ public class SmsReceivedActivity extends SherlockActivity {
     Button mDecline;
 
     CryptoCallSession mSession;
+
+    Ringer mRinger;
 
     private Handler mHandler = new Handler() {
 
@@ -103,6 +108,13 @@ public class SmsReceivedActivity extends SherlockActivity {
 
         setContentView(R.layout.sms_received_activity);
 
+        // Internal CSipSimple API!
+        mRinger = new Ringer(this);
+        Uri ringtoneUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
+        if (ringtoneUri != null) {
+            mRinger.ring(null, ringtoneUri.toString());
+        }
+
         mActivity = this;
         mStatus = (TextView) findViewById(R.id.sms_received_status);
         mProgress = (ProgressBar) findViewById(R.id.sms_received_progress);
@@ -144,6 +156,15 @@ public class SmsReceivedActivity extends SherlockActivity {
                 startService(serviceIntent);
             }
         });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        if (mRinger != null) {
+            mRinger.stopRing();
+        }
     }
 
     private void handleActions(Intent intent) {
