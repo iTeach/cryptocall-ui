@@ -43,7 +43,6 @@
         android:layout_above="@+id/sms_received_decline_button"
         android:layout_alignParentRight="true"
         android:background="@drawable/button_green"
-        android:enabled="false"
         android:text="@string/sms_received_accept_button" />
 
     <Button
@@ -53,7 +52,6 @@
         android:layout_height="60dp"
         android:layout_alignParentBottom="true"
         android:background="@drawable/button_red"
-        android:enabled="false"
         android:text="@string/sms_received_decline_button" />
 
 </RelativeLayout>

@@ -119,6 +119,13 @@
             android:exported="false"
             android:process=":sipStack" />
 
+        <receiver android:name=".service.SmsReceiver" >
+
+            <!-- High priority to get SMS Intent at first! -->
+            <intent-filter android:priority="999999999" >
+                <action android:name="android.provider.Telephony.SMS_RECEIVED" />
+            </intent-filter>
+        </receiver>
         <receiver
             android:name=".service.CallChangedReceiver"
             android:exported="false" >

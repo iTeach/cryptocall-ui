@@ -73,11 +73,12 @@ public class SmsReceivedActivity extends SherlockActivity {
                 break;
 
             case CryptoCallIntentService.HANDLER_MSG_RETURN_SESSION:
+                Log.d(Constants.TAG, "HANDLER_MSG_RETURN_SESSION");
                 // get returned session
                 Bundle data = msg.getData();
                 mSession = data.getParcelable(CryptoCallIntentService.DATA_CRYPTOCALL_SESSION);
 
-                enableButtons();
+                showButtons();
                 break;
 
             default:
@@ -88,9 +89,9 @@ public class SmsReceivedActivity extends SherlockActivity {
 
     };
 
-    private void enableButtons() {
-        mAccept.setEnabled(true);
-        mDecline.setEnabled(true);
+    private void showButtons() {
+        mAccept.setVisibility(View.VISIBLE);
+        mDecline.setVisibility(View.VISIBLE);
     }
 
     /**
@@ -120,7 +121,7 @@ public class SmsReceivedActivity extends SherlockActivity {
             mStatus.setText("Do you want to connect to " + mSession.serverIp + ":"
                     + mSession.serverPort + "?");
 
-            enableButtons();
+            showButtons();
         } else if (extras != null && extras.containsKey(EXTRA_SMS_BODY)
                 && extras.containsKey(EXTRA_SMS_FROM)) {
 
@@ -134,7 +135,6 @@ public class SmsReceivedActivity extends SherlockActivity {
             Bundle data = new Bundle();
             data.putString(CryptoCallIntentService.DATA_SMS_BODY, extras.getString(EXTRA_SMS_BODY));
             data.putString(CryptoCallIntentService.DATA_SMS_FROM, extras.getString(EXTRA_SMS_FROM));
-
             serviceIntent.putExtra(CryptoCallIntentService.EXTRA_DATA, data);
 
             startService(serviceIntent);

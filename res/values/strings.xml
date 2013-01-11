@@ -94,5 +94,7 @@
     <string name="status_set_session">Setting session in SIP stack…</string>
     <string name="status_start_sip">Create account and start SIP stack…</string>
     <string name="status_start_call">Start call</string>
+    <string name="status_problem_parsing_sms">Problem on parsing CryptoCall SMS! The format is not compatible with this version!</string>
+    <string name="status_email_not_found">Email or APG keyring not found for this telephone number!</string>
 
 </resources>

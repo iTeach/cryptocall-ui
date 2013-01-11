@@ -21,10 +21,12 @@
 
 package org.cryptocall.util;
 
+import java.text.ParseException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.cryptocall.CryptoCallSession;
+import org.thialfihar.android.apg.integration.ApgContentProviderHelper;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -35,6 +37,30 @@ import android.provider.ContactsContract.CommonDataKinds.Phone;
 import android.util.Log;
 
 public class CryptoCallSessionUtils {
+
+    public static class EmailNotFoundException extends Exception {
+        private static final long serialVersionUID = -3346819833021232175L;
+
+        public EmailNotFoundException() {
+
+        }
+
+        public EmailNotFoundException(String s) {
+            super(s);
+        }
+    }
+
+    public static class SmsParsingFailedException extends Exception {
+        private static final long serialVersionUID = 196162475783075979L;
+
+        public SmsParsingFailedException() {
+
+        }
+
+        public SmsParsingFailedException(String s) {
+            super(s);
+        }
+    }
 
     /* Static pattern and matcher */
     private static final String PRE_MESSAGE_MATCHER = "^" + Constants.SMS_PREFIX;
@@ -129,7 +155,7 @@ public class CryptoCallSessionUtils {
      * @return returns session if it was successfully parsed as a cryptocall sms
      */
     public static CryptoCallSession getIpPortAndTelephoneNumberFromSms(CryptoCallSession session,
-            String body, String from) {
+            String body, String from) throws SmsParsingFailedException {
         Log.d(Constants.TAG, "getIpPortAndTelephoneNumberFromSms:\nbody: " + body + "\nfrom: "
                 + from);
 
@@ -167,17 +193,19 @@ public class CryptoCallSessionUtils {
                         // everything okay, return
                         return session;
                     } else {
-                        return null;
+                        throw new SmsParsingFailedException(
+                                "Could not parse CryptoCall SMS! content != ''");
                     }
                 } else {
-                    return null;
+                    throw new SmsParsingFailedException(
+                            "Could not parse CryptoCall SMS! Did not found 2. seperator");
                 }
             } else {
-                return null;
+                throw new SmsParsingFailedException(
+                        "Could not parse CryptoCall SMS! Did not found 1. seperator");
             }
         } else {
-            Log.e(Constants.TAG, "No CryptoCall SMS!");
-            return null;
+            throw new SmsParsingFailedException("Not a CryptoCall SMS!");
         }
     }
 
@@ -190,7 +218,7 @@ public class CryptoCallSessionUtils {
      * @param session
      */
     public static CryptoCallSession getEmailFromTelephoneNumber(Context context,
-            CryptoCallSession session) {
+            CryptoCallSession session) throws EmailNotFoundException {
         Cursor phonesCursor = context.getContentResolver().query(
                 Data.CONTENT_URI,
                 null,
@@ -231,22 +259,30 @@ public class CryptoCallSessionUtils {
                             ProtectedEmailUtils.getSaltFromProtectedEmail(currentEmail));
 
                     if (currentEmail.equals(generatedEmail)) {
-                        Log.d(Constants.TAG, "found email: " + currentEmail);
+                        Log.d(Constants.TAG, "Found email: " + currentEmail);
 
-                        session.peerEmail = currentEmail;
-                        return session;
+                        // TODO: check if valid and can encrypt etc
+                        // check if existing in APG!
+                        long[] keyringIds = (new ApgContentProviderHelper(context))
+                                .getPublicKeyringIdsByEmail(currentEmail);
+                        if (keyringIds != null && keyringIds.length > 0) {
+                            Log.d(Constants.TAG, "found keyring for " + currentEmail);
+
+                            session.peerEmail = currentEmail;
+                            return session;
+                        } else {
+                            Log.d(Constants.TAG, "Did not found keyring for " + currentEmail);
+                        }
                     }
-
                 } catch (Exception e) {
                     Log.e(Constants.TAG, "Exception", e);
                 }
-
             }
             emailsCursor.close();
         }
         phonesCursor.close();
 
-        return null;
+        throw new EmailNotFoundException("No email found!");
     }
 
 }
