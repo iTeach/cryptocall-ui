@@ -64,10 +64,10 @@ public class SmsHelper {
 
     public BroadcastReceiver SmsSendReceiver = new BroadcastReceiver() {
         @Override
-        public void onReceive(Context arg0, Intent arg1) {
+        public void onReceive(Context context, Intent intent) {
             switch (getResultCode()) {
             case Activity.RESULT_OK:
-                mCryptoCallService.sendUpdateUiToHandler(R.string.status_sms_sent);
+                mCryptoCallService.sendUpdateUiToHandler(R.string.status_sms_sent, 100);
                 break;
             case SmsManager.RESULT_ERROR_GENERIC_FAILURE:
                 mCryptoCallService.sendUpdateUiToHandler(R.string.status_sms_generic);
@@ -87,15 +87,17 @@ public class SmsHelper {
 
     public BroadcastReceiver SmsDeliveredReceiver = new BroadcastReceiver() {
         @Override
-        public void onReceive(Context arg0, Intent arg1) {
+        public void onReceive(Context context, Intent intent) {
             switch (getResultCode()) {
             case Activity.RESULT_OK:
-                mCryptoCallService.sendUpdateUiToHandler(R.string.status_sms_delivered, 100);
+                mCryptoCallService.sendUpdateUiToHandler(R.string.status_sms_delivered);
                 break;
             case Activity.RESULT_CANCELED:
                 mCryptoCallService.sendUpdateUiToHandler(R.string.status_sms_not_delivered);
                 break;
             }
+
+            unregisterReceivers(context);
         }
     };
 
@@ -110,30 +112,33 @@ public class SmsHelper {
             String SENT = "SMS_SENT";
             String DELIVERED = "SMS_DELIVERED";
 
-            PendingIntent sentPI = PendingIntent.getBroadcast(context, 0, new Intent(SENT), 0);
+            PendingIntent sentPI = PendingIntent.getBroadcast(context.getApplicationContext(), 0,
+                    new Intent(SENT), 0);
 
-            PendingIntent deliveredPI = PendingIntent.getBroadcast(context, 0,
-                    new Intent(DELIVERED), 0);
+            PendingIntent deliveredPI = PendingIntent.getBroadcast(context.getApplicationContext(),
+                    0, new Intent(DELIVERED), 0);
 
-            /* when the SMS has been sent */
-            context.registerReceiver(SmsSendReceiver, new IntentFilter(SENT));
+            /* receive when the SMS has been sent */
+            context.getApplicationContext().registerReceiver(SmsSendReceiver,
+                    new IntentFilter(SENT));
 
-            /* when the SMS has been delivered */
-            context.registerReceiver(SmsDeliveredReceiver, new IntentFilter(DELIVERED));
+            /* receive when the SMS has been delivered */
+            context.getApplicationContext().registerReceiver(SmsDeliveredReceiver,
+                    new IntentFilter(DELIVERED));
 
             Log.d(Constants.TAG, "Sending SMS to " + phoneNumber + " with message: " + message);
 
             SmsManager sms = SmsManager.getDefault();
             sms.sendTextMessage(phoneNumber, null, message, sentPI, deliveredPI);
-
         } else {
             mCryptoCallService.sendUpdateUiToHandler(R.string.status_destination_invalid);
         }
     }
 
     public void unregisterReceivers(Context context) {
-        context.unregisterReceiver(SmsSendReceiver);
-        context.unregisterReceiver(SmsDeliveredReceiver);
+        Log.d(Constants.TAG, "Unregistering sms receivers...");
+        context.getApplicationContext().unregisterReceiver(SmsSendReceiver);
+        context.getApplicationContext().unregisterReceiver(SmsDeliveredReceiver);
     }
 
 }

@@ -303,13 +303,13 @@ public class PgpToX509 {
         FileOutputStream fosCert = context.openFileOutput(CERT_FILENAME, Context.MODE_PRIVATE);
         PEMWriter pemWriterCert = new PEMWriter(new PrintWriter(fosCert));
         pemWriterCert.writeObject(selfSignedCert);
-        pemWriterCert.flush();
+        pemWriterCert.close();
 
         FileOutputStream fosKey = context.openFileOutput(PRIV_KEY_FILENAME, Context.MODE_PRIVATE);
         PEMWriter pemWriterKey = new PEMWriter(new PrintWriter(fosKey));
 
         pemWriterKey.writeObject(privKey);
-        pemWriterKey.flush();
+        pemWriterKey.close();
     }
 
     /**

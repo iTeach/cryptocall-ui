@@ -70,8 +70,9 @@ public class CryptoCallIntentService extends IntentService {
     private IApgKeyService mIApgKeyService;
 
     public static final String ACTION_CALL = "org.cryptocall.action.CALL";
-    public static final int HANDLER_MSG_UPDATE_UI = 20001;
-    public static final int HANDLER_MSG_RETURN_SESSION = 20002;
+    public static final int HANDLER_MSG_UPDATE_UI = 21;
+    public static final int HANDLER_MSG_RETURN_SESSION = 22;
+
     public static final String HANDLER_DATA_MESSAGE = "message";
     public static final String HANDLER_DATA_PROGRESS = "progress";
 
@@ -114,7 +115,7 @@ public class CryptoCallIntentService extends IntentService {
         super("CryptoCallIntentService");
     }
 
-    Object syncToken = new Object();;
+    Object syncToken = new Object();
 
     @Override
     public void onCreate() {
@@ -352,7 +353,7 @@ public class CryptoCallIntentService extends IntentService {
                                 Thread.sleep(3000);
                                 Log.d(Constants.TAG, "1After Thread.sleep(1000);");
 
-                                sendUpdateUiToHandler(R.string.status_start_sip, 60);
+                                sendUpdateUiToHandler(R.string.status_start_sip, 70);
                                 createAccount();
                                 startSipStack();
 
@@ -360,7 +361,7 @@ public class CryptoCallIntentService extends IntentService {
                                 Thread.sleep(3000);
                                 Log.d(Constants.TAG, "2After Thread.sleep(3000);");
 
-                                sendUpdateUiToHandler(R.string.status_start_call, 80);
+                                sendUpdateUiToHandler(R.string.status_start_call, 100);
                                 makeCall(session);
 
                                 break;
@@ -386,21 +387,27 @@ public class CryptoCallIntentService extends IntentService {
                 // execute action from extra bundle
                 switch (action) {
                 case ACTION_START_PARSE_SMS:
-                    Log.d(Constants.TAG, "ACTION_START_RECEIVED");
+                    Log.d(Constants.TAG, "ACTION_START_PARSE_SMS");
 
-                    String body = data.getString(DATA_SEND_SMS);
+                    String body = data.getString(DATA_SMS_BODY);
                     String from = data.getString(DATA_SMS_FROM);
 
                     CryptoCallSession newSession = new CryptoCallSession();
-                    newSession = CryptoCallSessionUtils.getIpPortAndTelephoneNumberFromSms(
-                            newSession, body, from);
-                    newSession = CryptoCallSessionUtils.getEmailFromTelephoneNumber(this,
-                            newSession);
+                    try {
+                        newSession = CryptoCallSessionUtils.getIpPortAndTelephoneNumberFromSms(
+                                newSession, body, from);
+                        newSession = CryptoCallSessionUtils.getEmailFromTelephoneNumber(this,
+                                newSession);
 
-                    // return session
-                    Bundle resultData = new Bundle();
-                    resultData.putParcelable(DATA_CRYPTOCALL_SESSION, newSession);
-                    sendMessageToHandler(HANDLER_MSG_RETURN_SESSION, resultData);
+                        // return session
+                        Bundle resultData = new Bundle();
+                        resultData.putParcelable(DATA_CRYPTOCALL_SESSION, newSession);
+                        sendMessageToHandler(HANDLER_MSG_RETURN_SESSION, resultData);
+                    } catch (CryptoCallSessionUtils.SmsParsingFailedException e) {
+                        sendUpdateUiToHandler(R.string.status_problem_parsing_sms);
+                    } catch (CryptoCallSessionUtils.EmailNotFoundException e) {
+                        sendUpdateUiToHandler(R.string.status_email_not_found);
+                    }
 
                     break;
 
@@ -445,7 +452,6 @@ public class CryptoCallIntentService extends IntentService {
 
     private void makeCall(CryptoCallSession session) {
         // CryptoCall@ is needed, don't know why!
-        // String sipUri = "CryptoCall@" + session.serverIp + ":" + session.serverPort;
         String sipUri = "CryptoCall@" + session.serverIp + ":" + session.serverPort
                 + ";transport=tls";
 
@@ -563,23 +569,13 @@ public class CryptoCallIntentService extends IntentService {
     }
 
     public void sendUpdateUiToHandler(String message, int progress) {
-        Message msg = Message.obtain();
-        msg.what = HANDLER_MSG_UPDATE_UI;
-
         Bundle data = new Bundle();
         data.putString(HANDLER_DATA_MESSAGE, message);
         if (progress != -1) {
             data.putInt(HANDLER_DATA_PROGRESS, progress);
         }
-        msg.setData(data);
 
-        try {
-            mMessenger.send(msg);
-        } catch (RemoteException e) {
-            Log.w(Constants.TAG, "Exception sending message, Is handler present?", e);
-        } catch (NullPointerException e) {
-            Log.w(Constants.TAG, "Messenger is null!", e);
-        }
+        sendMessageToHandler(HANDLER_MSG_UPDATE_UI, data);
     }
 
     public void sendUpdateUiToHandler(int messageRes, int progress) {
@@ -590,12 +586,9 @@ public class CryptoCallIntentService extends IntentService {
         sendUpdateUiToHandler(getString(messageRes), -1);
     }
 
-    private void sendMessageToHandler(Integer arg1, Integer arg2, Bundle data) {
+    private void sendMessageToHandler(Integer what, Bundle data) {
         Message msg = Message.obtain();
-        msg.arg1 = arg1;
-        if (arg2 != null) {
-            msg.arg2 = arg2;
-        }
+        msg.what = what;
         if (data != null) {
             msg.setData(data);
         }
@@ -607,13 +600,5 @@ public class CryptoCallIntentService extends IntentService {
         } catch (NullPointerException e) {
             Log.w(Constants.TAG, "Messenger is null!", e);
         }
-    }
-
-    private void sendMessageToHandler(Integer arg1, Bundle data) {
-        sendMessageToHandler(arg1, null, data);
-    }
-
-    private void sendMessageToHandler(Integer arg1) {
-        sendMessageToHandler(arg1, null, null);
     }
 }

@@ -94,10 +94,12 @@
         </activity>
         <activity
             android:name=".ui.SmsSendingActivity"
-            android:label="@string/activity_sending_sms_label" />
+            android:label="@string/activity_sending_sms_label"
+            android:noHistory="true" />
         <activity
             android:name=".ui.SmsReceivedActivity"
-            android:label="@string/activity_received_sms_label" />
+            android:label="@string/activity_received_sms_label"
+            android:noHistory="true" />
         <activity
             android:name=".ui.HelpActivity"
             android:label="@string/activity_help_label" />
@@ -119,6 +121,13 @@
             android:exported="false"
             android:process=":sipStack" />
 
+        <receiver android:name=".service.SmsReceiver" >
+
+            <!-- High priority to get SMS Intent at first! -->
+            <intent-filter android:priority="999999999" >
+                <action android:name="android.provider.Telephony.SMS_RECEIVED" />
+            </intent-filter>
+        </receiver>
         <receiver
             android:name=".service.CallChangedReceiver"
             android:exported="false" >
