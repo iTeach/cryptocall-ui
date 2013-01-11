@@ -127,6 +127,10 @@ public class SmsReceivedActivity extends SherlockActivity {
 
             @Override
             public void onClick(View v) {
+                if (mRinger != null) {
+                    mRinger.stopRing();
+                }
+
                 Intent serviceIntent = new Intent(mActivity, CryptoCallIntentService.class);
                 serviceIntent.putExtra(CryptoCallIntentService.EXTRA_ACTION,
                         CryptoCallIntentService.ACTION_START_RECEIVED);
