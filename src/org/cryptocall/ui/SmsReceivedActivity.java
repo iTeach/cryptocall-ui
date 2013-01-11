@@ -109,38 +109,7 @@ public class SmsReceivedActivity extends SherlockActivity {
         mAccept = (Button) findViewById(R.id.sms_received_accept_button);
         mDecline = (Button) findViewById(R.id.sms_received_decline_button);
 
-        Bundle extras = getIntent().getExtras();
-        if (extras != null && extras.containsKey(EXTRA_CRYPTOCALL_EMAIL)
-                && extras.containsKey(EXTRA_SERVER_IP) && extras.containsKey(EXTRA_SERVER_PORT)) {
-
-            mSession = new CryptoCallSession();
-            mSession.peerEmail = extras.getString(EXTRA_CRYPTOCALL_EMAIL);
-            mSession.serverIp = extras.getString(EXTRA_SERVER_IP);
-            mSession.serverPort = extras.getInt(EXTRA_SERVER_PORT);
-
-            mStatus.setText("Do you want to connect to " + mSession.serverIp + ":"
-                    + mSession.serverPort + "?");
-
-            showButtons();
-        } else if (extras != null && extras.containsKey(EXTRA_SMS_BODY)
-                && extras.containsKey(EXTRA_SMS_FROM)) {
-
-            // get session from sms asynchronous in service, result is handled in mHandler
-            Intent serviceIntent = new Intent(mActivity, CryptoCallIntentService.class);
-            serviceIntent.putExtra(CryptoCallIntentService.EXTRA_ACTION,
-                    CryptoCallIntentService.ACTION_START_PARSE_SMS);
-            serviceIntent
-                    .putExtra(CryptoCallIntentService.EXTRA_MESSENGER, new Messenger(mHandler));
-
-            Bundle data = new Bundle();
-            data.putString(CryptoCallIntentService.DATA_SMS_BODY, extras.getString(EXTRA_SMS_BODY));
-            data.putString(CryptoCallIntentService.DATA_SMS_FROM, extras.getString(EXTRA_SMS_FROM));
-            serviceIntent.putExtra(CryptoCallIntentService.EXTRA_DATA, data);
-
-            startService(serviceIntent);
-        } else {
-            Log.e(Constants.TAG, "Missing extras in intent!");
-        }
+        handleActions(getIntent());
 
         mAccept.setOnClickListener(new OnClickListener() {
 
@@ -175,5 +144,41 @@ public class SmsReceivedActivity extends SherlockActivity {
                 startService(serviceIntent);
             }
         });
+    }
+
+    private void handleActions(Intent intent) {
+        Bundle extras = intent.getExtras();
+
+        if (extras != null && extras.containsKey(EXTRA_CRYPTOCALL_EMAIL)
+                && extras.containsKey(EXTRA_SERVER_IP) && extras.containsKey(EXTRA_SERVER_PORT)) {
+
+            mSession = new CryptoCallSession();
+            mSession.peerEmail = extras.getString(EXTRA_CRYPTOCALL_EMAIL);
+            mSession.serverIp = extras.getString(EXTRA_SERVER_IP);
+            mSession.serverPort = extras.getInt(EXTRA_SERVER_PORT);
+
+            mStatus.setText("Do you want to connect to " + mSession.serverIp + ":"
+                    + mSession.serverPort + "?");
+
+            showButtons();
+        } else if (extras != null && extras.containsKey(EXTRA_SMS_BODY)
+                && extras.containsKey(EXTRA_SMS_FROM)) {
+
+            // get session from sms asynchronous in service, result is handled in mHandler
+            Intent serviceIntent = new Intent(mActivity, CryptoCallIntentService.class);
+            serviceIntent.putExtra(CryptoCallIntentService.EXTRA_ACTION,
+                    CryptoCallIntentService.ACTION_START_PARSE_SMS);
+            serviceIntent
+                    .putExtra(CryptoCallIntentService.EXTRA_MESSENGER, new Messenger(mHandler));
+
+            Bundle data = new Bundle();
+            data.putString(CryptoCallIntentService.DATA_SMS_BODY, extras.getString(EXTRA_SMS_BODY));
+            data.putString(CryptoCallIntentService.DATA_SMS_FROM, extras.getString(EXTRA_SMS_FROM));
+            serviceIntent.putExtra(CryptoCallIntentService.EXTRA_DATA, data);
+
+            startService(serviceIntent);
+        } else {
+            Log.e(Constants.TAG, "Missing extras in intent!");
+        }
     }
 }

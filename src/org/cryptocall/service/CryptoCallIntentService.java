@@ -69,8 +69,9 @@ public class CryptoCallIntentService extends IntentService {
     private CryptoCallApplication mApplication;
     private IApgKeyService mIApgKeyService;
 
-    public static final int HANDLER_MSG_UPDATE_UI = 20001;
-    public static final int HANDLER_MSG_RETURN_SESSION = 20002;
+    public static final int HANDLER_MSG_UPDATE_UI = 21;
+    public static final int HANDLER_MSG_RETURN_SESSION = 22;
+
     public static final String HANDLER_DATA_MESSAGE = "message";
     public static final String HANDLER_DATA_PROGRESS = "progress";
 
