@@ -69,6 +69,7 @@ public class CryptoCallIntentService extends IntentService {
     private CryptoCallApplication mApplication;
     private IApgKeyService mIApgKeyService;
 
+    public static final String ACTION_CALL = "org.cryptocall.action.CALL";
     public static final int HANDLER_MSG_UPDATE_UI = 20001;
     public static final int HANDLER_MSG_RETURN_SESSION = 20002;
     public static final String HANDLER_DATA_MESSAGE = "message";
@@ -448,15 +449,16 @@ public class CryptoCallIntentService extends IntentService {
         String sipUri = "CryptoCall@" + session.serverIp + ":" + session.serverPort
                 + ";transport=tls";
 
-        Intent itCall = new Intent(Intent.ACTION_CALL);
+        Intent itCall = new Intent(ACTION_CALL);
         // sipUri is the sip number or uri you'd like to call (domain added
         // automatically if needed)
         // PROTOCOL_CSIP to use csipsimple!
         itCall.setData(SipUri.forgeSipUri(SipManager.PROTOCOL_CSIP, sipUri));
         itCall.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         // disable choosing of account:
-        itCall.putExtra(SipManager.EXTRA_FALLBACK_BEHAVIOR, SipManager.FALLBACK_PREVENT);
+        itCall.putExtra(SipManager.EXTRA_FALLBACK_BEHAVIOR, SipManager.FALLBACK_AUTO_CALL_OTHER);
         // use this account:
+        Log.d(Constants.TAG, "mAccId: " + new Long(mAccId).toString());
         itCall.putExtra(SipProfile.FIELD_ACC_ID, mAccId);
         // id to use for this call
         startActivity(itCall);
