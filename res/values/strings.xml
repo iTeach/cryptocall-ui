@@ -79,6 +79,7 @@
     <string name="sms_sending_title">Waiting for other side to receive SMS…</string>
 
     <!-- Status -->
+    <string name="status_connection">Do you want to connect to %1$s:%2$s with email %3$s</string>
     <string name="status_sending">Sending CryptoCall SMS…</string>
     <string name="status_destination_invalid">SMS destination invalid!</string>
     <string name="status_sms_sent">SMS was send successfully!</string>

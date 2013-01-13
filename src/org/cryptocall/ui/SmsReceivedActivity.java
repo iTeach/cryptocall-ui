@@ -32,6 +32,7 @@ import android.content.Intent;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Messenger;
@@ -95,6 +96,21 @@ public class SmsReceivedActivity extends SherlockActivity {
 
     };
 
+    private static final int COUNTDOWN_TIMEOUT = 60 * 1000;
+
+    private CountDownTimer mCountDownTimer = new CountDownTimer(COUNTDOWN_TIMEOUT, 1000) {
+
+        @Override
+        public void onFinish() {
+            closeActivityAndStopSip();
+        }
+
+        @Override
+        public void onTick(long millisUntilFinished) {
+            mProgress.setProgress((int) millisUntilFinished);
+        }
+    };
+
     private void showButtons() {
         mAccept.setVisibility(View.VISIBLE);
         mDecline.setVisibility(View.VISIBLE);
@@ -129,12 +145,22 @@ public class SmsReceivedActivity extends SherlockActivity {
         mAccept = (Button) findViewById(R.id.sms_received_accept_button);
         mDecline = (Button) findViewById(R.id.sms_received_decline_button);
 
+        // init progress bar
+        mProgress.setMax(COUNTDOWN_TIMEOUT);
+        mProgress.setProgress(COUNTDOWN_TIMEOUT);
+        mCountDownTimer.start();
+
         handleActions(getIntent());
 
         mAccept.setOnClickListener(new OnClickListener() {
 
             @Override
             public void onClick(View v) {
+                mCountDownTimer.cancel();
+                // set progress bar to max 100% and current 0% to be used by service
+                mProgress.setMax(100);
+                mProgress.setProgress(0);
+
                 if (mRinger != null) {
                     mRinger.stopRing();
                 }
@@ -157,17 +183,20 @@ public class SmsReceivedActivity extends SherlockActivity {
 
             @Override
             public void onClick(View v) {
-                finish();
-
-                // stop sip stack on decline
-                Intent serviceIntent = new Intent(mActivity, CryptoCallIntentService.class);
-                serviceIntent.putExtra(CryptoCallIntentService.EXTRA_ACTION,
-                        CryptoCallIntentService.ACTION_STOP_SIP_STACK);
-                serviceIntent.putExtra(CryptoCallIntentService.EXTRA_MESSENGER, new Messenger(
-                        mHandler));
-                startService(serviceIntent);
+                closeActivityAndStopSip();
             }
         });
+    }
+
+    private void closeActivityAndStopSip() {
+        finish();
+
+        // stop sip stack on decline
+        Intent serviceIntent = new Intent(mActivity, CryptoCallIntentService.class);
+        serviceIntent.putExtra(CryptoCallIntentService.EXTRA_ACTION,
+                CryptoCallIntentService.ACTION_STOP_SIP_STACK);
+        serviceIntent.putExtra(CryptoCallIntentService.EXTRA_MESSENGER, new Messenger(mHandler));
+        startService(serviceIntent);
     }
 
     @Override
@@ -190,8 +219,8 @@ public class SmsReceivedActivity extends SherlockActivity {
             mSession.serverIp = extras.getString(EXTRA_SERVER_IP);
             mSession.serverPort = extras.getInt(EXTRA_SERVER_PORT);
 
-            mStatus.setText("Do you want to connect to " + mSession.serverIp + ":"
-                    + mSession.serverPort + "?");
+            mStatus.setText(getString(R.string.status_connection, mSession.serverIp,
+                    mSession.serverPort, mSession.peerEmail));
 
             showButtons();
         } else if (extras != null && extras.containsKey(EXTRA_SMS_BODY)
