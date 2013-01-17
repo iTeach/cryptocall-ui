@@ -95,6 +95,45 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Received..." />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingTop="5dip"
+            android:text="Infos"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingTop="5dip"
+            android:text="@string/base_manual_connection_pgp_mail" />
+
+        <TextView
+            android:id="@+id/base_manual_connection_pgp_mail"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:ellipsize="end"
+            android:lines="1"
+            android:singleLine="true"
+            android:textSize="16sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/base_manual_connection_key" />
+
+        <TextView
+            android:id="@+id/base_manual_connection_key"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:ellipsize="end"
+            android:lines="1"
+            android:singleLine="true"
+            android:textSize="16sp"
+            android:typeface="monospace" />
     </LinearLayout>
 
 </ScrollView>

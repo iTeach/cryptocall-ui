@@ -24,6 +24,7 @@ package org.cryptocall.ui;
 import org.cryptocall.R;
 import org.cryptocall.util.Constants;
 import org.cryptocall.util.Log;
+import org.cryptocall.util.PreferencesHelper;
 import org.sufficientlysecure.keychain.integration.KeychainData;
 import org.sufficientlysecure.keychain.integration.KeychainIntentHelperSupportV4;
 import org.sufficientlysecure.keychain.integration.KeychainUtil;
@@ -38,6 +39,7 @@ import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 
 public class BaseManualConnectionFragment extends Fragment {
     private BaseActivity mBaseActivity;
@@ -54,6 +56,9 @@ public class BaseManualConnectionFragment extends Fragment {
     private EditText mPort;
     private Button mSending;
     private Button mReceived;
+
+    private TextView mKeyTextView;
+    private TextView mPgpMailTextView;
 
     private KeychainIntentHelperSupportV4 mKeychainIntentHelper;
     private KeychainData mKeychainData;
@@ -79,6 +84,12 @@ public class BaseManualConnectionFragment extends Fragment {
         mPort = (EditText) view.findViewById(R.id.base_manual_connection_port);
         mSending = (Button) view.findViewById(R.id.base_manual_connection_send_button);
         mReceived = (Button) view.findViewById(R.id.base_manual_connection_received_button);
+
+        mPgpMailTextView = (TextView) view.findViewById(R.id.base_manual_connection_pgp_mail);
+        mKeyTextView = (TextView) view.findViewById(R.id.base_manual_connection_key);
+
+        mPgpMailTextView.setText(PreferencesHelper.getPgpEmail(mBaseActivity));
+        mKeyTextView.setText(String.valueOf(PreferencesHelper.getPgpMasterKeyId(mBaseActivity)));
 
         mSending.setOnClickListener(new OnClickListener() {
 

@@ -36,6 +36,7 @@ import android.support.v4.app.LoaderManager;
 import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.provider.ContactsContract.CommonDataKinds.Email;
 import android.provider.ContactsContract.Contacts;
@@ -83,6 +84,8 @@ public class ContactsFragment extends SherlockListFragment implements
 
         // set design to fast scroll, meaning if many items are available show scroll slider
         getListView().setFastScrollEnabled(true);
+        getListView().setDivider(new ColorDrawable(getResources().getColor(R.color.divider)));
+        getListView().setDividerHeight(1);
 
         // Start out with a progress indicator.
         setListShown(false);

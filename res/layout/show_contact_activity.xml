@@ -1,76 +1,64 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/scrollView1"
-    android:layout_width="match_parent" android:layout_height="wrap_content">
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content" >
+
     <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:orientation="vertical">
-        <LinearLayout
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:orientation="vertical"
-            android:padding="10dip">
-            <TextView
-                android:layout_height="wrap_content"
-                android:id="@+id/show_contact_email"
-                android:text="Email"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:layout_width="wrap_content"></TextView>
-        </LinearLayout>
-        <!-- Divider -->
-        <ImageView
-            xmlns:android="http://schemas.android.com/apk/res/android"
-            android:src="@android:drawable/divider_horizontal_bright"
-            android:layout_width="fill_parent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" >
+
+        <TextView
+            android:id="@+id/show_contact_email"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:scaleType="fitXY"
-            android:paddingBottom="2dp"
-            android:paddingTop="2dp" />
+            android:padding="10dip"
+            android:text="Email"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/divider" />
+
         <Button
             android:id="@+id/show_contact_call_button"
-            android:background="@android:drawable/list_selector_background"
-            android:onClick="callOnClick"
-            android:gravity="left|center_vertical"
-            android:layout_width="fill_parent"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:drawableRight="@drawable/call_contact"
+            android:background="@drawable/abs__item_background_holo_dark"
             android:drawablePadding="20dip"
+            android:drawableRight="@drawable/call_contact"
+            android:gravity="left|center_vertical"
+            android:onClick="callOnClick"
+            android:padding="15dip"
             android:text="@string/show_contact_call"
-            android:textSize="20dip"
             android:textColor="@android:color/white"
-            android:padding="15dip" />
-        <!-- Divider -->
-        <ImageView
-            xmlns:android="http://schemas.android.com/apk/res/android"
-            android:src="@android:drawable/divider_horizontal_bright"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:scaleType="fitXY"
-            android:paddingBottom="2dp"
-            android:paddingTop="2dp" />
+            android:textSize="20dip" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/divider" />
+
         <Button
             android:id="@+id/show_contact_android_contact_button"
-            android:background="@android:drawable/list_selector_background"
-            android:onClick="androidContactOnClick"
-            android:gravity="left|center_vertical"
-            android:layout_width="fill_parent"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:drawableRight="@drawable/android_contacts"
+            android:background="@drawable/abs__item_background_holo_dark"
             android:drawablePadding="20dip"
+            android:drawableRight="@drawable/android_contacts"
+            android:gravity="left|center_vertical"
+            android:onClick="androidContactOnClick"
+            android:padding="15dip"
             android:text="@string/show_contact_android_contact"
-            android:textSize="20dip"
             android:textColor="@android:color/white"
-            android:padding="15dip" />
-        <!-- Divider -->
-        <ImageView
-            xmlns:android="http://schemas.android.com/apk/res/android"
-            android:src="@android:drawable/divider_horizontal_bright"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:scaleType="fitXY"
-            android:paddingBottom="2dp"
-            android:paddingTop="2dp" />
+            android:textSize="20dip" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/divider" />
     </LinearLayout>
+
 </ScrollView>

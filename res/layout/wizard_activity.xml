@@ -24,7 +24,7 @@
             android:layout_height="match_parent"
             android:layout_marginBottom="8dp"
             android:layout_marginTop="8dp"
-            android:background="#808080" />
+            android:background="@color/divider" />
 
         <Button
             android:id="@+id/wizard_activity_next"
@@ -41,7 +41,7 @@
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:layout_above="@+id/wizard_buttons"
-        android:background="#808080" />
+        android:background="@color/divider" />
 
     <ScrollView
         android:layout_width="match_parent"

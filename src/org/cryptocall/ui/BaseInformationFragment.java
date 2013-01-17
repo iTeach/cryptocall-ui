@@ -34,6 +34,7 @@ import org.sufficientlysecure.keychain.integration.KeychainIntentHelper;
 import org.sufficientlysecure.keychain.service.IKeychainKeyService;
 import org.sufficientlysecure.keychain.service.handler.IKeychainGetKeyringsHandler;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.RemoteException;
@@ -51,11 +52,13 @@ public class BaseInformationFragment extends Fragment {
     private CryptoCallApplication mApplication;
     private IKeychainKeyService mIKeychainKeyService;
 
-    private TextView mKeyTextView;
     private TextView mTelTextView;
-    private TextView mPgpMailTextView;
+    private Button mEditKeyringButton;
+    private Button mSelectKeyringButton;
     private ImageView mQrCodeImageView;
     private Button mShareNfcButton;
+    private Button mShareButton;
+
     private Button mImportFromQrCode;
 
     private Bitmap mQrCodeBitmap;
@@ -72,12 +75,15 @@ public class BaseInformationFragment extends Fragment {
         mKeychainIntentHelper = new KeychainIntentHelper(getActivity());
 
         // get views
+        mEditKeyringButton = (Button) view
+                .findViewById(R.id.base_information_fragment_edit_keyring_button);
+        mSelectKeyringButton = (Button) view
+                .findViewById(R.id.base_information_fragment_select_keyring_button);
         mTelTextView = (TextView) view.findViewById(R.id.base_information_fragment_tel);
-        mPgpMailTextView = (TextView) view.findViewById(R.id.base_information_fragment_pgp_mail);
-        mKeyTextView = (TextView) view.findViewById(R.id.base_information_fragment_key);
         mQrCodeImageView = (ImageView) view.findViewById(R.id.base_information_fragment_qr);
         mShareNfcButton = (Button) view
                 .findViewById(R.id.base_information_fragment_share_nfc_button);
+        mShareButton = (Button) view.findViewById(R.id.base_information_fragment_share_button);
         mImportFromQrCode = (Button) view
                 .findViewById(R.id.base_information_fragment_import_from_qr_code_button);
 
@@ -89,10 +95,30 @@ public class BaseInformationFragment extends Fragment {
             }
         });
 
+        mEditKeyringButton.setOnClickListener(new OnClickListener() {
+            public void onClick(final View v) {
+                long masterKeyId = PreferencesHelper.getPgpMasterKeyId(mBaseActivity);
+                mKeychainIntentHelper.editKey(masterKeyId);
+            }
+        });
+
+        mSelectKeyringButton.setOnClickListener(new OnClickListener() {
+            public void onClick(final View v) {
+                startActivity(new Intent(getActivity(), WizardActivity.class));
+            }
+        });
+
         mShareNfcButton.setOnClickListener(new OnClickListener() {
             public void onClick(final View v) {
                 long masterKeyId = PreferencesHelper.getPgpMasterKeyId(mBaseActivity);
                 mKeychainIntentHelper.shareWithNfc(masterKeyId);
+            }
+        });
+
+        mShareButton.setOnClickListener(new OnClickListener() {
+            public void onClick(final View v) {
+                long masterKeyId = PreferencesHelper.getPgpMasterKeyId(mBaseActivity);
+                mKeychainIntentHelper.share(masterKeyId);
             }
         });
 
@@ -138,8 +164,6 @@ public class BaseInformationFragment extends Fragment {
 
         // set textview from preferenes
         mTelTextView.setText(PreferencesHelper.getTelephoneNumber(mBaseActivity));
-        mPgpMailTextView.setText(PreferencesHelper.getPgpEmail(mBaseActivity));
-        mKeyTextView.setText(String.valueOf(PreferencesHelper.getPgpMasterKeyId(mBaseActivity)));
     }
 
     private final IKeychainGetKeyringsHandler.Stub getPublicKeyringHandler = new IKeychainGetKeyringsHandler.Stub() {

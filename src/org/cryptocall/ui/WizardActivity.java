@@ -87,10 +87,19 @@ public class WizardActivity extends SherlockFragmentActivity {
         }
     }
 
+    /**
+     * Checks if text of given EditText is not empty. If it is empty an error is set and the
+     * EditText gets the focus.
+     * 
+     * @param context
+     * @param editText
+     * @return true if EditText is not empty
+     */
     private static boolean isEditTextNotEmpty(Context context, EditText editText) {
         boolean output = true;
         if (editText.getText().toString().length() == 0) {
             editText.setError(context.getString(R.string.wizard_error_blank));
+            editText.requestFocus();
             output = false;
         } else {
             editText.setError(null);
@@ -99,16 +108,26 @@ public class WizardActivity extends SherlockFragmentActivity {
         return output;
     }
 
+    /**
+     * Checks if text of given EditText contains a valid international telephone number. If not an
+     * error is set and the EditText gets the focus.
+     * 
+     * @param context
+     * @param editText
+     * @return true if valid telephone number
+     */
     private static boolean isEditTextValidTelephoneNumber(Context context, EditText editText) {
         boolean output = true;
 
         if (!PhoneNumberUtils.isWellFormedSmsAddress(editText.getText().toString())) {
             editText.setError(context.getString(R.string.wizard_error_blank));
+            editText.requestFocus();
             output = false;
         } else {
             if (!editText.getText().toString().startsWith("+")
                     || !PhoneNumberUtils.isGlobalPhoneNumber(editText.getText().toString())) {
                 editText.setError(context.getString(R.string.wizard_error_not_international));
+                editText.requestFocus();
                 output = false;
             } else {
                 editText.setError(null);

@@ -37,17 +37,13 @@
             android:singleLine="true"
             android:text="empty" />
     </LinearLayout>
-    <!-- Divider -->
 
-    <ImageView
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="wrap_content"
-        android:layout_height="fill_parent"
-        android:paddingBottom="2dp"
-        android:paddingLeft="5dp"
-        android:paddingTop="2dp"
-        android:scaleType="fitXY"
-        android:src="@android:drawable/divider_horizontal_bright" />
+    <View
+        android:layout_width="1dip"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="8dp"
+        android:layout_marginTop="8dp"
+        android:background="@color/divider" />
 
     <ImageButton
         android:id="@+id/base_contacts_list_call_image"
@@ -56,7 +52,6 @@
         android:layout_weight="0"
         android:background="@android:drawable/list_selector_background"
         android:padding="15dip"
-        android:src="@drawable/call_contact" >
-    </ImageButton>
+        android:src="@drawable/call_contact" />
 
 </LinearLayout>

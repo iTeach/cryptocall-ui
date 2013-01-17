@@ -2,32 +2,44 @@
 <resources>
 
     <string name="app_name">CryptoCall</string>
-    <string name="app_subtitle">E2E Encrypted Calls</string>
+    <string name="app_subtitle">OpenPGP based VoIP</string>
 
     <!-- Base Menu -->
-    <string name="base_information_fragment_key">Key Id:</string>
-    <string name="base_information_fragment_tel">Telephone Number:</string>
-    <string name="base_information_fragment_pgp_mail">PGP Email:</string>
-    <string name="base_information_fragment_information">Information</string>
-    <string name="base_information_fragment_share">Share</string>
-    <string name="base_information_fragment_import">Import</string>
     <string name="base_menu_about">About</string>
     <string name="base_menu_debug">Debug</string>
     <string name="base_menu_preferences">Preferences</string>
     <string name="base_menu_scan_barcode">Scan QR Code</string>
-    <string name="base_menu_sync">Sync APG with Contacts</string>
+    <string name="base_menu_sync">Sync OpenPGP Keyrings with Contacts</string>
     <string name="base_menu_help">Help</string>
+
+    <!-- Information and Share fragment -->
+    <string name="base_information_fragment_tel">Your Telephone Number</string>
+    <string name="base_information_fragment_share">Your Public Keyring</string>
+    <string name="base_information_fragment_import">Import</string>
+    <string name="base_information_fragment_share_with">Share with…</string>
+    <string name="base_information_fragment_share_nfc">Share with NFC</string>
+    <string name="base_information_fragment_upload">Upload to keyserver</string>
+    <string name="base_information_fragment_import_from_qr_code">Import from QR Code</string>
+    <string name="base_information_fragment_edit_keyring">Edit Keyring</string>
+    <string name="base_information_fragment_select_keyring">Select Keyring</string>
+
+    <!-- Debug fragment -->
+    <string name="base_manual_connection_key">Key Id:</string>
+    <string name="base_manual_connection_pgp_mail">PGP Email:</string>
 
     <!-- Wizard -->
     <string name="wizard_nickname">Nickname:</string>
-    <string name="wizard_telephone_number">Telephone number (with international prefix, e.g., +49):</string>
+    <string name="wizard_nickname_hint">Nickname</string>
+    <string name="wizard_telephone_number_international">Telephone number (with international prefix, e.g., +49):</string>
+    <string name="wizard_telephone_number">Telephone number:</string>
+    <string name="wizard_telephone_number_hint">Telephone number</string>
     <string name="wizard_protected_email">PGP Email:</string>
     <string name="wizard_intro">This is the first time you started CryptoCall.\n\nHow do you want to proceed?</string>
-    <string name="wizard_generate_keyring_intro">Please enter a nickname for CryptoCall and correct your phone number if it is not retrieved correctly.\n\nAfter clicking Next, APG will present the new keyring for verification. Please click Save.</string>
+    <string name="wizard_generate_keyring_intro">Please enter a nickname for CryptoCall and your current telephone number.\n\nAfter clicking Next, OpenPGP Keychain will present the generated keyring for verification. Please click Save after successful generation.</string>
     <string name="wizard_generate_keyring_radio">Generate PGP keyring (recommended)</string>
-    <string name="wizard_select_keyring_radio">Select existing PGP keyring with CryptoCall ID (@cryptocall.org) and for this telephone number</string>
-    <string name="wizard_select_keyring_intro">Please correct your phone number if it is not retrieved correctly.\n\nAfter clicking Next, you have to select your existing keyring matching to your entered telephone number.</string>
-    <string name="wizard_success_intro">Congratulations. The first time wizard was successful!</string>
+    <string name="wizard_select_keyring_radio">Select existing PGP keyring with CryptoCall ID (@cryptocall.org) for your current telephone number</string>
+    <string name="wizard_select_keyring_intro">Please enter your current telephone number.\n\nAfter clicking Next, you have to select your existing keyring corresponding to your entered telephone number.</string>
+    <string name="wizard_success_intro">Congratulations. The first time wizard finished successfully!</string>
     <string name="wizard_error_not_international">Not a valid international telephone number!</string>
     <string name="wizard_error_not_matching">Your entered telephone number does not match to the selected keyring! Please correct your choices!</string>
     <string name="wizard_error_blank">Please insert text!</string>
@@ -46,8 +58,6 @@
     <string name="button_back">Back</string>
     <string name="button_next">Next</string>
     <string name="button_finish">Finish</string>
-    <string name="button_share_nfc">Share with NFC</string>
-    <string name="button_share_import_from_qr_code">Import from QR Code</string>
 
     <!-- Activities -->
     <string name="activity_help_label">Help</string>
@@ -89,13 +99,13 @@
     <string name="status_sms_radio_off">Radio off!</string>
     <string name="status_sms_delivered">SMS delivered successfully…</string>
     <string name="status_sms_not_delivered">SMS NOT delivered!</string>
-    <string name="status_get_peer_pub_keyring">Get PGP public keyring of peer from APG…</string>
-    <string name="status_get_my_secret_keyring">Get my PGP secret keyring from APG…</string>
+    <string name="status_get_peer_pub_keyring">Get PGP public keyring of peer from OpenPGP Keychain…</string>
+    <string name="status_get_my_secret_keyring">Get my PGP secret keyring from OpenPGP Keychain…</string>
     <string name="status_create_session">Create session with X509 cert and pub key information…</string>
     <string name="status_set_session">Setting session in SIP stack…</string>
     <string name="status_start_sip">Create account and start SIP stack…</string>
     <string name="status_start_call">Start call</string>
     <string name="status_problem_parsing_sms">Problem on parsing CryptoCall SMS! The format is not compatible with this version!</string>
-    <string name="status_email_not_found">Email or APG keyring not found for this telephone number!</string>
+    <string name="status_email_not_found">Email or OpenPGP keyring not found for this telephone number!</string>
 
 </resources>

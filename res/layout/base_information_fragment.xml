@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:padding="16dp" >
+    android:layout_height="match_parent" >
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -10,94 +9,133 @@
         android:orientation="vertical" >
 
         <TextView
+            style="@style/SectionHeader"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/base_information_fragment_information"
+            android:padding="8dp"
+            android:text="@string/base_information_fragment_tel"
             android:textAppearance="?android:attr/textAppearanceMedium" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingTop="5dip"
-            android:text="@string/base_information_fragment_tel" />
 
         <TextView
             android:id="@+id/base_information_fragment_tel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
             android:ellipsize="end"
             android:lines="1"
+            android:padding="8dp"
             android:singleLine="true"
             android:textSize="16sp" />
 
         <TextView
+            style="@style/SectionHeader"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingTop="5dip"
-            android:text="@string/base_information_fragment_pgp_mail" />
-
-        <TextView
-            android:id="@+id/base_information_fragment_pgp_mail"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:ellipsize="end"
-            android:lines="1"
-            android:singleLine="true"
-            android:textSize="16sp" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/base_information_fragment_key" />
-
-        <TextView
-            android:id="@+id/base_information_fragment_key"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:ellipsize="end"
-            android:lines="1"
-            android:singleLine="true"
-            android:textSize="16sp"
-            android:typeface="monospace" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:paddingLeft="8dp"
+            android:paddingTop="8dp"
             android:text="@string/base_information_fragment_share"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
-        <RelativeLayout
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp" >
+            android:orientation="horizontal" >
 
-            <ImageView
-                android:id="@+id/base_information_fragment_qr"
-                android:layout_width="150dp"
-                android:layout_height="150dp"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentTop="true"
-                android:background="@android:color/white"
-                android:focusable="true"
-                android:scaleType="centerInside" />
+            <Button
+                android:id="@+id/base_information_fragment_edit_keyring_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/abs__item_background_holo_dark"
+                android:text="@string/base_information_fragment_edit_keyring" />
+
+            <View
+                android:layout_width="1dip"
+                android:layout_height="match_parent"
+                android:layout_marginBottom="8dp"
+                android:layout_marginTop="8dp"
+                android:background="@color/divider" />
+
+            <Button
+                android:id="@+id/base_information_fragment_select_keyring_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/abs__item_background_holo_dark"
+                android:text="@string/base_information_fragment_select_keyring" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/divider" />
+
+        <ImageView
+            android:id="@+id/base_information_fragment_qr"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_margin="8dp"
+            android:background="@android:color/white"
+            android:focusable="true"
+            android:scaleType="centerInside" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/divider" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+
+            <Button
+                android:id="@+id/base_information_fragment_share_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/abs__item_background_holo_dark"
+                android:text="@string/base_information_fragment_share_with" />
+
+            <View
+                android:layout_width="1dip"
+                android:layout_height="match_parent"
+                android:layout_marginBottom="8dp"
+                android:layout_marginTop="8dp"
+                android:background="@color/divider" />
 
             <Button
                 android:id="@+id/base_information_fragment_share_nfc_button"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:layout_alignParentTop="true"
-                android:layout_marginLeft="8dp"
-                android:layout_toRightOf="@+id/base_information_fragment_qr"
-                android:text="@string/button_share_nfc" />
-        </RelativeLayout>
+                android:layout_weight="1"
+                android:background="@drawable/abs__item_background_holo_dark"
+                android:text="@string/base_information_fragment_share_nfc" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/divider" />
+
+        <Button
+            android:id="@+id/base_information_fragment_upload_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/abs__item_background_holo_dark"
+            android:text="@string/base_information_fragment_upload" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/divider" />
 
         <TextView
+            style="@style/SectionHeader"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:paddingLeft="8dp"
+            android:paddingTop="8dp"
             android:text="@string/base_information_fragment_import"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
@@ -105,8 +143,13 @@
             android:id="@+id/base_information_fragment_import_from_qr_code_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingTop="8dp"
-            android:text="@string/button_share_import_from_qr_code" />
+            android:background="@drawable/abs__item_background_holo_dark"
+            android:text="@string/base_information_fragment_import_from_qr_code" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/divider" />
     </LinearLayout>
 
 </ScrollView>
