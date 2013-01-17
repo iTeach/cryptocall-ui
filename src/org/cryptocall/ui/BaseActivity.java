@@ -49,6 +49,7 @@ public class BaseActivity extends SherlockFragmentActivity {
     private ActionBar mActionBar;
     private ActionBar.Tab mTabContacts;
     private ActionBar.Tab mTabInformation;
+    private ActionBar.Tab mTabExchange;
     private ActionBar.Tab mTabManualConnection;
 
     /**
@@ -146,17 +147,22 @@ public class BaseActivity extends SherlockFragmentActivity {
 
         mTabContacts = getSupportActionBar().newTab();
         mTabInformation = getSupportActionBar().newTab();
+        mTabExchange = getSupportActionBar().newTab();
 
         mTabContacts.setTabListener(new TabListener<ContactsFragment>(this, "contacts",
                 ContactsFragment.class));
         mTabInformation.setTabListener(new TabListener<BaseInformationFragment>(this,
                 "information", BaseInformationFragment.class));
+        mTabExchange.setTabListener(new TabListener<BaseExchangeFragment>(this, "exchange",
+                BaseExchangeFragment.class));
 
         mTabContacts.setText(getString(R.string.base_tab_contacts));
         mTabInformation.setText(getString(R.string.base_tab_information));
+        mTabExchange.setText(getString(R.string.base_tab_exchange));
 
         mActionBar.addTab(mTabContacts);
         mActionBar.addTab(mTabInformation);
+        mActionBar.addTab(mTabExchange);
 
         // add manual connection fragment when in debug mode
         if (Constants.DEBUG) {

@@ -13,9 +13,11 @@
     <string name="base_menu_help">Help</string>
 
     <!-- Information and Share fragment -->
-    <string name="base_information_fragment_tel">Your Telephone Number</string>
-    <string name="base_information_fragment_share">Your Public Keyring</string>
-    <string name="base_information_fragment_import">Import</string>
+    <string name="base_information_fragment_tel">Telephone Number</string>
+    <string name="base_information_fragment_nickname">Keyring Nickname</string>
+    <string name="base_information_fragment_settings">Keyring Settings</string>
+    <string name="base_information_fragment_share">Share Keyring</string>
+    <string name="base_information_fragment_import">Import Keyring</string>
     <string name="base_information_fragment_share_with">Share with…</string>
     <string name="base_information_fragment_share_nfc">Share with NFC</string>
     <string name="base_information_fragment_upload">Upload to keyserver</string>
@@ -71,6 +73,7 @@
     <string name="activity_show_contact_label">Contact</string>
     <string name="base_tab_contacts">Contacts</string>
     <string name="base_tab_information">Information</string>
+    <string name="base_tab_exchange">Exchange</string>
     <string name="base_tab_manual_connection">Manual Connection</string>
     <string name="base_contacts_list_emty">No contacts with @crytocall.org email address!</string>
 

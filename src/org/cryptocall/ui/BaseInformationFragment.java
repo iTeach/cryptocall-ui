@@ -21,47 +21,30 @@
 
 package org.cryptocall.ui;
 
-import java.util.List;
-
-import org.cryptocall.CryptoCallApplication;
 import org.cryptocall.R;
 
-import org.cryptocall.util.Constants;
-import org.cryptocall.util.Log;
 import org.cryptocall.util.PreferencesHelper;
-import org.cryptocall.util.QrCodeUtils;
+import org.sufficientlysecure.keychain.integration.KeychainContentProviderHelper;
 import org.sufficientlysecure.keychain.integration.KeychainIntentHelper;
-import org.sufficientlysecure.keychain.service.IKeychainKeyService;
-import org.sufficientlysecure.keychain.service.handler.IKeychainGetKeyringsHandler;
+import org.sufficientlysecure.keychain.integration.KeychainUtil;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.os.RemoteException;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 public class BaseInformationFragment extends Fragment {
     private BaseActivity mBaseActivity;
-    private CryptoCallApplication mApplication;
-    private IKeychainKeyService mIKeychainKeyService;
 
     private TextView mTelTextView;
+    private TextView mNicknameTextView;
     private Button mEditKeyringButton;
     private Button mSelectKeyringButton;
-    private ImageView mQrCodeImageView;
-    private Button mShareNfcButton;
-    private Button mShareButton;
-
-    private Button mImportFromQrCode;
-
-    private Bitmap mQrCodeBitmap;
 
     private KeychainIntentHelper mKeychainIntentHelper;
 
@@ -80,20 +63,7 @@ public class BaseInformationFragment extends Fragment {
         mSelectKeyringButton = (Button) view
                 .findViewById(R.id.base_information_fragment_select_keyring_button);
         mTelTextView = (TextView) view.findViewById(R.id.base_information_fragment_tel);
-        mQrCodeImageView = (ImageView) view.findViewById(R.id.base_information_fragment_qr);
-        mShareNfcButton = (Button) view
-                .findViewById(R.id.base_information_fragment_share_nfc_button);
-        mShareButton = (Button) view.findViewById(R.id.base_information_fragment_share_button);
-        mImportFromQrCode = (Button) view
-                .findViewById(R.id.base_information_fragment_import_from_qr_code_button);
-
-        mQrCodeImageView.setOnClickListener(new OnClickListener() {
-            public void onClick(final View v) {
-                if (mQrCodeBitmap != null) {
-                    QrCodeUtils.showQrCode(mBaseActivity, mQrCodeBitmap);
-                }
-            }
-        });
+        mNicknameTextView = (TextView) view.findViewById(R.id.base_information_fragment_nickname);
 
         mEditKeyringButton.setOnClickListener(new OnClickListener() {
             public void onClick(final View v) {
@@ -108,40 +78,7 @@ public class BaseInformationFragment extends Fragment {
             }
         });
 
-        mShareNfcButton.setOnClickListener(new OnClickListener() {
-            public void onClick(final View v) {
-                long masterKeyId = PreferencesHelper.getPgpMasterKeyId(mBaseActivity);
-                mKeychainIntentHelper.shareWithNfc(masterKeyId);
-            }
-        });
-
-        mShareButton.setOnClickListener(new OnClickListener() {
-            public void onClick(final View v) {
-                long masterKeyId = PreferencesHelper.getPgpMasterKeyId(mBaseActivity);
-                mKeychainIntentHelper.share(masterKeyId);
-            }
-        });
-
-        mImportFromQrCode.setOnClickListener(new OnClickListener() {
-            public void onClick(final View v) {
-                mKeychainIntentHelper.importFromQrCode();
-            }
-        });
-
         return view;
-    }
-
-    /**
-     * onDestroy of view, recycle QRCodeBitmap
-     */
-    @Override
-    public void onDestroyView() {
-        if (mQrCodeBitmap != null) {
-            mQrCodeBitmap.recycle();
-            mQrCodeBitmap = null;
-        }
-
-        super.onDestroyView();
     }
 
     /**
@@ -151,55 +88,19 @@ public class BaseInformationFragment extends Fragment {
     public void onResume() {
         super.onResume();
 
-        // get public keyring for qr code
-        if (mIKeychainKeyService != null) {
-            try {
-                mIKeychainKeyService.getPublicKeyRings(
-                        new long[] { PreferencesHelper.getPgpMasterKeyId(mBaseActivity) }, true,
-                        getPublicKeyringHandler);
-            } catch (RemoteException e) {
-                Log.e(Constants.TAG, "RemoteException", e);
-            }
-        }
-
         // set textview from preferenes
         mTelTextView.setText(PreferencesHelper.getTelephoneNumber(mBaseActivity));
+
+        // set nickname from keyring
+        String userId = (new KeychainContentProviderHelper(mBaseActivity))
+                .getUserId(PreferencesHelper.getPgpMasterKeyId(mBaseActivity));
+        String[] splitUserId = KeychainUtil.splitUserId(userId);
+        mNicknameTextView.setText(splitUserId[0]);
     }
-
-    private final IKeychainGetKeyringsHandler.Stub getPublicKeyringHandler = new IKeychainGetKeyringsHandler.Stub() {
-
-        @Override
-        public void onException(final int exceptionId, final String message) throws RemoteException {
-            mBaseActivity.runOnUiThread(new Runnable() {
-                public void run() {
-                    Log.e(Constants.TAG, "Exception in KeychainKeyService: " + message);
-                }
-            });
-        }
-
-        @Override
-        public void onSuccess(final byte[] outputBytes, final List<String> outputStrings)
-                throws RemoteException {
-            String keyring = outputStrings.get(0);
-
-            // populate qrcode representation
-            mQrCodeBitmap = QrCodeUtils.getQRCodeBitmap(keyring, 1000);
-
-            mBaseActivity.runOnUiThread(new Runnable() {
-                public void run() {
-                    mQrCodeImageView.setImageBitmap(mQrCodeBitmap);
-                }
-            });
-
-        }
-
-    };
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mBaseActivity = (BaseActivity) getActivity();
-        mApplication = (CryptoCallApplication) getActivity().getApplication();
-        mIKeychainKeyService = mApplication.getKeychainKeyService();
     }
 }
