@@ -24,8 +24,8 @@
         android:required="false" />
 
     <!-- permissions needed by CryptoCall -->
-    <uses-permission android:name="org.thialfihar.android.apg.permission.ACCESS_API" />
-    <uses-permission android:name="org.thialfihar.android.apg.permission.ACCESS_KEYS" />
+    <uses-permission android:name="org.sufficientlysecure.keychain.permission.ACCESS_API" />
+    <uses-permission android:name="org.sufficientlysecure.keychain.permission.ACCESS_KEYS" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />

@@ -30,9 +30,9 @@ import org.cryptocall.util.Constants;
 import org.cryptocall.util.Log;
 import org.cryptocall.util.PreferencesHelper;
 import org.cryptocall.util.QrCodeUtils;
-import org.thialfihar.android.apg.integration.ApgIntentHelper;
-import org.thialfihar.android.apg.service.IApgKeyService;
-import org.thialfihar.android.apg.service.handler.IApgGetKeyringsHandler;
+import org.sufficientlysecure.keychain.integration.KeychainIntentHelper;
+import org.sufficientlysecure.keychain.service.IKeychainKeyService;
+import org.sufficientlysecure.keychain.service.handler.IKeychainGetKeyringsHandler;
 
 import android.graphics.Bitmap;
 import android.os.Bundle;
@@ -49,7 +49,7 @@ import android.widget.TextView;
 public class BaseInformationFragment extends Fragment {
     private BaseActivity mBaseActivity;
     private CryptoCallApplication mApplication;
-    private IApgKeyService mIApgKeyService;
+    private IKeychainKeyService mIKeychainKeyService;
 
     private TextView mKeyTextView;
     private TextView mTelTextView;
@@ -60,7 +60,7 @@ public class BaseInformationFragment extends Fragment {
 
     private Bitmap mQrCodeBitmap;
 
-    private ApgIntentHelper mApgIntentHelper;
+    private KeychainIntentHelper mKeychainIntentHelper;
 
     /**
      * Inflate the layout for this fragment
@@ -69,7 +69,7 @@ public class BaseInformationFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.base_information_fragment, container, false);
 
-        mApgIntentHelper = new ApgIntentHelper(getActivity());
+        mKeychainIntentHelper = new KeychainIntentHelper(getActivity());
 
         // get views
         mTelTextView = (TextView) view.findViewById(R.id.base_information_fragment_tel);
@@ -92,13 +92,13 @@ public class BaseInformationFragment extends Fragment {
         mShareNfcButton.setOnClickListener(new OnClickListener() {
             public void onClick(final View v) {
                 long masterKeyId = PreferencesHelper.getPgpMasterKeyId(mBaseActivity);
-                mApgIntentHelper.shareWithNfc(masterKeyId);
+                mKeychainIntentHelper.shareWithNfc(masterKeyId);
             }
         });
 
         mImportFromQrCode.setOnClickListener(new OnClickListener() {
             public void onClick(final View v) {
-                mApgIntentHelper.importFromQrCode();
+                mKeychainIntentHelper.importFromQrCode();
             }
         });
 
@@ -126,9 +126,9 @@ public class BaseInformationFragment extends Fragment {
         super.onResume();
 
         // get public keyring for qr code
-        if (mIApgKeyService != null) {
+        if (mIKeychainKeyService != null) {
             try {
-                mIApgKeyService.getPublicKeyRings(
+                mIKeychainKeyService.getPublicKeyRings(
                         new long[] { PreferencesHelper.getPgpMasterKeyId(mBaseActivity) }, true,
                         getPublicKeyringHandler);
             } catch (RemoteException e) {
@@ -142,13 +142,13 @@ public class BaseInformationFragment extends Fragment {
         mKeyTextView.setText(String.valueOf(PreferencesHelper.getPgpMasterKeyId(mBaseActivity)));
     }
 
-    private final IApgGetKeyringsHandler.Stub getPublicKeyringHandler = new IApgGetKeyringsHandler.Stub() {
+    private final IKeychainGetKeyringsHandler.Stub getPublicKeyringHandler = new IKeychainGetKeyringsHandler.Stub() {
 
         @Override
         public void onException(final int exceptionId, final String message) throws RemoteException {
             mBaseActivity.runOnUiThread(new Runnable() {
                 public void run() {
-                    Log.e(Constants.TAG, "Exception in ApgKeyService: " + message);
+                    Log.e(Constants.TAG, "Exception in KeychainKeyService: " + message);
                 }
             });
         }
@@ -176,6 +176,6 @@ public class BaseInformationFragment extends Fragment {
         super.onCreate(savedInstanceState);
         mBaseActivity = (BaseActivity) getActivity();
         mApplication = (CryptoCallApplication) getActivity().getApplication();
-        mIApgKeyService = mApplication.getApgKeyService();
+        mIKeychainKeyService = mApplication.getKeychainKeyService();
     }
 }

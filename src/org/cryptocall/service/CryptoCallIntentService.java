@@ -43,9 +43,9 @@ import org.spongycastle.bcpg.DSAPublicBCPGKey;
 import org.spongycastle.bcpg.RSAPublicBCPGKey;
 import org.spongycastle.openpgp.PGPPublicKeyRing;
 import org.spongycastle.openpgp.PGPSecretKeyRing;
-import org.thialfihar.android.apg.integration.ApgContentProviderHelper;
-import org.thialfihar.android.apg.service.IApgKeyService;
-import org.thialfihar.android.apg.service.handler.IApgGetKeyringsHandler;
+import org.sufficientlysecure.keychain.integration.KeychainContentProviderHelper;
+import org.sufficientlysecure.keychain.service.IKeychainKeyService;
+import org.sufficientlysecure.keychain.service.handler.IKeychainGetKeyringsHandler;
 
 import com.csipsimple.api.SipCallSession;
 import com.csipsimple.api.SipConfigManager;
@@ -67,7 +67,7 @@ import android.os.RemoteException;
 
 public class CryptoCallIntentService extends IntentService {
     private CryptoCallApplication mApplication;
-    private IApgKeyService mIApgKeyService;
+    private IKeychainKeyService mIKeychainKeyService;
 
     public static final String ACTION_CALL = "org.cryptocall.action.CALL";
     public static final int HANDLER_MSG_UPDATE_UI = 21;
@@ -122,7 +122,7 @@ public class CryptoCallIntentService extends IntentService {
         super.onCreate();
 
         mApplication = (CryptoCallApplication) getApplication();
-        mIApgKeyService = mApplication.getApgKeyService();
+        mIKeychainKeyService = mApplication.getKeychainKeyService();
     }
 
     @Override
@@ -132,11 +132,11 @@ public class CryptoCallIntentService extends IntentService {
         // mSmsHelper.unregisterReceivers(this);
     }
 
-    private final IApgGetKeyringsHandler.Stub getPeerPublicKeyringHandler = new IApgGetKeyringsHandler.Stub() {
+    private final IKeychainGetKeyringsHandler.Stub getPeerPublicKeyringHandler = new IKeychainGetKeyringsHandler.Stub() {
 
         @Override
         public void onException(final int exceptionId, final String message) throws RemoteException {
-            Log.e(Constants.TAG, "Exception in ApgKeyService: " + message);
+            Log.e(Constants.TAG, "Exception in KeychainKeyService: " + message);
         }
 
         @Override
@@ -154,11 +154,11 @@ public class CryptoCallIntentService extends IntentService {
 
     };
 
-    private final IApgGetKeyringsHandler.Stub getMySecretKeyringHandler = new IApgGetKeyringsHandler.Stub() {
+    private final IKeychainGetKeyringsHandler.Stub getMySecretKeyringHandler = new IKeychainGetKeyringsHandler.Stub() {
 
         @Override
         public void onException(final int exceptionId, final String message) throws RemoteException {
-            Log.e(Constants.TAG, "Exception in ApgKeyService: " + message);
+            Log.e(Constants.TAG, "Exception in KeychainKeyService: " + message);
         }
 
         @Override
@@ -217,9 +217,9 @@ public class CryptoCallIntentService extends IntentService {
 
                 // if we have a local ip address
                 if (myIp != null) {
-                    ApgContentProviderHelper apgContentProviderHelper = new ApgContentProviderHelper(
+                    KeychainContentProviderHelper KeychainContentProviderHelper = new KeychainContentProviderHelper(
                             this);
-                    long[] peerKeyringIds = apgContentProviderHelper
+                    long[] peerKeyringIds = KeychainContentProviderHelper
                             .getPublicKeyringIdsByEmail(session.peerEmail);
 
                     // Get actual key!
@@ -227,12 +227,12 @@ public class CryptoCallIntentService extends IntentService {
                         long peerKeringId = peerKeyringIds[0];
                         long myKeyringId = PreferencesHelper.getPgpMasterKeyId(this);
 
-                        if (mIApgKeyService != null) {
+                        if (mIKeychainKeyService != null) {
 
                             /* Get PGP public keyring of peer */
                             sendUpdateUiToHandler(R.string.status_get_peer_pub_keyring, 10);
                             try {
-                                mIApgKeyService.getPublicKeyRings(new long[] { peerKeringId },
+                                mIKeychainKeyService.getPublicKeyRings(new long[] { peerKeringId },
                                         false, getPeerPublicKeyringHandler);
                             } catch (RemoteException e) {
                                 Log.e(Constants.TAG, "RemoteException", e);
@@ -255,7 +255,7 @@ public class CryptoCallIntentService extends IntentService {
                             /* get my PGP secret keyring */
                             sendUpdateUiToHandler(R.string.status_get_my_secret_keyring, 20);
                             try {
-                                mIApgKeyService.getSecretKeyRings(new long[] { myKeyringId },
+                                mIKeychainKeyService.getSecretKeyRings(new long[] { myKeyringId },
                                         false, getMySecretKeyringHandler);
                             } catch (RemoteException e) {
                                 Log.e(Constants.TAG, "RemoteException", e);
@@ -373,7 +373,7 @@ public class CryptoCallIntentService extends IntentService {
                         }
 
                     } else {
-                        Log.e(Constants.TAG, "mIApgKeyService is null!");
+                        Log.e(Constants.TAG, "mIKeychainKeyService is null!");
                     }
                 } else {
                     Log.e(Constants.TAG, "public keyring not found for this email!");
@@ -560,12 +560,12 @@ public class CryptoCallIntentService extends IntentService {
     }
 
     private void sendErrorToHandler(Exception e) {
-        Log.e(Constants.TAG, "ApgService Exception: ", e);
+        Log.e(Constants.TAG, "KeychainService Exception: ", e);
         e.printStackTrace();
 
         // Bundle data = new Bundle();
-        // data.putString(ApgIntentServiceHandler.DATA_ERROR, e.getMessage());
-        // sendMessageToHandler(ApgIntentServiceHandler.MESSAGE_EXCEPTION, null, data);
+        // data.putString(KeychainIntentServiceHandler.DATA_ERROR, e.getMessage());
+        // sendMessageToHandler(KeychainIntentServiceHandler.MESSAGE_EXCEPTION, null, data);
     }
 
     public void sendUpdateUiToHandler(String message, int progress) {

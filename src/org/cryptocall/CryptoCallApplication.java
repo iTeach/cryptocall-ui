@@ -23,16 +23,16 @@ package org.cryptocall;
 
 import java.security.Security;
 
-import org.cryptocall.service.ApgKeyServiceConnection;
+import org.cryptocall.service.KeychainKeyServiceConnection;
 import org.spongycastle.jce.provider.BouncyCastleProvider;
-import org.thialfihar.android.apg.service.IApgKeyService;
+import org.sufficientlysecure.keychain.service.IKeychainKeyService;
 
 import com.csipsimple.api.SipConfigManager;
 
 import android.app.Application;
 
 public class CryptoCallApplication extends Application {
-    public final ApgKeyServiceConnection mApgKeyServiceConnection = new ApgKeyServiceConnection(
+    public final KeychainKeyServiceConnection mKeychainKeyServiceConnection = new KeychainKeyServiceConnection(
             this);
 
     static {
@@ -40,8 +40,8 @@ public class CryptoCallApplication extends Application {
         Security.addProvider(new BouncyCastleProvider());
     }
 
-    public IApgKeyService getApgKeyService() {
-        return mApgKeyServiceConnection.getService();
+    public IKeychainKeyService getKeychainKeyService() {
+        return mKeychainKeyServiceConnection.getService();
     }
 
     @Override
@@ -49,7 +49,7 @@ public class CryptoCallApplication extends Application {
         super.onCreate();
 
         // Apg service
-        mApgKeyServiceConnection.bindToApgKeyService();
+        mKeychainKeyServiceConnection.bindToKeychainKeyService();
 
         /* CSipSimple preferences */
 
@@ -84,7 +84,7 @@ public class CryptoCallApplication extends Application {
 
     @Override
     public void onTerminate() {
-        mApgKeyServiceConnection.unbindFromApgKeyService();
+        mKeychainKeyServiceConnection.unbindFromKeychainKeyService();
     }
 
 }

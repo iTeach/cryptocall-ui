@@ -26,7 +26,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.cryptocall.CryptoCallSession;
-import org.thialfihar.android.apg.integration.ApgContentProviderHelper;
+import org.sufficientlysecure.keychain.integration.KeychainContentProviderHelper;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -262,8 +262,8 @@ public class CryptoCallSessionUtils {
                         Log.d(Constants.TAG, "Found email: " + currentEmail);
 
                         // TODO: check if valid and can encrypt etc
-                        // check if existing in APG!
-                        long[] keyringIds = (new ApgContentProviderHelper(context))
+                        // check if existing in Keychain!
+                        long[] keyringIds = (new KeychainContentProviderHelper(context))
                                 .getPublicKeyringIdsByEmail(currentEmail);
                         if (keyringIds != null && keyringIds.length > 0) {
                             Log.d(Constants.TAG, "found keyring for " + currentEmail);

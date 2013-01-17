@@ -26,9 +26,9 @@ import org.cryptocall.util.Constants;
 import org.cryptocall.util.Log;
 import org.cryptocall.util.PreferencesHelper;
 import org.cryptocall.util.ProtectedEmailUtils;
-import org.thialfihar.android.apg.integration.ApgData;
-import org.thialfihar.android.apg.integration.ApgIntentHelper;
-import org.thialfihar.android.apg.integration.ApgUtil;
+import org.sufficientlysecure.keychain.integration.KeychainData;
+import org.sufficientlysecure.keychain.integration.KeychainIntentHelper;
+import org.sufficientlysecure.keychain.integration.KeychainUtil;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 
@@ -51,7 +51,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class WizardActivity extends SherlockFragmentActivity {
-    private ApgIntentHelper mApgIntentHelper;
+    private KeychainIntentHelper mKeychainIntentHelper;
 
     private int mCurrentScreen;
 
@@ -68,7 +68,7 @@ public class WizardActivity extends SherlockFragmentActivity {
     SelectKeyringFragment mSelectKeyringFragment;
     SuccessFragment mSuccessFragment;
 
-    ApgData mApgData;
+    KeychainData mKeychainData;
 
     private static long mMasterKeyId;
     private static String mProtectedEmail;
@@ -192,7 +192,7 @@ public class WizardActivity extends SherlockFragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mApgData = new ApgData();
+        mKeychainData = new KeychainData();
 
         setContentView(R.layout.wizard_activity);
         mBackButton = (Button) findViewById(R.id.wizard_activity_back);
@@ -202,7 +202,7 @@ public class WizardActivity extends SherlockFragmentActivity {
         loadFragment(mMainFragment);
         mCurrentScreen = SCREEN_MAIN;
 
-        mApgIntentHelper = new ApgIntentHelper(this);
+        mKeychainIntentHelper = new KeychainIntentHelper(this);
     }
 
     public void nextOnClick(View view) {
@@ -241,7 +241,7 @@ public class WizardActivity extends SherlockFragmentActivity {
 
                 Log.d(Constants.TAG, "id: " + id);
 
-                mApgIntentHelper.createNewKey(id, true, true);
+                mKeychainIntentHelper.createNewKey(id, true, true);
             }
             break;
 
@@ -249,7 +249,7 @@ public class WizardActivity extends SherlockFragmentActivity {
             EditText selectTelephoneNumberEdit = (EditText) findViewById(R.id.wizard_select_keyring_telephone_number);
 
             if (isEditTextValidTelephoneNumber(this, selectTelephoneNumberEdit)) {
-                mApgIntentHelper.selectSecretKey();
+                mKeychainIntentHelper.selectSecretKey();
             }
             break;
 
@@ -288,19 +288,20 @@ public class WizardActivity extends SherlockFragmentActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        // this updates the mApgData object to the result of the methods
-        boolean result = mApgIntentHelper.onActivityResult(requestCode, resultCode, data, mApgData);
+        // this updates the mKeychainData object to the result of the methods
+        boolean result = mKeychainIntentHelper.onActivityResult(requestCode, resultCode, data,
+                mKeychainData);
         if (result) {
             switch (mCurrentScreen) {
             case SCREEN_GENERATE_KEYRING_INPUT:
                 if (resultCode == Activity.RESULT_OK) {
-                    Log.d(Constants.TAG, mApgData.toString());
-                    long generatedKeyId = mApgData.getSecretKeyId();
-                    String generatedUserId = mApgData.getSecretKeyUserId();
+                    Log.d(Constants.TAG, mKeychainData.toString());
+                    long generatedKeyId = mKeychainData.getSecretKeyId();
+                    String generatedUserId = mKeychainData.getSecretKeyUserId();
 
                     // TODO: handle keys with many user ids
 
-                    String[] split = ApgUtil.splitUserId(generatedUserId);
+                    String[] split = KeychainUtil.splitUserId(generatedUserId);
                     String generatedEmail = split[1];
                     Log.d(Constants.TAG, "generatedEmail: " + generatedEmail);
                     byte[] generatedSalt;
@@ -336,13 +337,13 @@ public class WizardActivity extends SherlockFragmentActivity {
                 break;
             case SCREEN_SELECT_KEYRING:
                 if (resultCode == Activity.RESULT_OK) {
-                    Log.d(Constants.TAG, mApgData.toString());
-                    long selectedKeyId = mApgData.getSecretKeyId();
-                    String selectedUserId = mApgData.getSecretKeyUserId();
+                    Log.d(Constants.TAG, mKeychainData.toString());
+                    long selectedKeyId = mKeychainData.getSecretKeyId();
+                    String selectedUserId = mKeychainData.getSecretKeyUserId();
 
                     // TODO: handle keys with many user ids
 
-                    String[] split = ApgUtil.splitUserId(selectedUserId);
+                    String[] split = KeychainUtil.splitUserId(selectedUserId);
                     String selectedEmail = split[1];
                     Log.d(Constants.TAG, "selectedEmail: " + selectedEmail);
                     byte[] selectedSalt;

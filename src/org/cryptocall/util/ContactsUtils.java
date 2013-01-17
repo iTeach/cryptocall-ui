@@ -23,8 +23,8 @@ package org.cryptocall.util;
 
 import java.util.ArrayList;
 
-import org.thialfihar.android.apg.integration.ApgContentProviderHelper;
-import org.thialfihar.android.apg.integration.ApgUtil;
+import org.sufficientlysecure.keychain.integration.KeychainContentProviderHelper;
+import org.sufficientlysecure.keychain.integration.KeychainUtil;
 
 import android.content.ContentProviderOperation;
 import android.content.Context;
@@ -40,7 +40,7 @@ public class ContactsUtils {
     public static void syncContacts(Context context) {
         // open keyrings cursor, used later
         Uri contentUri = Uri.withAppendedPath(
-                ApgContentProviderHelper.CONTENT_URI_PUBLIC_KEY_RING_BY_LIKE_EMAIL,
+                KeychainContentProviderHelper.CONTENT_URI_PUBLIC_KEY_RING_BY_LIKE_EMAIL,
                 Constants.CRYPTOCALL_DOMAIN);
         Cursor pgpKeyringsCursor = context.getContentResolver().query(contentUri,
                 new String[] { "master_key_id", "user_id" }, null, null, null);
@@ -60,12 +60,12 @@ public class ContactsUtils {
 
             try {
 
-                // go through all APG emails with @cryptocall in it and find the one for this
+                // go through all Keychain emails with @cryptocall in it and find the one for this
                 // telephoneNumber
                 if (pgpKeyringsCursor != null && pgpKeyringsCursor.moveToFirst()) {
                     do {
                         String pgpUserId = pgpKeyringsCursor.getString(1);
-                        String[] pgpSplit = ApgUtil.splitUserId(pgpUserId);
+                        String[] pgpSplit = KeychainUtil.splitUserId(pgpUserId);
                         String pgpEmail = pgpSplit[1];
 
                         byte[] pgpEmailSalt = null;
@@ -134,7 +134,7 @@ public class ContactsUtils {
                 }
 
             } catch (SecurityException e) {
-                Log.e(Constants.TAG, "insufficient permissions to use apg service!");
+                Log.e(Constants.TAG, "insufficient permissions to use Keychain service!");
             }
 
         }

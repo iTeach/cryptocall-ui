@@ -24,9 +24,9 @@ package org.cryptocall.ui;
 import org.cryptocall.R;
 import org.cryptocall.util.Constants;
 import org.cryptocall.util.Log;
-import org.thialfihar.android.apg.integration.ApgData;
-import org.thialfihar.android.apg.integration.ApgIntentHelperSupportV4;
-import org.thialfihar.android.apg.integration.ApgUtil;
+import org.sufficientlysecure.keychain.integration.KeychainData;
+import org.sufficientlysecure.keychain.integration.KeychainIntentHelperSupportV4;
+import org.sufficientlysecure.keychain.integration.KeychainUtil;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -55,8 +55,8 @@ public class BaseManualConnectionFragment extends Fragment {
     private Button mSending;
     private Button mReceived;
 
-    private ApgIntentHelperSupportV4 mApgIntentHelper;
-    private ApgData mApgData;
+    private KeychainIntentHelperSupportV4 mKeychainIntentHelper;
+    private KeychainData mKeychainData;
 
     /**
      * Inflate the layout for this fragment
@@ -125,7 +125,7 @@ public class BaseManualConnectionFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 mOnResultIsSendEmail = true;
-                mApgIntentHelper.selectPublicKeys(null);
+                mKeychainIntentHelper.selectPublicKeys(null);
             }
         });
 
@@ -134,7 +134,7 @@ public class BaseManualConnectionFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 mOnResultIsSendEmail = false;
-                mApgIntentHelper.selectPublicKeys(null);
+                mKeychainIntentHelper.selectPublicKeys(null);
             }
         });
 
@@ -146,19 +146,20 @@ public class BaseManualConnectionFragment extends Fragment {
         super.onCreate(savedInstanceState);
         mBaseActivity = (BaseActivity) getActivity();
 
-        mApgIntentHelper = new ApgIntentHelperSupportV4(this);
-        mApgData = new ApgData();
+        mKeychainIntentHelper = new KeychainIntentHelperSupportV4(this);
+        mKeychainData = new KeychainData();
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        // this updates the mApgData object to the result of the methods
-        boolean result = mApgIntentHelper.onActivityResult(requestCode, resultCode, data, mApgData);
+        // this updates the mKeychainData object to the result of the methods
+        boolean result = mKeychainIntentHelper.onActivityResult(requestCode, resultCode, data,
+                mKeychainData);
         if (result && resultCode == Activity.RESULT_OK) {
-            Log.d(Constants.TAG, mApgData.toString());
-            String[] selectedUserIds = mApgData.getPublicUserIds();
+            Log.d(Constants.TAG, mKeychainData.toString());
+            String[] selectedUserIds = mKeychainData.getPublicUserIds();
 
-            String[] split = ApgUtil.splitUserId(selectedUserIds[0]);
+            String[] split = KeychainUtil.splitUserId(selectedUserIds[0]);
             String selectedEmail = split[1];
             Log.d(Constants.TAG, "selectedEmail: " + selectedEmail);
 
