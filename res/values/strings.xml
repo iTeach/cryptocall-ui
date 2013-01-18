@@ -70,6 +70,7 @@
     <!-- Base -->
     <string name="show_contact_call">Call with CryptoCall</string>
     <string name="show_contact_android_contact">Open Android Contact</string>
+    <string name="show_contact_android_actions">Actions</string>
     <string name="activity_show_contact_label">Contact</string>
     <string name="base_tab_contacts">Contacts</string>
     <string name="base_tab_information">Information</string>

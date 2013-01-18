@@ -296,7 +296,7 @@ public class ContactsSyncAdapterService extends Service {
                     syncSingleContact(context, account, masterKeyId, keyringUserId);
                 } else if (updateContact) {
                     // TODO: implement update of existing raw contact
-
+                    //TODO: implement delete of contacts!!!
                 }
 
             } while (pgpKeyringsCursor.moveToNext());

@@ -10,17 +10,49 @@
         android:orientation="vertical" >
 
         <TextView
-            android:id="@+id/show_contact_email"
+            style="@style/SectionHeader"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="10dip"
-            android:text="Email"
+            android:padding="8dp"
+            android:text="@string/base_information_fragment_tel"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/divider" />
+        <TextView
+            android:id="@+id/show_contact_number"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:lines="1"
+            android:padding="8dp"
+            android:singleLine="true"
+            android:textSize="16sp" />
+
+        <TextView
+            style="@style/SectionHeader"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            android:text="@string/base_information_fragment_nickname"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <TextView
+            android:id="@+id/show_contact_nickname"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:lines="1"
+            android:padding="8dp"
+            android:singleLine="true"
+            android:textSize="16sp" />
+
+        <TextView
+            style="@style/SectionHeader"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="8dp"
+            android:paddingTop="8dp"
+            android:text="@string/show_contact_android_actions"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
 
         <Button
             android:id="@+id/show_contact_call_button"

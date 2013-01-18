@@ -180,6 +180,11 @@ public class BaseActivity extends SherlockFragmentActivity {
             mTabManualConnection.setText(getString(R.string.base_tab_manual_connection));
             mActionBar.addTab(mTabManualConnection);
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
 
         // Always enable Sync Adapter
         AccountHelper accHelper = new AccountHelper(mActivity);
