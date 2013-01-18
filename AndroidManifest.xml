@@ -152,6 +152,12 @@
                 <action android:name="com.csipsimple.service.CALL_CHANGED" />
             </intent-filter>
         </receiver>
+        <receiver android:name=".service.KeychainDatabaseChangeReceiver" >
+            <intent-filter>
+                <action android:name="org.sufficientlysecure.keychain.action.DATABASE_CHANGE" >
+                </action>
+            </intent-filter>
+        </receiver>
 
         <!-- BEGIN SYNC ADAPTER -->
         <activity
@@ -196,8 +202,7 @@
         <!-- BEGIN CSIPSIMPLE -->
 
 
-        <!-- TODO: check properties of poutgoing call activities -->
-
+        <!-- TODO: check properties of outgoing call activities -->
         <activity
             android:name="com.csipsimple.ui.outgoingcall.OutgoingCallChooser"
             android:allowTaskReparenting="false"
