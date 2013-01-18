@@ -4,6 +4,16 @@
     <string name="app_name">CryptoCall</string>
     <string name="app_subtitle">OpenPGP based VoIP</string>
 
+    <!-- TODO: sync provider -->
+    <string name="hello">Hello World, LoginActivity!</string>
+    <string name="ACCOUNT_TYPE">org.c99.SyncProviderDemo.account</string>
+    <string name="username">Username:</string>
+    <string name="username_hint">efudd</string>
+    <string name="password">Password:</string>
+    <string name="password_hint">w4bb1ts!</string>
+    <string name="login">Login</string>
+    <string name="authenticating">Authenticating</string>
+
     <!-- Base Menu -->
     <string name="base_menu_about">About</string>
     <string name="base_menu_debug">Debug</string>
