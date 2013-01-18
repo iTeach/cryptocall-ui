@@ -118,14 +118,6 @@ public class CryptoCallIntentService extends IntentService {
     Object syncToken = new Object();
 
     @Override
-    public void onCreate() {
-        super.onCreate();
-
-        mApplication = (CryptoCallApplication) getApplication();
-        mIKeychainKeyService = mApplication.getKeychainKeyService();
-    }
-
-    @Override
     public void onDestroy() {
         super.onDestroy();
 
@@ -183,6 +175,9 @@ public class CryptoCallIntentService extends IntentService {
      */
     @Override
     protected void onHandleIntent(Intent intent) {
+
+        mApplication = (CryptoCallApplication) getApplication();
+        mIKeychainKeyService = mApplication.getKeychainKeyService();
 
         Bundle extras = intent.getExtras();
         if (extras == null) {
