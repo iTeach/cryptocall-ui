@@ -22,8 +22,8 @@
 package org.cryptocall.ui;
 
 import org.cryptocall.R;
+import org.cryptocall.syncadapter.AccountHelper;
 import org.cryptocall.util.Constants;
-import org.cryptocall.util.ContactsUtils;
 import org.cryptocall.util.PreferencesHelper;
 
 import android.app.Activity;
@@ -92,7 +92,15 @@ public class BaseActivity extends SherlockFragmentActivity {
 
             @Override
             protected Void doInBackground(Void... unused) {
-                ContactsUtils.syncContacts(mActivity);
+                // ContactsUtils.syncContacts(mActivity);
+
+                // Sync Adapter
+                AccountHelper accHelper = new AccountHelper(BaseActivity.this);
+                if (!accHelper.isAccountActivated()) {
+                    accHelper.addAccountAndSyncBlocking();
+                } else {
+                    accHelper.manualSyncBlocking();
+                }
 
                 // return nothing as type is Void
                 return null;
@@ -171,6 +179,12 @@ public class BaseActivity extends SherlockFragmentActivity {
                     "manual", BaseManualConnectionFragment.class));
             mTabManualConnection.setText(getString(R.string.base_tab_manual_connection));
             mActionBar.addTab(mTabManualConnection);
+        }
+
+        // Always enable Sync Adapter
+        AccountHelper accHelper = new AccountHelper(mActivity);
+        if (!accHelper.isAccountActivated()) {
+            syncContacts();
         }
     }
 

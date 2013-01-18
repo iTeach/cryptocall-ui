@@ -4,16 +4,6 @@
     <string name="app_name">CryptoCall</string>
     <string name="app_subtitle">OpenPGP based VoIP</string>
 
-    <!-- TODO: sync provider -->
-    <string name="hello">Hello World, LoginActivity!</string>
-    <string name="ACCOUNT_TYPE">org.c99.SyncProviderDemo.account</string>
-    <string name="username">Username:</string>
-    <string name="username_hint">efudd</string>
-    <string name="password">Password:</string>
-    <string name="password_hint">w4bb1ts!</string>
-    <string name="login">Login</string>
-    <string name="authenticating">Authenticating</string>
-
     <!-- Base Menu -->
     <string name="base_menu_about">About</string>
     <string name="base_menu_debug">Debug</string>
@@ -85,7 +75,7 @@
     <string name="base_tab_information">Information</string>
     <string name="base_tab_exchange">Exchange</string>
     <string name="base_tab_manual_connection">Manual Connection</string>
-    <string name="base_contacts_list_emty">No contacts with @crytocall.org email address!</string>
+    <string name="base_contacts_list_emty">No CryptoCall contacts found in your contacts database! Please force a resync!</string>
 
     <!-- Help -->
     <string name="help_tab_about">About</string>

@@ -24,6 +24,7 @@ package org.cryptocall;
 import java.security.Security;
 
 import org.cryptocall.service.KeychainKeyServiceConnection;
+import org.cryptocall.syncadapter.AccountHelper;
 import org.spongycastle.jce.provider.BouncyCastleProvider;
 import org.sufficientlysecure.keychain.service.IKeychainKeyService;
 
@@ -48,7 +49,7 @@ public class CryptoCallApplication extends Application {
     public void onCreate() {
         super.onCreate();
 
-        // Apg service
+        // Keychain service
         mKeychainKeyServiceConnection.bindToKeychainKeyService();
 
         /* CSipSimple preferences */

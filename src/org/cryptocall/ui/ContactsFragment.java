@@ -22,6 +22,7 @@
 package org.cryptocall.ui;
 
 import org.cryptocall.R;
+import org.cryptocall.syncadapter.ContactsSyncAdapterService.CryptoCallContract;
 import org.cryptocall.util.Constants;
 import org.cryptocall.util.ContactsCursorAdapter;
 
@@ -38,8 +39,10 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.provider.ContactsContract.CommonDataKinds.Email;
 import android.provider.ContactsContract.Contacts;
+import android.provider.ContactsContract.Data;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -78,8 +81,8 @@ public class ContactsFragment extends SherlockListFragment implements
         // android.R.id.text1, android.R.id.text2 }, 0);
 
         mAdapter = new ContactsCursorAdapter(mActivity, R.layout.base_contacts_list_item, null,
-                new String[] { Contacts.DISPLAY_NAME, Email.DATA }, new int[] {
-                        R.id.base_contacts_list_name, R.id.base_contacts_list_email }, 0);
+                new String[] { Contacts.DISPLAY_NAME, CryptoCallContract.DATA3_KEYRING_NICKNAME },
+                new int[] { R.id.base_contacts_list_name, R.id.base_contacts_list_email }, 0);
         setListAdapter(mAdapter);
 
         // set design to fast scroll, meaning if many items are available show scroll slider
@@ -134,9 +137,9 @@ public class ContactsFragment extends SherlockListFragment implements
         // start show Contact
         Intent activityIntent = new Intent();
         activityIntent.setClass(mActivity, ShowContactActivity.class);
-        activityIntent.putExtra(ShowContactActivity.EXTRA_NAME, name);
-        activityIntent.putExtra(ShowContactActivity.EXTRA_EMAIL, email);
-        activityIntent.putExtra(ShowContactActivity.EXTRA_LOOKUP_KEY, lookupKey);
+        // activityIntent.putExtra(ShowContactActivity.EXTRA_NAME, name);
+        // activityIntent.putExtra(ShowContactActivity.EXTRA_EMAIL, email);
+        // activityIntent.putExtra(ShowContactActivity.EXTRA_LOOKUP_KEY, lookupKey);
         mActivity.startActivity(activityIntent);
     }
 
@@ -146,7 +149,8 @@ public class ContactsFragment extends SherlockListFragment implements
     // Contacts.PHOTO_ID, Contacts.LOOKUP_KEY, };
 
     static final String[] CONTACTS_SUMMARY_PROJECTION = new String[] { Contacts._ID,
-            Contacts.DISPLAY_NAME, Email.DATA, Contacts.LOOKUP_KEY };
+            Contacts.DISPLAY_NAME, CryptoCallContract.DATA1_MASTER_KEY_ID,
+            CryptoCallContract.DATA3_KEYRING_NICKNAME };
 
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         // This is called when a new Loader needs to be created. This
@@ -171,10 +175,12 @@ public class ContactsFragment extends SherlockListFragment implements
         // String select = "((" + Contacts.DISPLAY_NAME + " NOTNULL))";
 
         // select only Contacts with email like 12345@cryptocall.org
-        String select = Email.DATA + " LIKE '%" + Constants.CRYPTOCALL_DOMAIN + "'";
+        // String select = Email.DATA + " LIKE '%" + Constants.CRYPTOCALL_DOMAIN + "'";
 
-        return new CursorLoader(mActivity, Email.CONTENT_URI, CONTACTS_SUMMARY_PROJECTION, select,
-                null, Contacts.DISPLAY_NAME + " COLLATE LOCALIZED ASC");
+        return new CursorLoader(mActivity, ContactsContract.Data.CONTENT_URI,
+                CONTACTS_SUMMARY_PROJECTION, Data.MIMETYPE + "='"
+                        + CryptoCallContract.CONTENT_ITEM_TYPE + "'", null, Contacts.DISPLAY_NAME
+                        + " COLLATE LOCALIZED ASC");
     }
 
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {

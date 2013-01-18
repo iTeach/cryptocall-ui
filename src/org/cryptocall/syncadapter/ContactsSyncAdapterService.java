@@ -1,27 +1,29 @@
-/*******************************************************************************
- * Copyright 2010 Sam Steele 
- * 
+/*
+ * Copyright (C) 2013 Dominik Schürmann <dominik@dominikschuermann.de
+ * Copyright (C) 2010 Sam Steele
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- ******************************************************************************/
+ */
 
 package org.cryptocall.syncadapter;
 
-import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.cryptocall.R;
 import org.cryptocall.util.Constants;
+import org.cryptocall.util.ProtectedEmailUtils;
+import org.sufficientlysecure.keychain.integration.KeychainContentProviderHelper;
+import org.sufficientlysecure.keychain.integration.KeychainUtil;
 
 import android.accounts.Account;
 import android.accounts.OperationCanceledException;
@@ -30,33 +32,61 @@ import android.content.AbstractThreadedSyncAdapter;
 import android.content.ContentProviderClient;
 import android.content.ContentProviderOperation;
 import android.content.ContentResolver;
-import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SyncResult;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.Bitmap.CompressFormat;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.BaseColumns;
 import android.provider.ContactsContract;
+import android.provider.ContactsContract.Data;
 import android.provider.ContactsContract.RawContacts;
-import android.provider.ContactsContract.RawContacts.Entity;
+import android.provider.ContactsContract.CommonDataKinds.Phone;
 import android.util.Log;
 
-/**
- * @author sam
- * 
- */
 public class ContactsSyncAdapterService extends Service {
     private static SyncAdapterImpl sSyncAdapter = null;
     private static ContentResolver mContentResolver = null;
-    private static String UsernameColumn = ContactsContract.RawContacts.SYNC1;
-    private static String PhotoTimestampColumn = ContactsContract.RawContacts.SYNC2;
+
+    /**
+     * Definition of CryptoCalls database usage for raw contacts
+     */
+    public static final class CryptoCallContract {
+
+        private CryptoCallContract() {
+        }
+
+        public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.org.cryptocall.profile";
+        public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.org.cryptocall.profile";
+
+        // public static final Uri CONTENT_URI = Uri.withAppendedPath(Data.CONTENT_URI, "emails");
+        public static final Uri CONTENT_RAW_URI = RawContacts.CONTENT_URI.buildUpon()
+                .appendQueryParameter(RawContacts.ACCOUNT_NAME, Constants.SYNC_ACCOUNT_NAME)
+                .appendQueryParameter(RawContacts.ACCOUNT_TYPE, Constants.SYNC_ACCOUNT_TYPE)
+                .build();
+
+        // public static final Uri CONTENT_DATA_URI = ContactsContract.Data.CONTENT_URI.buildUpon()
+        // .build();
+
+        // builder = ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI);
+        // builder.withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0);
+        // builder.withValue(ContactsContract.Data.MIMETYPE, CryptoCallContract.CONTENT_ITEM_TYPE);
+        // builder.withValue(CryptoCallContract.DATA1_MASTER_KEY_ID, masterKeyId);
+        // builder.withValue(CryptoCallContract.DATA2_SUMMARY, "CryptoCall Profile");
+        // builder.withValue(CryptoCallContract.DATA3_KEYRING_NICKNAME, keyringNickname);
+        // operationList.add(builder.build());
+        // public static final Uri CONTENT_FILTER_URI = Uri.withAppendedPath(CONTENT_URI, "filter");
+
+        public static String SYNC1_KEYRING_MASTER_KEY_ID = ContactsContract.RawContacts.SYNC1;
+        public static String SYNC2_KEYRING_USER_ID = ContactsContract.RawContacts.SYNC2;
+
+        public static String DATA1_MASTER_KEY_ID = ContactsContract.Data.DATA1;
+        public static String DATA2_SUMMARY = ContactsContract.Data.DATA2;
+        public static String DATA3_KEYRING_NICKNAME = ContactsContract.Data.DATA3;
+        public static String DATA4_TELEPHONE_NUMBER = ContactsContract.Data.DATA4;
+    }
 
     public ContactsSyncAdapterService() {
         super();
@@ -77,6 +107,7 @@ public class ContactsSyncAdapterService extends Service {
                 ContactsSyncAdapterService.performSync(mContext, account, extras, authority,
                         provider, syncResult);
             } catch (OperationCanceledException e) {
+                Log.e(Constants.TAG, "OperationCanceledException", e);
             }
         }
     }
@@ -94,15 +125,21 @@ public class ContactsSyncAdapterService extends Service {
         return sSyncAdapter;
     }
 
-    private static void addContact(Account account, String name, String username) {
-        Log.i(Constants.TAG, "Adding contact: " + name);
+    private static void addContact(Account account, String displayName, Long masterKeyId,
+            String keyringUserId, String telephoneNumber) {
+        Log.i(Constants.TAG, "Adding contact: " + displayName + " masterKeyId: " + masterKeyId
+                + " keyringUserId: " + keyringUserId);
+        String[] keyringUserIdSplit = KeychainUtil.splitUserId(keyringUserId);
+        String keyringNickname = keyringUserIdSplit[0];
+
         ArrayList<ContentProviderOperation> operationList = new ArrayList<ContentProviderOperation>();
 
         ContentProviderOperation.Builder builder = ContentProviderOperation
                 .newInsert(RawContacts.CONTENT_URI);
         builder.withValue(RawContacts.ACCOUNT_NAME, account.name);
         builder.withValue(RawContacts.ACCOUNT_TYPE, account.type);
-        builder.withValue(RawContacts.SYNC1, username);
+        builder.withValue(CryptoCallContract.SYNC1_KEYRING_MASTER_KEY_ID, masterKeyId);
+        builder.withValue(CryptoCallContract.SYNC2_KEYRING_USER_ID, keyringUserId);
         operationList.add(builder.build());
 
         builder = ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI);
@@ -110,156 +147,172 @@ public class ContactsSyncAdapterService extends Service {
                 ContactsContract.CommonDataKinds.StructuredName.RAW_CONTACT_ID, 0);
         builder.withValue(ContactsContract.Data.MIMETYPE,
                 ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE);
-        builder.withValue(ContactsContract.CommonDataKinds.StructuredName.DISPLAY_NAME, name);
+        builder.withValue(ContactsContract.CommonDataKinds.StructuredName.DISPLAY_NAME, displayName);
         operationList.add(builder.build());
 
         builder = ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI);
         builder.withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0);
-        builder.withValue(ContactsContract.Data.MIMETYPE,
-                "vnd.android.cursor.item/vnd.org.cryptocall.profile");
-        builder.withValue(ContactsContract.Data.DATA1, username);
-        builder.withValue(ContactsContract.Data.DATA2, "SyncProviderDemo Profile");
-        builder.withValue(ContactsContract.Data.DATA3, "View profile");
+        builder.withValue(ContactsContract.Data.MIMETYPE, CryptoCallContract.CONTENT_ITEM_TYPE);
+        builder.withValue(CryptoCallContract.DATA1_MASTER_KEY_ID, masterKeyId);
+        builder.withValue(CryptoCallContract.DATA2_SUMMARY, "CryptoCall Profile");
+        builder.withValue(CryptoCallContract.DATA3_KEYRING_NICKNAME, keyringNickname);
+        builder.withValue(CryptoCallContract.DATA4_TELEPHONE_NUMBER, telephoneNumber);
         operationList.add(builder.build());
 
         try {
             mContentResolver.applyBatch(ContactsContract.AUTHORITY, operationList);
         } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            Log.e(Constants.TAG, "Exception in addContact!", e);
         }
     }
 
-    private static void updateContactStatus(ArrayList<ContentProviderOperation> operationList,
-            long rawContactId, String status) {
-        Uri rawContactUri = ContentUris.withAppendedId(RawContacts.CONTENT_URI, rawContactId);
-        Uri entityUri = Uri.withAppendedPath(rawContactUri, Entity.CONTENT_DIRECTORY);
-        Cursor c = mContentResolver.query(entityUri, new String[] { RawContacts.SOURCE_ID,
-                Entity.DATA_ID, Entity.MIMETYPE, Entity.DATA1 }, null, null, null);
+    private static void syncSingleContact(Context context, Account account, long masterKeyId,
+            String keyringUserId) {
+        String[] keyringUserIdSplit = KeychainUtil.splitUserId(keyringUserId);
+        String keyringEmail = keyringUserIdSplit[1];
+
+        byte[] pgpEmailSalt = null;
         try {
-            while (c.moveToNext()) {
-                if (!c.isNull(1)) {
-                    String mimeType = c.getString(2);
-
-                    if (mimeType
-                            .equals("vnd.android.cursor.item/vnd.org.cryptocall.profile")) {
-                        ContentProviderOperation.Builder builder = ContentProviderOperation
-                                .newInsert(ContactsContract.StatusUpdates.CONTENT_URI);
-                        builder.withValue(ContactsContract.StatusUpdates.DATA_ID, c.getLong(1));
-                        builder.withValue(ContactsContract.StatusUpdates.STATUS, status);
-                        builder.withValue(ContactsContract.StatusUpdates.STATUS_RES_PACKAGE,
-                                "org.cryptocall");
-                        builder.withValue(ContactsContract.StatusUpdates.STATUS_LABEL,
-                                R.string.app_name);
-                        builder.withValue(ContactsContract.StatusUpdates.STATUS_ICON,
-                                R.drawable.icon);
-                        builder.withValue(ContactsContract.StatusUpdates.STATUS_TIMESTAMP,
-                                System.currentTimeMillis());
-                        operationList.add(builder.build());
-
-                        // Only change the text of our custom entry to the status message
-                        // pre-Honeycomb, as the newer contacts app shows
-                        // statuses elsewhere
-                        if (Integer.decode(Build.VERSION.SDK) < 11) {
-                            builder = ContentProviderOperation
-                                    .newUpdate(ContactsContract.Data.CONTENT_URI);
-                            builder.withSelection(BaseColumns._ID + " = '" + c.getLong(1) + "'",
-                                    null);
-                            builder.withValue(ContactsContract.Data.DATA3, status);
-                            operationList.add(builder.build());
-                        }
-                    }
-                }
-            }
-        } finally {
-            c.close();
-        }
-    }
-
-    private static void updateContactPhoto(ArrayList<ContentProviderOperation> operationList,
-            long rawContactId, byte[] photo) {
-        ContentProviderOperation.Builder builder = ContentProviderOperation
-                .newDelete(ContactsContract.Data.CONTENT_URI);
-        builder.withSelection(ContactsContract.Data.RAW_CONTACT_ID + " = '" + rawContactId
-                + "' AND " + ContactsContract.Data.MIMETYPE + " = '"
-                + ContactsContract.CommonDataKinds.Photo.CONTENT_ITEM_TYPE + "'", null);
-        operationList.add(builder.build());
-
-        try {
-            if (photo != null) {
-                builder = ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI);
-                builder.withValue(ContactsContract.CommonDataKinds.Photo.RAW_CONTACT_ID,
-                        rawContactId);
-                builder.withValue(ContactsContract.Data.MIMETYPE,
-                        ContactsContract.CommonDataKinds.Photo.CONTENT_ITEM_TYPE);
-                builder.withValue(ContactsContract.CommonDataKinds.Photo.PHOTO, photo);
-                operationList.add(builder.build());
-
-                builder = ContentProviderOperation
-                        .newUpdate(ContactsContract.RawContacts.CONTENT_URI);
-                builder.withSelection(ContactsContract.RawContacts.CONTACT_ID + " = '"
-                        + rawContactId + "'", null);
-                builder.withValue(PhotoTimestampColumn, String.valueOf(System.currentTimeMillis()));
-                operationList.add(builder.build());
-            }
+            pgpEmailSalt = ProtectedEmailUtils.getSaltFromProtectedEmail(keyringEmail);
         } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            Log.e(Constants.TAG, "Exception", e);
+        }
+
+        Cursor phonesCursor = context.getContentResolver().query(Data.CONTENT_URI, null,
+                Data.MIMETYPE + "='" + Phone.CONTENT_ITEM_TYPE + "'", null, null);
+
+        // go through all phone numbers
+        while (phonesCursor != null && phonesCursor.moveToNext()) {
+            // long rawContactId = phonesCursor.getLong(phonesCursor
+            // .getColumnIndex(Data.RAW_CONTACT_ID));
+
+            String displayName = phonesCursor.getString(phonesCursor
+                    .getColumnIndex(Phone.DISPLAY_NAME));
+
+            // TODO: this is curently targetting sdk 16!!!
+            String telephoneNumber = phonesCursor.getString(phonesCursor
+                    .getColumnIndex(Phone.NORMALIZED_NUMBER));
+
+            Log.d(Constants.TAG, "telephoneNumber: " + telephoneNumber);
+
+            String generatedEmail = ProtectedEmailUtils.generateProtectedEmail(telephoneNumber,
+                    pgpEmailSalt);
+
+            if (generatedEmail != null && generatedEmail.equals(keyringEmail)) {
+                Log.d(Constants.TAG, "Found email! pgpEmail: " + keyringEmail
+                        + " for telephoneNumber " + telephoneNumber);
+
+                addContact(account, displayName, masterKeyId, keyringUserId, telephoneNumber);
+            }
+
+        }
+        if (phonesCursor != null) {
+            phonesCursor.close();
         }
     }
 
     private static class SyncEntry {
-        public Long raw_id = 0L;
-        public Long photo_timestamp = null;
+        public Long rawId = 0L;
+        public String keyringUserId = null;
     }
+
+    private static final String KEYCHAIN_COLUMN_MASTER_KEY_ID = "master_key_id";
+    private static final String KEYCHAIN_COLUMN_USER_ID = "user_id";
 
     private static void performSync(Context context, Account account, Bundle extras,
             String authority, ContentProviderClient provider, SyncResult syncResult)
             throws OperationCanceledException {
-        HashMap<String, SyncEntry> localContacts = new HashMap<String, SyncEntry>();
+        performSync(context, account);
+    }
+
+    public static void performSync(Context context, Account account) {
+        HashMap<Long, SyncEntry> localContacts = new HashMap<Long, SyncEntry>();
         mContentResolver = context.getContentResolver();
         Log.i(Constants.TAG, "performSync: " + account.toString());
 
         // Load the local contacts
-        Uri rawContactUri = RawContacts.CONTENT_URI.buildUpon()
-                .appendQueryParameter(RawContacts.ACCOUNT_NAME, account.name)
-                .appendQueryParameter(RawContacts.ACCOUNT_TYPE, account.type).build();
+        Uri rawContactUri = CryptoCallContract.CONTENT_RAW_URI;
         Cursor c1 = mContentResolver.query(rawContactUri, new String[] { BaseColumns._ID,
-                UsernameColumn, PhotoTimestampColumn }, null, null, null);
+                CryptoCallContract.SYNC1_KEYRING_MASTER_KEY_ID,
+                CryptoCallContract.SYNC2_KEYRING_USER_ID }, null, null, null);
         while (c1.moveToNext()) {
             SyncEntry entry = new SyncEntry();
-            entry.raw_id = c1.getLong(c1.getColumnIndex(BaseColumns._ID));
-            entry.photo_timestamp = c1.getLong(c1.getColumnIndex(PhotoTimestampColumn));
-            localContacts.put(c1.getString(1), entry);
+            entry.rawId = c1.getLong(c1.getColumnIndex(BaseColumns._ID));
+            entry.keyringUserId = c1.getString(c1
+                    .getColumnIndex(CryptoCallContract.SYNC2_KEYRING_USER_ID));
+            localContacts.put(Long.valueOf(c1.getString(c1
+                    .getColumnIndex(CryptoCallContract.SYNC1_KEYRING_MASTER_KEY_ID))), entry);
         }
 
+        /*
+         * ACTUAL SYNC
+         */
         ArrayList<ContentProviderOperation> operationList = new ArrayList<ContentProviderOperation>();
-        try {
-            // If we don't have any contacts, create one. Otherwise, set a
-            // status message
-            if (localContacts.get("efudd") == null) {
-                addContact(account, "Elmer Fudd", "efudd");
-            } else {
-                if (localContacts.get("efudd").photo_timestamp == null
-                        || System.currentTimeMillis() > (localContacts.get("efudd").photo_timestamp + 604800000L)) {
-                    // You would probably download an image file and just pass the bytes, but this
-                    // sample doesn't use network so we'll decode and re-compress the icon resource
-                    // to get the bytes
-                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                    Bitmap icon = BitmapFactory.decodeResource(context.getResources(),
-                            R.drawable.icon);
-                    icon.compress(CompressFormat.PNG, 0, stream);
-                    updateContactPhoto(operationList, localContacts.get("efudd").raw_id,
-                            stream.toByteArray());
+
+        // open keyrings cursor
+        Uri contentUri = Uri.withAppendedPath(
+                KeychainContentProviderHelper.CONTENT_URI_PUBLIC_KEY_RING_BY_LIKE_EMAIL,
+                Constants.CRYPTOCALL_DOMAIN);
+        Cursor pgpKeyringsCursor = context.getContentResolver().query(contentUri,
+                new String[] { KEYCHAIN_COLUMN_MASTER_KEY_ID, KEYCHAIN_COLUMN_USER_ID }, null,
+                null, null);
+
+        // go through all Keychain emails with @cryptocall in it
+        if (pgpKeyringsCursor != null && pgpKeyringsCursor.moveToFirst()) {
+            do {
+                long masterKeyId = pgpKeyringsCursor.getLong(pgpKeyringsCursor
+                        .getColumnIndex(KEYCHAIN_COLUMN_MASTER_KEY_ID));
+                String keyringUserId = pgpKeyringsCursor.getString(pgpKeyringsCursor
+                        .getColumnIndex(KEYCHAIN_COLUMN_USER_ID));
+
+                boolean insertContact = false;
+                boolean updateContact = false;
+                // check if contact already existing
+                if (localContacts.containsKey(masterKeyId)) {
+                    Log.d(Constants.TAG, "masterKeyId existing in local contacts: " + masterKeyId);
+
+                    // check if keyring user id has changed since last sync
+                    if (!keyringUserId.equals(localContacts.get(masterKeyId).keyringUserId)) {
+                        Log.d(Constants.TAG, "masterKeyId has CHANGED user id in local contacts: "
+                                + masterKeyId);
+                        Log.d(Constants.TAG, "keyringUserId: " + keyringUserId);
+                        Log.d(Constants.TAG, "localContacts.get(masterKeyId).keyringUserId: "
+                                + localContacts.get(masterKeyId).keyringUserId);
+
+                        updateContact = true;
+                    } else {
+                        Log.d(Constants.TAG,
+                                "masterKeyId has NOT changed user id in local contacts: "
+                                        + masterKeyId);
+                    }
+                } else {
+                    Log.d(Constants.TAG, "masterKeyId NOT existing in local contacts: "
+                            + masterKeyId);
+
+                    insertContact = true;
                 }
-                updateContactStatus(operationList, localContacts.get("efudd").raw_id,
-                        "hunting wabbits");
-            }
-            if (operationList.size() > 0)
-                mContentResolver.applyBatch(ContactsContract.AUTHORITY, operationList);
-        } catch (Exception e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
+
+                if (insertContact) {
+                    syncSingleContact(context, account, masterKeyId, keyringUserId);
+                } else if (updateContact) {
+                    // TODO: implement update of existing raw contact
+
+                }
+
+            } while (pgpKeyringsCursor.moveToNext());
         }
+
+        if (pgpKeyringsCursor != null) {
+            pgpKeyringsCursor.close();
+        }
+
+        if (operationList.size() > 0) {
+            try {
+                mContentResolver.applyBatch(ContactsContract.AUTHORITY, operationList);
+            } catch (Exception e) {
+                Log.e(Constants.TAG, "Exception in performSync!", e);
+            }
+        }
+
     }
 }

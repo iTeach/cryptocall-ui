@@ -118,14 +118,6 @@ public class CryptoCallIntentService extends IntentService {
     Object syncToken = new Object();
 
     @Override
-    public void onCreate() {
-        super.onCreate();
-
-        mApplication = (CryptoCallApplication) getApplication();
-        mIKeychainKeyService = mApplication.getKeychainKeyService();
-    }
-
-    @Override
     public void onDestroy() {
         super.onDestroy();
 
@@ -183,6 +175,8 @@ public class CryptoCallIntentService extends IntentService {
      */
     @Override
     protected void onHandleIntent(Intent intent) {
+        mApplication = (CryptoCallApplication) getApplication();
+        mIKeychainKeyService = mApplication.getKeychainKeyService();
 
         Bundle extras = intent.getExtras();
         if (extras == null) {
@@ -369,14 +363,15 @@ public class CryptoCallIntentService extends IntentService {
                             default:
                                 break;
                             }
-
+                        } else {
+                            Log.e(Constants.TAG, "mIKeychainKeyService is null!");
                         }
-
                     } else {
-                        Log.e(Constants.TAG, "mIKeychainKeyService is null!");
+                        Log.e(Constants.TAG,
+                                "Public keyring not found in OpenPGP Keychain for this email!");
                     }
                 } else {
-                    Log.e(Constants.TAG, "public keyring not found for this email!");
+                    Log.e(Constants.TAG, "No IP!");
                 }
 
             } catch (Exception e) {
