@@ -178,6 +178,9 @@ public class CryptoCallIntentService extends IntentService {
         mApplication = (CryptoCallApplication) getApplication();
         mIKeychainKeyService = mApplication.getKeychainKeyService();
 
+        mApplication = (CryptoCallApplication) getApplication();
+        mIKeychainKeyService = mApplication.getKeychainKeyService();
+
         Bundle extras = intent.getExtras();
         if (extras == null) {
             Log.e(Constants.TAG, "Extras bundle is null!");

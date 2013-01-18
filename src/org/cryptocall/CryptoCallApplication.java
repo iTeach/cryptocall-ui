@@ -51,10 +51,31 @@ public class CryptoCallApplication extends Application {
         // Keychain service
         mKeychainKeyServiceConnection.bindToKeychainKeyService();
 
+
         /* CSipSimple preferences */
 
         // activate debugging
         SipConfigManager.setPreferenceStringValue(this, SipConfigManager.LOG_LEVEL, "5");
+
+        // set up codecs
+        SipConfigManager.setPreferenceStringValue(this,
+                SipConfigManager.getCodecKey("opus/48000/1", SipConfigManager.CODEC_NB), "249");
+        SipConfigManager.setPreferenceStringValue(this,
+                SipConfigManager.getCodecKey("PCMU/8000/1", SipConfigManager.CODEC_NB), "248");
+        SipConfigManager.setPreferenceStringValue(this,
+                SipConfigManager.getCodecKey("PCMA/8000/1", SipConfigManager.CODEC_NB), "247");
+        SipConfigManager.setPreferenceStringValue(this,
+                SipConfigManager.getCodecKey("SILK/24000/1", SipConfigManager.CODEC_NB), "246");
+        SipConfigManager.setPreferenceStringValue(this,
+                SipConfigManager.getCodecKey("opus/48000/1", SipConfigManager.CODEC_WB), "249");
+        SipConfigManager.setPreferenceStringValue(this,
+                SipConfigManager.getCodecKey("PCMU/8000/1", SipConfigManager.CODEC_WB), "248");
+        SipConfigManager.setPreferenceStringValue(this,
+                SipConfigManager.getCodecKey("PCMA/8000/1", SipConfigManager.CODEC_WB), "247");
+        SipConfigManager.setPreferenceStringValue(this,
+                SipConfigManager.getCodecKey("SILK/24000/1", SipConfigManager.CODEC_WB), "246");
+
+        SipConfigManager.setPreferenceBooleanValue(this, SipConfigManager.USE_VIDEO, true);
 
         // Enable usage for in and outgoing calls for following networks
         // TODO: Is anyways enough???
