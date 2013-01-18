@@ -22,8 +22,14 @@
 package org.cryptocall.ui;
 
 import org.cryptocall.R;
+import org.cryptocall.syncadapter.ContactsSyncAdapterService.CryptoCallContract;
+import org.cryptocall.util.Constants;
+import org.cryptocall.util.Log;
+import org.sufficientlysecure.keychain.integration.KeychainContentProviderHelper;
+import org.sufficientlysecure.keychain.integration.KeychainUtil;
 
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract.Contacts;
@@ -35,19 +41,16 @@ import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.view.MenuItem;
 
 public class ShowContactActivity extends SherlockActivity {
-
-    // Intent Extra Variables
-    public static final String EXTRA_NAME = "name";
-    public static final String EXTRA_EMAIL = "email";
-    public static final String EXTRA_LOOKUP_KEY = "lookupKey";
-
     private SherlockActivity mActivity;
 
-    private String mName;
-    private String mEmail;
+    private String mDisplayName;
+    private String mNickname;
+    private String mTelephoneNumber;
+    private long mMasterKeyId;
     private String mLookupKey;
 
-    private TextView mEmailTextView;
+    private TextView mNicknameTextView;
+    private TextView mTelephoneNumberTextView;
     private ActionBar mActionBar;
 
     /**
@@ -61,20 +64,37 @@ public class ShowContactActivity extends SherlockActivity {
 
         mActivity = this;
 
-        /* should be called with parameters */
-        Bundle extras = mActivity.getIntent().getExtras();
-        if (extras != null) {
-            mName = extras.getString(EXTRA_NAME);
-            mEmail = extras.getString(EXTRA_EMAIL);
-            mLookupKey = extras.getString(EXTRA_LOOKUP_KEY);
+        Uri uri = getIntent().getData();
+        if (uri != null) {
 
-            // get views
-            mEmailTextView = (TextView) findViewById(R.id.show_contact_email);
-            mActionBar = getSupportActionBar();
+            Cursor cursor = getContentResolver().query(uri, null, null, null, null);
+            if (cursor.moveToFirst()) {
+                mDisplayName = cursor.getString(cursor.getColumnIndex(Contacts.DISPLAY_NAME));
+                mNickname = cursor.getString(cursor
+                        .getColumnIndex(CryptoCallContract.DATA3_KEYRING_NICKNAME));
+                mTelephoneNumber = cursor.getString(cursor
+                        .getColumnIndex(CryptoCallContract.DATA4_TELEPHONE_NUMBER));
+                mMasterKeyId = cursor.getLong(cursor
+                        .getColumnIndex(CryptoCallContract.DATA1_MASTER_KEY_ID));
+                mLookupKey = cursor.getString(cursor.getColumnIndex(Contacts.LOOKUP_KEY));
 
-            // set views
-            mActionBar.setTitle(mName);
-            mEmailTextView.setText(mEmail);
+                Log.d(Constants.TAG, "mDisplayName: " + mDisplayName + "\nmNickname: " + mNickname
+                        + "\nmTelephoneNumber: " + mTelephoneNumber + "\nmMasterKeyId: "
+                        + mMasterKeyId + "\nmLookupKey: " + mLookupKey);
+
+                // get views
+                mNicknameTextView = (TextView) findViewById(R.id.show_contact_nickname);
+                mTelephoneNumberTextView = (TextView) findViewById(R.id.show_contact_number);
+                mActionBar = getSupportActionBar();
+
+                // set views
+                mActionBar.setTitle(mDisplayName);
+                mNicknameTextView.setText(mNickname);
+                mTelephoneNumberTextView.setText(mTelephoneNumber);
+            }
+        } else {
+            Log.e(Constants.TAG, "getIntent().getData() is null!");
+            finish();
         }
     }
 
@@ -112,7 +132,13 @@ public class ShowContactActivity extends SherlockActivity {
         // start sending sms activity
         Intent activityIntent = new Intent();
         activityIntent.setClass(mActivity, SmsSendingActivity.class);
-        activityIntent.putExtra(SmsSendingActivity.EXTRA_CRYPTOCALL_EMAIL, mEmail);
+
+        // TODO: directly use masterKeyId in SmsSendingActivity?
+        String userId = (new KeychainContentProviderHelper(this)).getUserId(mMasterKeyId, false);
+        String email = KeychainUtil.splitUserId(userId)[1];
+        Log.d(Constants.TAG, "email: " + email);
+
+        activityIntent.putExtra(SmsSendingActivity.EXTRA_CRYPTOCALL_EMAIL, mTelephoneNumber);
         mActivity.startActivity(activityIntent);
     }
 

@@ -23,6 +23,8 @@ package org.cryptocall.util;
 
 import java.util.regex.Pattern;
 
+import android.accounts.Account;
+
 public class Constants {
     /* Debug constants */
     public static final boolean DEBUG = true;
@@ -42,4 +44,11 @@ public class Constants {
     public static final Pattern cryptoCallPattern = Pattern
             .compile(".*<(\\S+)@cryptocall\\.org>.*");
     public static final Pattern cryptoCallPattern2 = Pattern.compile("(\\S+)@cryptocall\\.org");
+
+    /* Sync Adapter */
+    public static final String SYNC_ACCOUNT_NAME = "CryptoCall";
+    public static final String SYNC_ACCOUNT_TYPE = "org.cryptocall.account";
+    public static final String SYNC_CONTENT_AUTHORITY = "com.android.contacts";
+
+    public static final Account SYNC_ACCOUNT = new Account(SYNC_ACCOUNT_NAME, SYNC_ACCOUNT_TYPE);
 }

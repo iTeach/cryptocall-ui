@@ -175,6 +175,8 @@ public class CryptoCallIntentService extends IntentService {
      */
     @Override
     protected void onHandleIntent(Intent intent) {
+        mApplication = (CryptoCallApplication) getApplication();
+        mIKeychainKeyService = mApplication.getKeychainKeyService();
 
         mApplication = (CryptoCallApplication) getApplication();
         mIKeychainKeyService = mApplication.getKeychainKeyService();
@@ -364,14 +366,15 @@ public class CryptoCallIntentService extends IntentService {
                             default:
                                 break;
                             }
-
+                        } else {
+                            Log.e(Constants.TAG, "mIKeychainKeyService is null!");
                         }
-
                     } else {
-                        Log.e(Constants.TAG, "mIKeychainKeyService is null!");
+                        Log.e(Constants.TAG,
+                                "Public keyring not found in OpenPGP Keychain for this email!");
                     }
                 } else {
-                    Log.e(Constants.TAG, "public keyring not found for this email!");
+                    Log.e(Constants.TAG, "No IP!");
                 }
 
             } catch (Exception e) {

@@ -22,7 +22,10 @@
 package org.cryptocall.util;
 
 import org.cryptocall.R;
+import org.cryptocall.syncadapter.ContactsSyncAdapterService.CryptoCallContract;
 import org.cryptocall.ui.SmsSendingActivity;
+import org.sufficientlysecure.keychain.integration.KeychainContentProviderHelper;
+import org.sufficientlysecure.keychain.integration.KeychainUtil;
 
 import android.content.Context;
 import android.content.Intent;
@@ -64,16 +67,21 @@ public class ContactsCursorAdapter extends SimpleCursorAdapter {
                 .findViewById(R.id.base_contacts_list_call_image);
 
         // bind email from cursor to tag of imageButton in list item
-        final int emailColumnIndex = c.getColumnIndex(Email.DATA);
-        String currentEmail = c.getString(emailColumnIndex);
-        callImageButton.setTag(currentEmail);
+        final int masterKeyIdColumnIndex = c.getColumnIndex(CryptoCallContract.DATA1_MASTER_KEY_ID);
+        Long masterKeyId = c.getLong(masterKeyIdColumnIndex);
+        callImageButton.setTag(masterKeyId);
 
         callImageButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 Context context = v.getContext();
                 // get email from tag
-                String email = (String) v.getTag();
+
+                // TODO: directly use masterKeyId in SmsSendingActivity?
+                Long masterKeyId = (Long) v.getTag();
+                String userId = (new KeychainContentProviderHelper(context)).getUserId(masterKeyId, false);
+                String email = KeychainUtil.splitUserId(userId)[1];
+                Log.d(Constants.TAG, "email: " + email);
 
                 // start sending sms activity
                 Intent activityIntent = new Intent();

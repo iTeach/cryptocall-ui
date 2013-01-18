@@ -93,7 +93,7 @@ public class BaseInformationFragment extends Fragment {
 
         // set nickname from keyring
         String userId = (new KeychainContentProviderHelper(mBaseActivity))
-                .getUserId(PreferencesHelper.getPgpMasterKeyId(mBaseActivity));
+                .getUserId(PreferencesHelper.getPgpMasterKeyId(mBaseActivity), true);
         String[] splitUserId = KeychainUtil.splitUserId(userId);
         mNicknameTextView.setText(splitUserId[0]);
     }

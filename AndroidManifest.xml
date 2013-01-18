@@ -30,8 +30,6 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.READ_CONTACTS" />
-    <uses-permission android:name="android.permission.WRITE_CONTACTS" />
     <uses-permission android:name="android.permission.SEND_SMS" />
     <uses-permission android:name="android.permission.RECEIVE_SMS" />
     <uses-permission android:name="android.permission.READ_SMS" />
@@ -60,6 +58,15 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.BROADCAST_STICKY" />
     <uses-permission android:name="android.permission.READ_PROFILE" />
+
+    <!-- Permissions needed for sync provider -->
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <uses-permission android:name="android.permission.WRITE_CONTACTS" />
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+    <uses-permission android:name="android.permission.MANAGE_ACCOUNTS" />
+    <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS" />
+    <uses-permission android:name="android.permission.READ_SYNC_SETTINGS" />
+    <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS" />
 
     <!-- BEGIN CSIPSIMPLE -->
     <!-- <permission -->
@@ -95,17 +102,27 @@
         <activity
             android:name=".ui.SmsSendingActivity"
             android:label="@string/activity_sending_sms_label"
-            android:noHistory="true" />
+            android:noHistory="true"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.SmsReceivedActivity"
             android:label="@string/activity_received_sms_label"
-            android:noHistory="true" />
+            android:noHistory="true"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.HelpActivity"
             android:label="@string/activity_help_label" />
         <activity
             android:name=".ui.ShowContactActivity"
-            android:label="@string/activity_show_contact_label" />
+            android:label="@string/activity_show_contact_label" >
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:mimeType="vnd.android.cursor.item/vnd.org.cryptocall.profile" />
+            </intent-filter>
+        </activity>
         <activity
             android:name=".ui.WizardActivity"
             android:label="@string/activity_wizard_label" >
@@ -135,6 +152,46 @@
                 <action android:name="com.csipsimple.service.CALL_CHANGED" />
             </intent-filter>
         </receiver>
+
+        <!-- BEGIN SYNC ADAPTER -->
+        <activity
+            android:name=".syncadapter.CreateAccountActivity"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.Transparent" >
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+            </intent-filter>
+        </activity>
+
+        <service
+            android:name=".syncadapter.AccountAuthenticatorService"
+            android:exported="true"
+            android:process=":auth" >
+            <intent-filter>
+                <action android:name="android.accounts.AccountAuthenticator" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.accounts.AccountAuthenticator"
+                android:resource="@xml/sync_authenticator" />
+        </service>
+        <service
+            android:name=".syncadapter.ContactsSyncAdapterService"
+            android:exported="true"
+            android:process=":contacts" >
+            <intent-filter>
+                <action android:name="android.content.SyncAdapter" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.content.SyncAdapter"
+                android:resource="@xml/sync_adapter" />
+            <meta-data
+                android:name="android.provider.CONTACTS_STRUCTURE"
+                android:resource="@xml/sync_contacts_source" />
+        </service>
+        <!-- END SYNC ADAPTER -->
+
 
         <!-- BEGIN CSIPSIMPLE -->
 
@@ -290,6 +347,7 @@
             android:process=":sipStack" />
 
         <!-- END CSIPSIMPLE -->
+
     </application>
 
 </manifest>

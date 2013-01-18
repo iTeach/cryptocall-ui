@@ -22,7 +22,7 @@
 package org.cryptocall.ui;
 
 import org.cryptocall.R;
-import org.cryptocall.util.Constants;
+import org.cryptocall.syncadapter.ContactsSyncAdapterService.CryptoCallContract;
 import org.cryptocall.util.ContactsCursorAdapter;
 
 import com.actionbarsherlock.app.SherlockListFragment;
@@ -38,8 +38,9 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.provider.ContactsContract.CommonDataKinds.Email;
+import android.provider.ContactsContract;
 import android.provider.ContactsContract.Contacts;
+import android.provider.ContactsContract.Data;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -73,13 +74,9 @@ public class ContactsFragment extends SherlockListFragment implements
         setHasOptionsMenu(true);
 
         // Create an empty adapter we will use to display the loaded data.
-        // mAdapter = new SimpleCursorAdapter(getActivity(), android.R.layout.simple_list_item_2,
-        // null, new String[] { Contacts.DISPLAY_NAME, Contacts.CONTACT_STATUS }, new int[] {
-        // android.R.id.text1, android.R.id.text2 }, 0);
-
         mAdapter = new ContactsCursorAdapter(mActivity, R.layout.base_contacts_list_item, null,
-                new String[] { Contacts.DISPLAY_NAME, Email.DATA }, new int[] {
-                        R.id.base_contacts_list_name, R.id.base_contacts_list_email }, 0);
+                new String[] { Contacts.DISPLAY_NAME, CryptoCallContract.DATA3_KEYRING_NICKNAME },
+                new int[] { R.id.base_contacts_list_name, R.id.base_contacts_list_email }, 0);
         setListAdapter(mAdapter);
 
         // set design to fast scroll, meaning if many items are available show scroll slider
@@ -120,33 +117,17 @@ public class ContactsFragment extends SherlockListFragment implements
         // Insert desired behavior here.
         Log.i("FragmentComplexList", "Item clicked: " + id);
 
-        Cursor cursor = mAdapter.getCursor();
-
-        final int nameColumnIndex = cursor.getColumnIndex(Contacts.DISPLAY_NAME);
-        String name = cursor.getString(nameColumnIndex);
-
-        final int emailColumnIndex = cursor.getColumnIndex(Email.DATA);
-        String email = cursor.getString(emailColumnIndex);
-
-        final int lookupKeyColumnIndex = cursor.getColumnIndex(Contacts.LOOKUP_KEY);
-        String lookupKey = cursor.getString(lookupKeyColumnIndex);
-
         // start show Contact
         Intent activityIntent = new Intent();
         activityIntent.setClass(mActivity, ShowContactActivity.class);
-        activityIntent.putExtra(ShowContactActivity.EXTRA_NAME, name);
-        activityIntent.putExtra(ShowContactActivity.EXTRA_EMAIL, email);
-        activityIntent.putExtra(ShowContactActivity.EXTRA_LOOKUP_KEY, lookupKey);
+        activityIntent.setData(ContactsContract.Data.CONTENT_URI.buildUpon()
+                .appendPath(String.valueOf(id)).build());
         mActivity.startActivity(activityIntent);
     }
 
-    // These are the Contacts rows that we will retrieve.
-    // static final String[] CONTACTS_SUMMARY_PROJECTION = new String[] { Contacts._ID,
-    // Contacts.DISPLAY_NAME, Contacts.CONTACT_STATUS, Contacts.CONTACT_PRESENCE,
-    // Contacts.PHOTO_ID, Contacts.LOOKUP_KEY, };
-
     static final String[] CONTACTS_SUMMARY_PROJECTION = new String[] { Contacts._ID,
-            Contacts.DISPLAY_NAME, Email.DATA, Contacts.LOOKUP_KEY };
+            Contacts.DISPLAY_NAME, CryptoCallContract.DATA1_MASTER_KEY_ID,
+            CryptoCallContract.DATA3_KEYRING_NICKNAME };
 
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         // This is called when a new Loader needs to be created. This
@@ -160,21 +141,10 @@ public class ContactsFragment extends SherlockListFragment implements
         // baseUri = Contacts.CONTENT_URI;
         // }
 
-        // Now create and return a CursorLoader that will take care of
-        // creating a Cursor for the data being displayed.
-        // String select = "((" + Contacts.DISPLAY_NAME + " NOTNULL) AND ("
-        // + Contacts.HAS_PHONE_NUMBER + "=1) AND (" + Contacts.DISPLAY_NAME + " != '' ))";
-        // return new CursorLoader(getActivity(), baseUri, CONTACTS_SUMMARY_PROJECTION, select,
-        // null,
-        // Contacts.DISPLAY_NAME + " COLLATE LOCALIZED ASC");
-
-        // String select = "((" + Contacts.DISPLAY_NAME + " NOTNULL))";
-
-        // select only Contacts with email like 12345@cryptocall.org
-        String select = Email.DATA + " LIKE '%" + Constants.CRYPTOCALL_DOMAIN + "'";
-
-        return new CursorLoader(mActivity, Email.CONTENT_URI, CONTACTS_SUMMARY_PROJECTION, select,
-                null, Contacts.DISPLAY_NAME + " COLLATE LOCALIZED ASC");
+        return new CursorLoader(mActivity, ContactsContract.Data.CONTENT_URI,
+                CONTACTS_SUMMARY_PROJECTION, Data.MIMETYPE + "='"
+                        + CryptoCallContract.CONTENT_ITEM_TYPE + "'", null, Contacts.DISPLAY_NAME
+                        + " COLLATE LOCALIZED ASC");
     }
 
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
