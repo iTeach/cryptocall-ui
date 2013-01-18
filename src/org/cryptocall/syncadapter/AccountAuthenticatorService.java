@@ -16,6 +16,8 @@
 
 package org.cryptocall.syncadapter;
 
+import org.cryptocall.util.Constants;
+
 import android.accounts.AbstractAccountAuthenticator;
 import android.accounts.Account;
 import android.accounts.AccountAuthenticatorResponse;
@@ -29,7 +31,6 @@ import android.os.IBinder;
 import android.util.Log;
 
 public class AccountAuthenticatorService extends Service {
-    private static final String TAG = "AccountAuthenticatorService";
     private static AccountAuthenticatorImpl sAccountAuthenticator = null;
 
     public AccountAuthenticatorService() {
@@ -70,7 +71,7 @@ public class AccountAuthenticatorService extends Service {
                 String authTokenType, String[] requiredFeatures, Bundle options)
                 throws NetworkErrorException {
             Bundle result = new Bundle();
-            Intent i = new Intent(mContext, LoginActivity.class);
+            Intent i = new Intent(mContext, CreateAccountActivity.class);
             i.putExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE, response);
             result.putParcelable(AccountManager.KEY_INTENT, i);
             return result;
@@ -87,7 +88,7 @@ public class AccountAuthenticatorService extends Service {
         public Bundle confirmCredentials(AccountAuthenticatorResponse response, Account account,
                 Bundle options) {
             // TODO Auto-generated method stub
-            Log.i(TAG, "confirmCredentials");
+            Log.e(Constants.TAG, "Not implemented: confirmCredentials");
             return null;
         }
 
@@ -100,7 +101,7 @@ public class AccountAuthenticatorService extends Service {
         @Override
         public Bundle editProperties(AccountAuthenticatorResponse response, String accountType) {
             // TODO Auto-generated method stub
-            Log.i(TAG, "editProperties");
+            Log.e(Constants.TAG, "Not implemented: editProperties");
             return null;
         }
 
@@ -115,7 +116,7 @@ public class AccountAuthenticatorService extends Service {
         public Bundle getAuthToken(AccountAuthenticatorResponse response, Account account,
                 String authTokenType, Bundle options) throws NetworkErrorException {
             // TODO Auto-generated method stub
-            Log.i(TAG, "getAuthToken");
+            Log.i(Constants.TAG, "Not implemented: getAuthToken");
             return null;
         }
 
@@ -127,7 +128,7 @@ public class AccountAuthenticatorService extends Service {
         @Override
         public String getAuthTokenLabel(String authTokenType) {
             // TODO Auto-generated method stub
-            Log.i(TAG, "getAuthTokenLabel");
+            Log.e(Constants.TAG, "Not implemented: getAuthTokenLabel");
             return null;
         }
 
@@ -141,7 +142,7 @@ public class AccountAuthenticatorService extends Service {
         public Bundle hasFeatures(AccountAuthenticatorResponse response, Account account,
                 String[] features) throws NetworkErrorException {
             // TODO Auto-generated method stub
-            Log.i(TAG, "hasFeatures: " + features);
+            Log.e(Constants.TAG, "Not implemented: hasFeatures: " + features);
             return null;
         }
 
@@ -156,7 +157,7 @@ public class AccountAuthenticatorService extends Service {
         public Bundle updateCredentials(AccountAuthenticatorResponse response, Account account,
                 String authTokenType, Bundle options) {
             // TODO Auto-generated method stub
-            Log.i(TAG, "updateCredentials");
+            Log.e(Constants.TAG, "Not implemented: updateCredentials");
             return null;
         }
     }

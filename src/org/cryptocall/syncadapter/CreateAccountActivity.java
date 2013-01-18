@@ -16,30 +16,39 @@
 
 package org.cryptocall.syncadapter;
 
-import org.cryptocall.R;
+import org.cryptocall.util.Constants;
+import org.cryptocall.util.Log;
 
-import android.app.Activity;
-import android.database.Cursor;
+import android.accounts.AccountAuthenticatorActivity;
+import android.accounts.AccountManager;
 import android.os.Bundle;
-import android.widget.TextView;
 
-public class ProfileActivity extends Activity {
-    /** Called when the activity is first created. */
+public class CreateAccountActivity extends AccountAuthenticatorActivity {
+    
+    /**
+     * Called when the activity is first created.
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.sync_profile);
 
-        if (getIntent().getData() != null) {
-            Cursor cursor = managedQuery(getIntent().getData(), null, null, null, null);
-            if (cursor.moveToNext()) {
-                String username = cursor.getString(cursor.getColumnIndex("DATA1"));
-                TextView tv = (TextView) findViewById(R.id.profiletext);
-                tv.setText("This is the profile for " + username);
+        AccountHelper accHelper = new AccountHelper(this);
+        Bundle result = accHelper.addAccount();
+
+        if (result != null) {
+            if (result.containsKey(AccountManager.KEY_ACCOUNT_NAME)) {
+                // Force a sync! Even when background sync is disabled, this will force one sync!
+                accHelper.manualSync();
+
+                setAccountAuthenticatorResult(result);
+            } else {
+                Log.e(Constants.TAG,
+                        "Account was not added! result did not contain KEY_ACCOUNT_NAME!");
             }
         } else {
-            // How did we get here without data?
-            finish();
+            Log.e(Constants.TAG, "Account was not added! result was null!");
         }
+
+        finish();
     }
 }

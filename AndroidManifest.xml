@@ -301,7 +301,15 @@
 
         <!-- BEGIN SYNC ADAPTER -->
         <activity
-            android:name=".ProfileActivity"
+            android:name=".syncadapter.CreateAccountActivity"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.Transparent" >
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".syncadapter.ProfileActivity"
             android:label="Profile" >
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -313,7 +321,7 @@
         </activity>
 
         <service
-            android:name=".AccountAuthenticatorService"
+            android:name=".syncadapter.AccountAuthenticatorService"
             android:exported="true"
             android:process=":auth" >
             <intent-filter>
@@ -322,10 +330,10 @@
 
             <meta-data
                 android:name="android.accounts.AccountAuthenticator"
-                android:resource="@xml/authenticator" />
+                android:resource="@xml/sync_authenticator" />
         </service>
         <service
-            android:name=".ContactsSyncAdapterService"
+            android:name=".syncadapter.ContactsSyncAdapterService"
             android:exported="true"
             android:process=":contacts" >
             <intent-filter>
@@ -334,10 +342,10 @@
 
             <meta-data
                 android:name="android.content.SyncAdapter"
-                android:resource="@xml/sync_contacts" />
+                android:resource="@xml/sync_adapter" />
             <meta-data
                 android:name="android.provider.CONTACTS_STRUCTURE"
-                android:resource="@xml/contacts" />
+                android:resource="@xml/sync_contacts_source" />
         </service>
         <!-- END SYNC ADAPTER -->
     </application>

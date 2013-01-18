@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.cryptocall.R;
+import org.cryptocall.util.Constants;
 
 import android.accounts.Account;
 import android.accounts.OperationCanceledException;
@@ -52,7 +53,6 @@ import android.util.Log;
  * 
  */
 public class ContactsSyncAdapterService extends Service {
-    private static final String TAG = "ContactsSyncAdapterService";
     private static SyncAdapterImpl sSyncAdapter = null;
     private static ContentResolver mContentResolver = null;
     private static String UsernameColumn = ContactsContract.RawContacts.SYNC1;
@@ -95,7 +95,7 @@ public class ContactsSyncAdapterService extends Service {
     }
 
     private static void addContact(Account account, String name, String username) {
-        Log.i(TAG, "Adding contact: " + name);
+        Log.i(Constants.TAG, "Adding contact: " + name);
         ArrayList<ContentProviderOperation> operationList = new ArrayList<ContentProviderOperation>();
 
         ContentProviderOperation.Builder builder = ContentProviderOperation
@@ -218,7 +218,7 @@ public class ContactsSyncAdapterService extends Service {
             throws OperationCanceledException {
         HashMap<String, SyncEntry> localContacts = new HashMap<String, SyncEntry>();
         mContentResolver = context.getContentResolver();
-        Log.i(TAG, "performSync: " + account.toString());
+        Log.i(Constants.TAG, "performSync: " + account.toString());
 
         // Load the local contacts
         Uri rawContactUri = RawContacts.CONTENT_URI.buildUpon()

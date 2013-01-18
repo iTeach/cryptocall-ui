@@ -1,5 +1,5 @@
 <!--
-  Copyright 2010 Sam Steele
+  Copyright 2010 Sam Steele 
   
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -19,35 +19,9 @@
     android:orientation="vertical" >
 
     <TextView
+        android:id="@+id/profiletext"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="@string/username" />
-
-    <EditText
-        android:id="@+id/username"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:inputType="textNoSuggestions" >
-    </EditText>
-
-    <TextView
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/password" />
-
-    <EditText
-        android:id="@+id/password"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:inputType="textPassword" >
-    </EditText>
-
-    <Button
-        android:id="@+id/login"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:text="@string/login" >
-    </Button>
+        android:text="" />
 
 </LinearLayout>
