@@ -23,13 +23,10 @@ import org.cryptocall.util.Log;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.accounts.AccountManagerFuture;
-import android.app.AlarmManager;
 import android.content.ContentResolver;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Messenger;
 
 public class AccountHelper {
     Context mContext;

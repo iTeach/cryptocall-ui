@@ -30,7 +30,6 @@ import org.sufficientlysecure.keychain.integration.KeychainUtil;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.provider.ContactsContract.CommonDataKinds.Email;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -79,7 +78,8 @@ public class ContactsCursorAdapter extends SimpleCursorAdapter {
 
                 // TODO: directly use masterKeyId in SmsSendingActivity?
                 Long masterKeyId = (Long) v.getTag();
-                String userId = (new KeychainContentProviderHelper(context)).getUserId(masterKeyId, false);
+                String userId = (new KeychainContentProviderHelper(context)).getUserId(masterKeyId,
+                        false);
                 String email = KeychainUtil.splitUserId(userId)[1];
                 Log.d(Constants.TAG, "email: " + email);
 

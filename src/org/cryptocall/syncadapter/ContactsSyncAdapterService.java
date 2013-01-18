@@ -20,14 +20,11 @@ package org.cryptocall.syncadapter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Set;
 
 import org.cryptocall.util.Constants;
 import org.cryptocall.util.ProtectedEmailUtils;
 import org.sufficientlysecure.keychain.integration.KeychainContentProviderHelper;
 import org.sufficientlysecure.keychain.integration.KeychainUtil;
-
-import com.csipsimple.utils.ArrayUtils;
 
 import android.accounts.Account;
 import android.accounts.OperationCanceledException;

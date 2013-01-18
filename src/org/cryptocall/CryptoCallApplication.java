@@ -24,7 +24,6 @@ package org.cryptocall;
 import java.security.Security;
 
 import org.cryptocall.service.KeychainKeyServiceConnection;
-import org.cryptocall.syncadapter.AccountHelper;
 import org.spongycastle.jce.provider.BouncyCastleProvider;
 import org.sufficientlysecure.keychain.service.IKeychainKeyService;
 

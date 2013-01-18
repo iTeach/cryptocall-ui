@@ -21,7 +21,6 @@
 
 package org.cryptocall.util;
 
-import java.text.ParseException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -35,8 +34,6 @@ import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.provider.ContactsContract.Contacts;
 import android.provider.ContactsContract.Data;
-import android.provider.ContactsContract.CommonDataKinds.Email;
-import android.provider.ContactsContract.CommonDataKinds.Phone;
 import android.util.Log;
 
 public class CryptoCallSessionUtils {
@@ -86,13 +83,6 @@ public class CryptoCallSessionUtils {
         long masterKeyId = (new KeychainContentProviderHelper(context))
                 .getPublicKeyringIdsByEmail(session.peerEmail)[0];
 
-        // byte[] pgpEmailSalt = null;
-        // try {
-        // pgpEmailSalt = ProtectedEmailUtils.getSaltFromProtectedEmail(session.peerEmail);
-        // } catch (Exception e) {
-        // Log.e(Constants.TAG, "Exception", e);
-        // }
-
         // build cursor with new CursorLoader to get all contacts with specific email
         Cursor cursor = context.getContentResolver().query(
                 Data.CONTENT_URI,
@@ -118,36 +108,6 @@ public class CryptoCallSessionUtils {
 
             Log.d(Constants.TAG, "Found telephoneNumber! email: " + session.peerEmail
                     + " for telephoneNumber " + session.peerTelephoneNumber);
-
-            // long rawContactId = cursor.getLong(cursor.getColumnIndex(Data.RAW_CONTACT_ID));
-
-            // Cursor phonesCursor = context.getContentResolver().query(
-            // Data.CONTENT_URI,
-            // null,
-            // Data.MIMETYPE + "='" + Phone.CONTENT_ITEM_TYPE + "' AND "
-            // + Email.RAW_CONTACT_ID + "=?",
-            // new String[] { String.valueOf(rawContactId) }, null);
-            //
-            // // go through all phone numbers of this contact and find matching one
-            // while (phonesCursor != null && phonesCursor.moveToNext()) {
-            // String telephoneNumber = phonesCursor.getString(phonesCursor
-            // .getColumnIndex(Phone.NUMBER));
-            // session.peerTelephoneNumber = telephoneNumber;
-            //
-            // Log.d(Constants.TAG, "telephoneNumber: " + telephoneNumber);
-            //
-            // String generatedEmail = ProtectedEmailUtils.generateProtectedEmail(telephoneNumber,
-            // pgpEmailSalt);
-            //
-            // if (generatedEmail != null && generatedEmail.equals(session.peerEmail)) {
-            // Log.d(Constants.TAG, "Found telephoneNumber! email: " + session.peerEmail
-            // + " for telephoneNumber " + telephoneNumber);
-            //
-            // session.peerTelephoneNumber = telephoneNumber;
-            // }
-            //
-            // }
-            // phonesCursor.close();
 
         } else {
             Log.e(Constants.TAG, "name and telephone number not found for email: "
@@ -279,68 +239,7 @@ public class CryptoCallSessionUtils {
         }
         cursor.close();
 
-        // Cursor phonesCursor = context.getContentResolver().query(
-        // Data.CONTENT_URI,
-        // null,
-        // Phone.NORMALIZED_NUMBER + "=?" + " AND " + Data.MIMETYPE + "='"
-        // + Phone.CONTENT_ITEM_TYPE + "'",
-        // new String[] { String.valueOf(session.peerTelephoneNumber) }, null);
-        //
-        // // go through all phone numbers
-        // // TODO: many contacts with same number???
-        // while (phonesCursor != null && phonesCursor.moveToNext()) {
-        // long rawContactId = phonesCursor.getLong(phonesCursor
-        // .getColumnIndex(Data.RAW_CONTACT_ID));
-        //
-        // String currentTelephoneNumber = phonesCursor.getString(phonesCursor
-        // .getColumnIndex(Phone.NORMALIZED_NUMBER));
-        //
-        // Log.d(Constants.TAG, "currentTelephoneNumber: " + currentTelephoneNumber);
-        //
-        // Cursor emailsCursor = context.getContentResolver().query(
-        // Data.CONTENT_URI,
-        // null,
-        // Email.RAW_CONTACT_ID + "=?" + " AND " + Data.MIMETYPE + "='"
-        // + Email.CONTENT_ITEM_TYPE + "'",
-        // new String[] { String.valueOf(rawContactId) }, null);
-        //
-        // // go through all email addresses of this user
-        // // boolean existing = false;
-        // while (emailsCursor != null && emailsCursor.moveToNext()) {
-        // // This would allow you get several email addresses
-        // String currentEmail = emailsCursor.getString(emailsCursor
-        // .getColumnIndex(Email.DATA));
-        //
-        // Log.d(Constants.TAG, "currentEmail: " + currentEmail);
-        //
-        // try {
-        // String generatedEmail = ProtectedEmailUtils.generateProtectedEmail(
-        // session.peerTelephoneNumber,
-        // ProtectedEmailUtils.getSaltFromProtectedEmail(currentEmail));
-        //
-        // if (currentEmail.equals(generatedEmail)) {
-        // Log.d(Constants.TAG, "Found email: " + currentEmail);
-        //
-        // // TODO: check if valid and can encrypt etc
-        // // check if existing in Keychain!
-        // long[] keyringIds = (new KeychainContentProviderHelper(context))
-        // .getPublicKeyringIdsByEmail(currentEmail);
-        // if (keyringIds != null && keyringIds.length > 0) {
-        // Log.d(Constants.TAG, "found keyring for " + currentEmail);
-        //
-        // session.peerEmail = currentEmail;
-        // return session;
-        // } else {
-        // Log.d(Constants.TAG, "Did not found keyring for " + currentEmail);
-        // }
-        // }
-        // } catch (Exception e) {
-        // Log.e(Constants.TAG, "Exception", e);
-        // }
-        // }
-        // emailsCursor.close();
-        // }
-        // phonesCursor.close();
+        // TODO: check if valid and can encrypt etc
 
         throw new EmailNotFoundException("No email found!");
     }
