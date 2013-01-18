@@ -19,11 +19,15 @@ package org.cryptocall.syncadapter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.cryptocall.util.Constants;
 import org.cryptocall.util.ProtectedEmailUtils;
 import org.sufficientlysecure.keychain.integration.KeychainContentProviderHelper;
 import org.sufficientlysecure.keychain.integration.KeychainUtil;
+
+import com.csipsimple.utils.ArrayUtils;
 
 import android.accounts.Account;
 import android.accounts.OperationCanceledException;
@@ -231,9 +235,8 @@ public class ContactsSyncAdapterService extends Service {
         Log.i(Constants.TAG, "performSync: " + account.toString());
 
         // Load the local contacts
-        Uri rawContactUri = CryptoCallContract.CONTENT_RAW_URI;
-        Cursor c1 = mContentResolver.query(rawContactUri, new String[] { BaseColumns._ID,
-                CryptoCallContract.SYNC1_KEYRING_MASTER_KEY_ID,
+        Cursor c1 = mContentResolver.query(CryptoCallContract.CONTENT_RAW_URI, new String[] {
+                BaseColumns._ID, CryptoCallContract.SYNC1_KEYRING_MASTER_KEY_ID,
                 CryptoCallContract.SYNC2_KEYRING_USER_ID }, null, null, null);
         while (c1.moveToNext()) {
             SyncEntry entry = new SyncEntry();
@@ -253,11 +256,12 @@ public class ContactsSyncAdapterService extends Service {
         Uri contentUri = Uri.withAppendedPath(
                 KeychainContentProviderHelper.CONTENT_URI_PUBLIC_KEY_RING_BY_LIKE_EMAIL,
                 Constants.CRYPTOCALL_DOMAIN);
-        Cursor pgpKeyringsCursor = context.getContentResolver().query(contentUri,
-                new String[] { KEYCHAIN_COLUMN_MASTER_KEY_ID, KEYCHAIN_COLUMN_USER_ID }, null,
-                null, null);
+        Cursor pgpKeyringsCursor = mContentResolver.query(contentUri, new String[] {
+                KEYCHAIN_COLUMN_MASTER_KEY_ID, KEYCHAIN_COLUMN_USER_ID }, null, null, null);
 
         // go through all Keychain emails with @cryptocall in it
+        HashSet<Long> existingContacts = new HashSet<Long>();
+
         if (pgpKeyringsCursor != null && pgpKeyringsCursor.moveToFirst()) {
             do {
                 long masterKeyId = pgpKeyringsCursor.getLong(pgpKeyringsCursor
@@ -265,8 +269,9 @@ public class ContactsSyncAdapterService extends Service {
                 String keyringUserId = pgpKeyringsCursor.getString(pgpKeyringsCursor
                         .getColumnIndex(KEYCHAIN_COLUMN_USER_ID));
 
-                boolean insertContact = false;
-                boolean updateContact = false;
+                // collect all key ids from keychain
+                existingContacts.add(masterKeyId);
+
                 // check if contact already existing
                 if (localContacts.containsKey(masterKeyId)) {
                     Log.d(Constants.TAG, "masterKeyId existing in local contacts: " + masterKeyId);
@@ -279,7 +284,7 @@ public class ContactsSyncAdapterService extends Service {
                         Log.d(Constants.TAG, "localContacts.get(masterKeyId).keyringUserId: "
                                 + localContacts.get(masterKeyId).keyringUserId);
 
-                        updateContact = true;
+                        // TODO: implement update of existing raw contact
                     } else {
                         Log.d(Constants.TAG,
                                 "masterKeyId has NOT changed user id in local contacts: "
@@ -289,17 +294,30 @@ public class ContactsSyncAdapterService extends Service {
                     Log.d(Constants.TAG, "masterKeyId NOT existing in local contacts: "
                             + masterKeyId);
 
-                    insertContact = true;
-                }
-
-                if (insertContact) {
+                    // insert contact
                     syncSingleContact(context, account, masterKeyId, keyringUserId);
-                } else if (updateContact) {
-                    // TODO: implement update of existing raw contact
-                    //TODO: implement delete of contacts!!!
                 }
-
             } while (pgpKeyringsCursor.moveToNext());
+
+            /*
+             * Delete CryptoCall contacts with masterKeyIds not in OpenPGP Keychain
+             */
+            HashSet<Long> delete = new HashSet<Long>(localContacts.keySet());
+            delete.removeAll(existingContacts);
+
+            // to comma seperated string
+            StringBuilder result = new StringBuilder();
+            for (Long masterKeyId : delete) {
+                result.append(masterKeyId.toString());
+                result.append(",");
+            }
+            String deleteString = result.length() > 0 ? result.substring(0, result.length() - 1)
+                    : "";
+            Log.d(Constants.TAG, "deleteString: " + deleteString);
+
+            mContentResolver.delete(CryptoCallContract.CONTENT_RAW_URI,
+                    CryptoCallContract.SYNC1_KEYRING_MASTER_KEY_ID + " IN (" + deleteString + ")",
+                    null);
         }
 
         if (pgpKeyringsCursor != null) {
