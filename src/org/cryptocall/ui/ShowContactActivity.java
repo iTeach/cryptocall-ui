@@ -25,6 +25,8 @@ import org.cryptocall.R;
 import org.cryptocall.syncadapter.ContactsSyncAdapterService.CryptoCallContract;
 import org.cryptocall.util.Constants;
 import org.cryptocall.util.Log;
+import org.sufficientlysecure.keychain.integration.KeychainContentProviderHelper;
+import org.sufficientlysecure.keychain.integration.KeychainUtil;
 
 import android.content.Intent;
 import android.database.Cursor;
@@ -44,6 +46,7 @@ public class ShowContactActivity extends SherlockActivity {
     private String mDisplayName;
     private String mNickname;
     private String mTelephoneNumber;
+    private long mMasterKeyId;
     private String mLookupKey;
 
     private TextView mNicknameTextView;
@@ -71,7 +74,13 @@ public class ShowContactActivity extends SherlockActivity {
                         .getColumnIndex(CryptoCallContract.DATA3_KEYRING_NICKNAME));
                 mTelephoneNumber = cursor.getString(cursor
                         .getColumnIndex(CryptoCallContract.DATA4_TELEPHONE_NUMBER));
+                mMasterKeyId = cursor.getLong(cursor
+                        .getColumnIndex(CryptoCallContract.DATA1_MASTER_KEY_ID));
                 mLookupKey = cursor.getString(cursor.getColumnIndex(Contacts.LOOKUP_KEY));
+
+                Log.d(Constants.TAG, "mDisplayName: " + mDisplayName + "\nmNickname: " + mNickname
+                        + "\nmTelephoneNumber: " + mTelephoneNumber + "\nmMasterKeyId: "
+                        + mMasterKeyId + "\nmLookupKey: " + mLookupKey);
 
                 // get views
                 mNicknameTextView = (TextView) findViewById(R.id.show_contact_nickname);
@@ -123,7 +132,12 @@ public class ShowContactActivity extends SherlockActivity {
         // start sending sms activity
         Intent activityIntent = new Intent();
         activityIntent.setClass(mActivity, SmsSendingActivity.class);
-        // TODO use masterKeyId
+
+        // TODO: directly use masterKeyId in SmsSendingActivity?
+        String userId = (new KeychainContentProviderHelper(this)).getUserId(mMasterKeyId, false);
+        String email = KeychainUtil.splitUserId(userId)[1];
+        Log.d(Constants.TAG, "email: " + email);
+
         activityIntent.putExtra(SmsSendingActivity.EXTRA_CRYPTOCALL_EMAIL, mTelephoneNumber);
         mActivity.startActivity(activityIntent);
     }

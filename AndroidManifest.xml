@@ -102,11 +102,13 @@
         <activity
             android:name=".ui.SmsSendingActivity"
             android:label="@string/activity_sending_sms_label"
-            android:noHistory="true" />
+            android:noHistory="true"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.SmsReceivedActivity"
             android:label="@string/activity_received_sms_label"
-            android:noHistory="true" />
+            android:noHistory="true"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.HelpActivity"
             android:label="@string/activity_help_label" />

@@ -79,7 +79,7 @@ public class ContactsCursorAdapter extends SimpleCursorAdapter {
 
                 // TODO: directly use masterKeyId in SmsSendingActivity?
                 Long masterKeyId = (Long) v.getTag();
-                String userId = (new KeychainContentProviderHelper(context)).getUserId(masterKeyId);
+                String userId = (new KeychainContentProviderHelper(context)).getUserId(masterKeyId, false);
                 String email = KeychainUtil.splitUserId(userId)[1];
                 Log.d(Constants.TAG, "email: " + email);
 

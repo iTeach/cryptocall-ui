@@ -267,7 +267,8 @@ public class CryptoCallSessionUtils {
             long masterKeyId = cursor.getLong(cursor
                     .getColumnIndex(CryptoCallContract.DATA1_MASTER_KEY_ID));
 
-            String userId = (new KeychainContentProviderHelper(context)).getUserId(masterKeyId);
+            String userId = (new KeychainContentProviderHelper(context)).getUserId(masterKeyId,
+                    false);
 
             session.peerEmail = KeychainUtil.splitUserId(userId)[1];
             Log.e(Constants.TAG, "session.peerEmail: " + session.peerEmail);
