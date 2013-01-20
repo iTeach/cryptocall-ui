@@ -42,7 +42,6 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.BaseColumns;
 import android.provider.ContactsContract;
-import android.provider.ContactsContract.Data;
 import android.provider.ContactsContract.RawContacts;
 import android.provider.ContactsContract.CommonDataKinds.Phone;
 import android.util.Log;
@@ -59,26 +58,13 @@ public class ContactsSyncAdapterService extends Service {
         private CryptoCallContract() {
         }
 
-        public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.org.cryptocall.profile";
-        public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.org.cryptocall.profile";
-
-        // public static final Uri CONTENT_URI = Uri.withAppendedPath(Data.CONTENT_URI, "emails");
         public static final Uri CONTENT_RAW_URI = RawContacts.CONTENT_URI.buildUpon()
                 .appendQueryParameter(RawContacts.ACCOUNT_NAME, Constants.SYNC_ACCOUNT_NAME)
                 .appendQueryParameter(RawContacts.ACCOUNT_TYPE, Constants.SYNC_ACCOUNT_TYPE)
                 .build();
 
-        // public static final Uri CONTENT_DATA_URI = ContactsContract.Data.CONTENT_URI.buildUpon()
-        // .build();
-
-        // builder = ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI);
-        // builder.withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0);
-        // builder.withValue(ContactsContract.Data.MIMETYPE, CryptoCallContract.CONTENT_ITEM_TYPE);
-        // builder.withValue(CryptoCallContract.DATA1_MASTER_KEY_ID, masterKeyId);
-        // builder.withValue(CryptoCallContract.DATA2_SUMMARY, "CryptoCall Profile");
-        // builder.withValue(CryptoCallContract.DATA3_KEYRING_NICKNAME, keyringNickname);
-        // operationList.add(builder.build());
-        // public static final Uri CONTENT_FILTER_URI = Uri.withAppendedPath(CONTENT_URI, "filter");
+        public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.org.cryptocall.profile";
+        public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.org.cryptocall.profile";
 
         public static String SYNC1_KEYRING_MASTER_KEY_ID = ContactsContract.RawContacts.SYNC1;
         public static String SYNC2_KEYRING_USER_ID = ContactsContract.RawContacts.SYNC2;
@@ -126,7 +112,57 @@ public class ContactsSyncAdapterService extends Service {
         return sSyncAdapter;
     }
 
-    private static void addContact(Account account, String displayName, Long masterKeyId,
+    /**
+     * CALLER_IS_SYNCADAPTER is needed to not only set DELTED flag to 1, but really delete!
+     * 
+     * @param uri
+     * @return
+     */
+    static Uri addCallerIsSyncAdapterParameter(Uri uri) {
+        return uri.buildUpon().appendQueryParameter(ContactsContract.CALLER_IS_SYNCADAPTER, "true")
+                .build();
+    }
+
+    /**
+     * Deletes a raw contact.
+     * 
+     * @param rawId
+     */
+    private static void deleteRawContact(long rawId) {
+        Log.d(Constants.TAG, "Deleteing contact with raw id: " + rawId);
+        Uri uri = addCallerIsSyncAdapterParameter(RawContacts.CONTENT_URI.buildUpon()
+                .appendPath(String.valueOf(rawId)).build());
+
+        ArrayList<ContentProviderOperation> operationList = new ArrayList<ContentProviderOperation>();
+        ContentProviderOperation.Builder builder = null;
+
+        builder = ContentProviderOperation.newDelete(uri);
+        operationList.add(builder.build());
+
+        builder = ContentProviderOperation
+                .newDelete(addCallerIsSyncAdapterParameter(ContactsContract.Data.CONTENT_URI));
+        builder.withSelection(ContactsContract.Data.RAW_CONTACT_ID + " = ?",
+                new String[] { String.valueOf(rawId) });
+        operationList.add(builder.build());
+
+        try {
+            mContentResolver.applyBatch(ContactsContract.AUTHORITY, operationList);
+        } catch (Exception e) {
+            Log.e(Constants.TAG, "Exception in addContact!", e);
+        }
+    }
+
+    /**
+     * Inserts a contact.
+     * 
+     * @param account
+     * @param displayName
+     * @param masterKeyId
+     * @param keyringUserId
+     * @param telephoneNumber
+     * @param rawId
+     */
+    private static void insertRawContact(Account account, String displayName, Long masterKeyId,
             String keyringUserId, String telephoneNumber) {
         Log.i(Constants.TAG, "Adding contact: " + displayName + " masterKeyId: " + masterKeyId
                 + " keyringUserId: " + keyringUserId);
@@ -134,9 +170,9 @@ public class ContactsSyncAdapterService extends Service {
         String keyringNickname = keyringUserIdSplit[0];
 
         ArrayList<ContentProviderOperation> operationList = new ArrayList<ContentProviderOperation>();
+        ContentProviderOperation.Builder builder = null;
 
-        ContentProviderOperation.Builder builder = ContentProviderOperation
-                .newInsert(RawContacts.CONTENT_URI);
+        builder = ContentProviderOperation.newInsert(RawContacts.CONTENT_URI);
         builder.withValue(RawContacts.ACCOUNT_NAME, account.name);
         builder.withValue(RawContacts.ACCOUNT_TYPE, account.type);
         builder.withValue(CryptoCallContract.SYNC1_KEYRING_MASTER_KEY_ID, masterKeyId);
@@ -167,6 +203,27 @@ public class ContactsSyncAdapterService extends Service {
         }
     }
 
+    private static void deleteAll(Context context) {
+        Cursor cursor = context.getContentResolver().query(ContactsContract.Data.CONTENT_URI, null,
+                ContactsContract.Data.MIMETYPE + "='" + CryptoCallContract.CONTENT_ITEM_TYPE + "'",
+                null, null);
+
+        // go through all phone numbers
+        while (cursor != null && cursor.moveToNext()) {
+            deleteRawContact(cursor.getLong(cursor
+                    .getColumnIndex(ContactsContract.Data.RAW_CONTACT_ID)));
+        }
+    }
+
+    /**
+     * Insert raw contact for CryptoCall.
+     * 
+     * @param context
+     * @param account
+     * @param masterKeyId
+     * @param keyringUserId
+     * @param rawId
+     */
     private static void syncSingleContact(Context context, Account account, long masterKeyId,
             String keyringUserId) {
         String[] keyringUserIdSplit = KeychainUtil.splitUserId(keyringUserId);
@@ -179,22 +236,22 @@ public class ContactsSyncAdapterService extends Service {
             Log.e(Constants.TAG, "Exception", e);
         }
 
-        Cursor phonesCursor = context.getContentResolver().query(Data.CONTENT_URI, null,
-                Data.MIMETYPE + "='" + Phone.CONTENT_ITEM_TYPE + "'", null, null);
+        Cursor phonesCursor = context.getContentResolver().query(ContactsContract.Data.CONTENT_URI,
+                null, ContactsContract.Data.MIMETYPE + "='" + Phone.CONTENT_ITEM_TYPE + "'", null,
+                null);
 
         // go through all phone numbers
         while (phonesCursor != null && phonesCursor.moveToNext()) {
-            // long rawContactId = phonesCursor.getLong(phonesCursor
-            // .getColumnIndex(Data.RAW_CONTACT_ID));
-
             String displayName = phonesCursor.getString(phonesCursor
                     .getColumnIndex(Phone.DISPLAY_NAME));
 
-            // TODO: this is curently targetting sdk 16!!!
             String telephoneNumber = phonesCursor.getString(phonesCursor
-                    .getColumnIndex(Phone.NORMALIZED_NUMBER));
+                    .getColumnIndex(Phone.NUMBER));
 
-            Log.d(Constants.TAG, "telephoneNumber: " + telephoneNumber);
+            // normalize telephone number
+            telephoneNumber = ProtectedEmailUtils.normalizeTelephoneNumber(telephoneNumber);
+
+            Log.d(Constants.TAG, "normalized telephoneNumber: " + telephoneNumber);
 
             String generatedEmail = ProtectedEmailUtils.generateProtectedEmail(telephoneNumber,
                     pgpEmailSalt);
@@ -203,7 +260,7 @@ public class ContactsSyncAdapterService extends Service {
                 Log.d(Constants.TAG, "Found email! pgpEmail: " + keyringEmail
                         + " for telephoneNumber " + telephoneNumber);
 
-                addContact(account, displayName, masterKeyId, keyringUserId, telephoneNumber);
+                insertRawContact(account, displayName, masterKeyId, keyringUserId, telephoneNumber);
             }
 
         }
@@ -238,11 +295,17 @@ public class ContactsSyncAdapterService extends Service {
         while (c1.moveToNext()) {
             SyncEntry entry = new SyncEntry();
             entry.rawId = c1.getLong(c1.getColumnIndex(BaseColumns._ID));
+
+            deleteRawContact(entry.rawId);
+
             entry.keyringUserId = c1.getString(c1
                     .getColumnIndex(CryptoCallContract.SYNC2_KEYRING_USER_ID));
             localContacts.put(Long.valueOf(c1.getString(c1
                     .getColumnIndex(CryptoCallContract.SYNC1_KEYRING_MASTER_KEY_ID))), entry);
         }
+
+        // debug
+        // deleteAll(context);
 
         /*
          * ACTUAL SYNC
@@ -273,15 +336,23 @@ public class ContactsSyncAdapterService extends Service {
                 if (localContacts.containsKey(masterKeyId)) {
                     Log.d(Constants.TAG, "masterKeyId existing in local contacts: " + masterKeyId);
 
-                    // check if keyring user id has changed since last sync
-                    if (!keyringUserId.equals(localContacts.get(masterKeyId).keyringUserId)) {
-                        Log.d(Constants.TAG, "masterKeyId has CHANGED user id in local contacts: "
-                                + masterKeyId);
-                        Log.d(Constants.TAG, "keyringUserId: " + keyringUserId);
-                        Log.d(Constants.TAG, "localContacts.get(masterKeyId).keyringUserId: "
-                                + localContacts.get(masterKeyId).keyringUserId);
+                    // get corresponding local contact
+                    SyncEntry entry = localContacts.get(masterKeyId);
 
-                        // TODO: implement update of existing raw contact
+                    // check if keyring user id has changed since last sync
+                    if (!keyringUserId.equals(entry.keyringUserId)) {
+                        Log.d(Constants.TAG,
+                                "user id of masterKeyId has CHANGED in local contacts: "
+                                        + masterKeyId);
+                        Log.d(Constants.TAG, "keyringUserId: " + keyringUserId);
+                        Log.d(Constants.TAG, "entry.keyringUserId: " + entry.keyringUserId);
+
+                        // Update this contact
+                        // Delete contact before inserting again if we update
+                        Log.d(Constants.TAG, "Delete before inserting again! rawId: " + entry.rawId);
+                        deleteRawContact(entry.rawId);
+                        Log.d(Constants.TAG, "Insert again! rawId: " + entry.rawId);
+                        syncSingleContact(context, account, masterKeyId, keyringUserId);
                     } else {
                         Log.d(Constants.TAG,
                                 "masterKeyId has NOT changed user id in local contacts: "
