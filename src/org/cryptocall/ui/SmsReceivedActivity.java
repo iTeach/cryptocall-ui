@@ -85,6 +85,9 @@ public class SmsReceivedActivity extends SherlockActivity {
                 Bundle data = msg.getData();
                 mSession = data.getParcelable(CryptoCallIntentService.DATA_CRYPTOCALL_SESSION);
 
+                mStatus.setText(getString(R.string.status_connection, mSession.peerName,
+                        mSession.serverIp, mSession.serverPort));
+
                 showButtons();
                 break;
 
@@ -219,7 +222,7 @@ public class SmsReceivedActivity extends SherlockActivity {
             mSession.serverIp = extras.getString(EXTRA_SERVER_IP);
             mSession.serverPort = extras.getInt(EXTRA_SERVER_PORT);
 
-            mStatus.setText(getString(R.string.status_connection, mSession.serverIp,
+            mStatus.setText(getString(R.string.status_connection_debug, mSession.serverIp,
                     mSession.serverPort, mSession.peerEmail));
 
             showButtons();

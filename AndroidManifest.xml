@@ -152,7 +152,7 @@
                 <action android:name="com.csipsimple.service.CALL_CHANGED" />
             </intent-filter>
         </receiver>
-        <receiver android:name=".service.KeychainDatabaseChangeReceiver" >
+        <receiver android:name=".syncadapter.KeychainDatabaseChangeReceiver" >
             <intent-filter>
                 <action android:name="org.sufficientlysecure.keychain.action.DATABASE_CHANGE" >
                 </action>

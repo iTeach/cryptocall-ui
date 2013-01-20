@@ -27,7 +27,7 @@ import android.accounts.Account;
 
 public class Constants {
     /* Debug constants */
-    public static final boolean DEBUG = true;
+    public static final boolean DEBUG = false;
 
     /* Tag for logging */
     public static final String TAG = "CryptoCall";

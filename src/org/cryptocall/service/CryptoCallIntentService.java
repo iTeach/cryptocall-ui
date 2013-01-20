@@ -394,7 +394,7 @@ public class CryptoCallIntentService extends IntentService {
                     try {
                         newSession = CryptoCallSessionUtils.getIpPortAndTelephoneNumberFromSms(
                                 newSession, body, from);
-                        newSession = CryptoCallSessionUtils.getEmailFromTelephoneNumber(this,
+                        newSession = CryptoCallSessionUtils.getEmailAndNameFromTelephoneNumber(this,
                                 newSession);
 
                         // return session

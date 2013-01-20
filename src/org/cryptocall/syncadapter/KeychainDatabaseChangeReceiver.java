@@ -19,9 +19,8 @@
  *
  */
 
-package org.cryptocall.service;
+package org.cryptocall.syncadapter;
 
-import org.cryptocall.syncadapter.AccountHelper;
 import org.cryptocall.util.Constants;
 
 import android.content.BroadcastReceiver;

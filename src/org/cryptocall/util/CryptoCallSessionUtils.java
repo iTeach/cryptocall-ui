@@ -203,7 +203,7 @@ public class CryptoCallSessionUtils {
      * @param context
      * @param session
      */
-    public static CryptoCallSession getEmailFromTelephoneNumber(Context context,
+    public static CryptoCallSession getEmailAndNameFromTelephoneNumber(Context context,
             CryptoCallSession session) throws EmailNotFoundException {
 
         // build cursor with new CursorLoader to get all contacts with specific email
@@ -230,8 +230,10 @@ public class CryptoCallSessionUtils {
             String userId = (new KeychainContentProviderHelper(context)).getUserId(masterKeyId,
                     false);
 
+            session.peerName = KeychainUtil.splitUserId(userId)[0];
             session.peerEmail = KeychainUtil.splitUserId(userId)[1];
-            Log.e(Constants.TAG, "session.peerEmail: " + session.peerEmail);
+            Log.e(Constants.TAG, "session.peerName: " + session.peerName + "\nsession.peerEmail: "
+                    + session.peerEmail);
 
             return session;
         } else {
