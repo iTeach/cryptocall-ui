@@ -204,6 +204,7 @@ public class PgpToX509 {
             PGPPrivateKey pgpPrivKey, String subjAltNameURI) throws PGPException,
             NoSuchProviderException, InvalidKeyException, NoSuchAlgorithmException,
             SignatureException, CertificateException {
+        // get public key from secret key
         PGPPublicKey pgpPubKey = pgpSecKey.getPublicKey();
 
         // LOGGER.info("Key ID: " + Long.toHexString(pgpPubKey.getKeyID() & 0xffffffffL));
@@ -248,16 +249,16 @@ public class PgpToX509 {
          * needs to be embedded in the certificate. It seems natural to make this creation time be
          * the "not-before" date of the X.509 certificate. Unlimited PGP keys have a validity of 0
          * second. In this case, the "not-after" date will be the same as the not-before date. This
-         * is something } catch (IOException e) { // TODO Auto-generated catch block
-         * e.printStackTrace(); }that needs to be checked by the service receiving this certificate.
+         * is something that needs to be checked by the service receiving this certificate.
          */
         Date creationTime = pgpPubKey.getCreationTime();
         Log.d(Constants.TAG,
                 "pgp pub key creation time=" + DateFormat.getDateInstance().format(creationTime));
         Log.d(Constants.TAG, "pgp valid seconds=" + pgpPubKey.getValidSeconds());
         Date validTo = null;
-        if (pgpPubKey.getValidSeconds() > 0)
+        if (pgpPubKey.getValidSeconds() > 0) {
             validTo = new Date(creationTime.getTime() + 1000L * pgpPubKey.getValidSeconds());
+        }
 
         X509Certificate selfSignedCert = createSelfSignedCert(
                 pgpPubKey.getKey(BOUNCY_CASTLE_PROVIDER_NAME), pgpPrivKey.getKey(), x509name,
