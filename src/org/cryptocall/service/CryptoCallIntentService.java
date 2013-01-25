@@ -474,6 +474,8 @@ public class CryptoCallIntentService extends IntentService {
          * service
          * 
          * This is internal API!
+         * 
+         * TODO: Is it necessary to set it to false here?
          */
         SipConfigManager.setPreferenceBooleanValue(this, PreferencesProviderWrapper.HAS_BEEN_QUIT,
                 false);

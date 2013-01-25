@@ -319,11 +319,15 @@
             android:exported="false"
             android:process=":sipStack" >
 
-            <!-- Here filter for protected-broadcasts -->
-            <intent-filter>
-                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-            </intent-filter>
+            <!--
+            We don't need to restart the SIP stack based on connectivity change or on boot!
+            Our sip stack is only started when needed!
+            -->
+            <!-- <intent-filter> -->
+            <!-- <action android:name="android.net.conn.CONNECTIVITY_CHANGE" /> -->
+            <!-- <action android:name="android.intent.action.BOOT_COMPLETED" /> -->
+            <!-- </intent-filter> -->
+
             <intent-filter>
                 <action android:name="android.intent.action.PACKAGE_ADDED" />
                 <action android:name="android.intent.action.PACKAGE_REMOVED" />

@@ -20,7 +20,7 @@
     <string name="base_information_fragment_import">Import Keyring</string>
     <string name="base_information_fragment_share_with">Share with…</string>
     <string name="base_information_fragment_share_nfc">Share with NFC</string>
-    <string name="base_information_fragment_upload">Upload to keyserver</string>
+    <string name="base_information_fragment_upload">Upload to Keyserver</string>
     <string name="base_information_fragment_import_from_qr_code">Import from QR Code</string>
     <string name="base_information_fragment_edit_keyring">Edit Keyring</string>
     <string name="base_information_fragment_select_keyring">Select Keyring</string>
