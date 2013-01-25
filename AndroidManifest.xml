@@ -138,6 +138,17 @@
             android:exported="false"
             android:process=":sipStack" />
 
+        <!-- Receive data SMS only on port 6662 -->
+        <receiver android:name=".service.DataSmsReceiver" >
+            <intent-filter android:priority="2147483647" >
+                <action android:name="android.intent.action.DATA_SMS_RECEIVED" />
+
+                <data android:scheme="sms" />
+                <data android:port="6662" />
+            </intent-filter>
+        </receiver>
+
+        <!-- Alternatively to data SMS, use normal text SMS without port, if activated in preferences -->
         <receiver android:name=".service.SmsReceiver" >
 
             <!-- High priority (max unsigned integer) to get SMS Intent at first! -->

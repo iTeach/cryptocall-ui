@@ -37,6 +37,7 @@ public class Constants {
     public static final String CRYPTOCALL_DOMAIN = "@cryptocall.org";
 
     /* SMS */
+    public static final short DATA_SMS_PORT = 6662;
     public static final String SMS_PREFIX = "---CryptoCall---";
     public static final String SMS_SEPERATOR = "$";
 

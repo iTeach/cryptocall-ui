@@ -34,7 +34,6 @@ import android.util.Log;
 
 /**
  * Receives SMS and proceed handling them
- * 
  */
 public class SmsReceiver extends BroadcastReceiver {
     static final String ACTION = "android.provider.Telephony.SMS_RECEIVED";

@@ -128,8 +128,12 @@ public class SmsHelper {
 
             Log.d(Constants.TAG, "Sending SMS to " + phoneNumber + " with message: " + message);
 
-            SmsManager sms = SmsManager.getDefault();
-            sms.sendTextMessage(phoneNumber, null, message, sentPI, deliveredPI);
+            // TODO: make it a preference to switch between data sms and normal sms
+
+            SmsManager smsManager = SmsManager.getDefault();
+            smsManager.sendDataMessage(phoneNumber, null, Constants.DATA_SMS_PORT,
+                    message.getBytes(), sentPI, deliveredPI);
+            // smsManager.sendTextMessage(phoneNumber, null, message, sentPI, deliveredPI);
         } else {
             mCryptoCallService.sendUpdateUiToHandler(R.string.status_destination_invalid);
         }
