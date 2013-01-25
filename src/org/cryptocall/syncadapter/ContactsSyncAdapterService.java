@@ -288,6 +288,9 @@ public class ContactsSyncAdapterService extends Service {
         mContentResolver = context.getContentResolver();
         Log.i(Constants.TAG, "performSync: " + account.toString());
 
+        // DEBUG: Uncomment to delete all contacts before syncing again
+        // deleteAll(context);
+
         // Load the local contacts
         Cursor c1 = mContentResolver.query(CryptoCallContract.CONTENT_RAW_URI, new String[] {
                 BaseColumns._ID, CryptoCallContract.SYNC1_KEYRING_MASTER_KEY_ID,
@@ -295,17 +298,11 @@ public class ContactsSyncAdapterService extends Service {
         while (c1.moveToNext()) {
             SyncEntry entry = new SyncEntry();
             entry.rawId = c1.getLong(c1.getColumnIndex(BaseColumns._ID));
-
-            deleteRawContact(entry.rawId);
-
             entry.keyringUserId = c1.getString(c1
                     .getColumnIndex(CryptoCallContract.SYNC2_KEYRING_USER_ID));
             localContacts.put(Long.valueOf(c1.getString(c1
                     .getColumnIndex(CryptoCallContract.SYNC1_KEYRING_MASTER_KEY_ID))), entry);
         }
-
-        // debug
-        // deleteAll(context);
 
         /*
          * ACTUAL SYNC
