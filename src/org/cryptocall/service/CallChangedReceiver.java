@@ -32,6 +32,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
+/**
+ * This receiver is called if a current SIP call is started, stopped, resumed, etc.
+ */
 public class CallChangedReceiver extends BroadcastReceiver {
 
     @Override
@@ -42,7 +45,7 @@ public class CallChangedReceiver extends BroadcastReceiver {
 
         Log.d(Constants.TAG, "Call changed to state " + sipCallSession.getCallState());
 
-        // delegate to intent service
+        // delegate action to intent service
         Intent serviceIntent = new Intent(context, CryptoCallIntentService.class);
         serviceIntent.putExtra(CryptoCallIntentService.EXTRA_ACTION,
                 CryptoCallIntentService.ACTION_CALL_STATE_CHANGED);

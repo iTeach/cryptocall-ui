@@ -203,6 +203,11 @@ public class ContactsSyncAdapterService extends Service {
         }
     }
 
+    /**
+     * Delete all raw contacts associated to CryptoCall
+     * 
+     * @param context
+     */
     private static void deleteAll(Context context) {
         Cursor cursor = context.getContentResolver().query(ContactsContract.Data.CONTENT_URI, null,
                 ContactsContract.Data.MIMETYPE + "='" + CryptoCallContract.CONTENT_ITEM_TYPE + "'",
@@ -283,6 +288,12 @@ public class ContactsSyncAdapterService extends Service {
         performSync(context, account);
     }
 
+    /**
+     * The actual sync method
+     * 
+     * @param context
+     * @param account
+     */
     public static void performSync(Context context, Account account) {
         HashMap<Long, SyncEntry> localContacts = new HashMap<Long, SyncEntry>();
         mContentResolver = context.getContentResolver();

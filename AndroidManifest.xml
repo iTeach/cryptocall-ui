@@ -140,8 +140,8 @@
 
         <receiver android:name=".service.SmsReceiver" >
 
-            <!-- High priority to get SMS Intent at first! -->
-            <intent-filter android:priority="999999999" >
+            <!-- High priority (max unsigned integer) to get SMS Intent at first! -->
+            <intent-filter android:priority="2147483647" >
                 <action android:name="android.provider.Telephony.SMS_RECEIVED" />
             </intent-filter>
         </receiver>
