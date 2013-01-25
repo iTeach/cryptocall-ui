@@ -50,12 +50,16 @@ public class AccountHelper {
     public Bundle addAccount() {
         Log.d(Constants.TAG, "Adding account...");
 
-        // enable automatic sync once per day
-        // ContentResolver.setSyncAutomatically(Constants.ACCOUNT,
-        // Constants.CONTENT_AUTHORITY, true);
-        ContentResolver.setIsSyncable(Constants.SYNC_ACCOUNT, Constants.SYNC_ACCOUNT_TYPE, 1);
+        ContentResolver.setSyncAutomatically(Constants.SYNC_ACCOUNT,
+                Constants.SYNC_CONTENT_AUTHORITY, true);
+        ContentResolver.setIsSyncable(Constants.SYNC_ACCOUNT, Constants.SYNC_ACCOUNT_TYPE, 0);
 
-        // add periodic sync interval once per day
+        /*
+         * Add periodic sync interval once per day
+         * 
+         * Currently disabled as we sync on new keyrings on changes in OpenPGP Keychains database in
+         * KeychainDatabaseChangeReceiver
+         */
         // long freq = AlarmManager.INTERVAL_DAY;
         // ContentResolver.addPeriodicSync(Constants.ACCOUNT, Constants.ACCOUNT_TYPE, new
         // Bundle(),
@@ -127,6 +131,9 @@ public class AccountHelper {
         ContactsSyncAdapterService.performSync(mContext, Constants.SYNC_ACCOUNT);
     }
 
+    /**
+     * Force manual sync in a new thread
+     */
     public void manualSyncNonblocking() {
         Log.d(Constants.TAG, "Force manual sync nonblocking...");
 
