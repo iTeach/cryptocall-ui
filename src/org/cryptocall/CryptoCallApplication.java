@@ -115,7 +115,6 @@ public class CryptoCallApplication extends Application {
         // only enable pause/resume of music
         SipConfigManager.setPreferenceBooleanValue(this,
                 SipConfigManager.INTEGRATE_WITH_NATIVE_MUSIC, true);
-
     }
 
     @Override
