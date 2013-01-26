@@ -394,8 +394,8 @@ public class CryptoCallIntentService extends IntentService {
                     try {
                         newSession = CryptoCallSessionUtils.getIpPortAndTelephoneNumberFromSms(
                                 newSession, body, from);
-                        newSession = CryptoCallSessionUtils.getEmailAndNameFromTelephoneNumber(this,
-                                newSession);
+                        newSession = CryptoCallSessionUtils.getEmailAndNameFromTelephoneNumber(
+                                this, newSession);
 
                         // return session
                         Bundle resultData = new Bundle();
@@ -518,6 +518,15 @@ public class CryptoCallIntentService extends IntentService {
         builtProfile.transport = SipProfile.TRANSPORT_TLS;
         builtProfile.use_srtp = 1;
         builtProfile.active = true;
+        // builtProfile.sip_stun_use = 1;
+        // builtProfile.media_stun_use = 1;
+        // builtProfile.ice_cfg_enable = 1;
+        // builtProfile.ice_cfg_use = 1;
+        // builtProfile.turn_cfg_enable = 1;
+        // builtProfile.turn_cfg_use = 1;
+        // builtProfile.turn_cfg_password
+        // builtProfile.turn_cfg_server
+        // builtProfile.turn_cfg_user
 
         ContentValues builtValues = builtProfile.getDbContentValues();
 

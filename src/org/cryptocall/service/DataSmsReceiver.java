@@ -22,7 +22,9 @@
 package org.cryptocall.service;
 
 import org.cryptocall.ui.SmsReceivedActivity;
+import org.cryptocall.util.Constants;
 import org.cryptocall.util.CryptoCallSessionUtils;
+import org.cryptocall.util.Log;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -52,8 +54,9 @@ public class DataSmsReceiver extends BroadcastReceiver {
                 try {
                     data = recMsg.getUserData();
                 } catch (Exception e) {
-
+                    Log.e(Constants.TAG, "Exception with recMsg.getUserData()");
                 }
+                
                 if (data != null) {
                     for (int index = 0; index < data.length; ++index) {
                         recMsgString += Character.toString((char) data[index]);

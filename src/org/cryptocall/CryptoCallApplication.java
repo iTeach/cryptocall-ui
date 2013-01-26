@@ -24,6 +24,7 @@ package org.cryptocall;
 import java.security.Security;
 
 import org.cryptocall.service.KeychainKeyServiceConnection;
+import org.cryptocall.util.Constants;
 import org.spongycastle.jce.provider.BouncyCastleProvider;
 import org.sufficientlysecure.keychain.service.IKeychainKeyService;
 
@@ -48,14 +49,15 @@ public class CryptoCallApplication extends Application {
     public void onCreate() {
         super.onCreate();
 
-        // Keychain service
+        // Bind to Keychain service
         mKeychainKeyServiceConnection.bindToKeychainKeyService();
-
 
         /* CSipSimple preferences */
 
-        // activate debugging
-        SipConfigManager.setPreferenceStringValue(this, SipConfigManager.LOG_LEVEL, "5");
+        // Activate debugging in CSipSimple if enabled in CryptoCall
+        if (Constants.DEBUG) {
+            SipConfigManager.setPreferenceStringValue(this, SipConfigManager.LOG_LEVEL, "5");
+        }
 
         // set up codecs
         SipConfigManager.setPreferenceStringValue(this,
@@ -101,6 +103,19 @@ public class CryptoCallApplication extends Application {
 
         // other settings
         SipConfigManager.setPreferenceBooleanValue(this, SipConfigManager.ENABLE_DNS_SRV, false);
+
+        // disable integrations
+        SipConfigManager.setPreferenceBooleanValue(this, SipConfigManager.INTEGRATE_TEL_PRIVILEGED,
+                false);
+        SipConfigManager.setPreferenceBooleanValue(this, SipConfigManager.INTEGRATE_WITH_CALLLOGS,
+                false);
+        SipConfigManager.setPreferenceBooleanValue(this, SipConfigManager.INTEGRATE_WITH_DIALER,
+                false);
+
+        // only enable pause/resume of music
+        SipConfigManager.setPreferenceBooleanValue(this,
+                SipConfigManager.INTEGRATE_WITH_NATIVE_MUSIC, true);
+
     }
 
     @Override
