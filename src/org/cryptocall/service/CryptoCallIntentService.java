@@ -449,20 +449,20 @@ public class CryptoCallIntentService extends IntentService {
     }
 
     private void makeCall(CryptoCallSession session) {
-        // CryptoCall@ is needed, don't know why!
+        // foo@ is needed, don't know why!
         String sipUri = "CryptoCall@" + session.serverIp + ":" + session.serverPort
                 + ";transport=tls";
 
         Intent itCall = new Intent(ACTION_CALL);
         // sipUri is the sip number or uri you'd like to call (domain added
         // automatically if needed)
-        // PROTOCOL_CSIP to use csipsimple!
+        // PROTOCOL_CSIP to force the usage of csipsimple!
         itCall.setData(SipUri.forgeSipUri(SipManager.PROTOCOL_CSIP, sipUri));
         itCall.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         // disable choosing of account:
         itCall.putExtra(SipManager.EXTRA_FALLBACK_BEHAVIOR, SipManager.FALLBACK_AUTO_CALL_OTHER);
         // use this account:
-        Log.d(Constants.TAG, "mAccId: " + new Long(mAccId).toString());
+        Log.d(Constants.TAG, "mAccId: " + Long.valueOf(mAccId).toString());
         itCall.putExtra(SipProfile.FIELD_ACC_ID, mAccId);
         // id to use for this call
         startActivity(itCall);

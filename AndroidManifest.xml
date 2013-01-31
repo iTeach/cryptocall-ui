@@ -148,8 +148,10 @@
             </intent-filter>
         </receiver>
 
-        <!-- Alternatively to data SMS, use normal text SMS without port, if activated in preferences -->
-        <receiver android:name=".service.SmsReceiver" >
+        <!-- TODO: currently disabled, Alternatively to data SMS, use normal text SMS without port, if activated in preferences -->
+        <receiver
+            android:name=".service.SmsReceiver"
+            android:enabled="false" >
 
             <!-- High priority (max unsigned integer) to get SMS Intent at first! -->
             <intent-filter android:priority="2147483647" >
